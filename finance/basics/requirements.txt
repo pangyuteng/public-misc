@@ -1,3 +1,5 @@
 yfinance
+numba==0.51.2
+py_vollib==1.0.1
 seaborn
 statsmodels
