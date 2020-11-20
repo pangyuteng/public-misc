@@ -19,3 +19,8 @@ https://twitter.com/aigonewrong/status/1320605318691262464
 
 + realized-and-implied-volatilities
 https://twitter.com/aigonewrong/status/1326626008439480320
+
++ mean-reversion
+https://twitter.com/aigonewrong/status/1329700527110643712
+
+
