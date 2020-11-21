@@ -15,12 +15,31 @@ jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root
 ### tweets
 
 + price-return
+
+```
+price-return.ipynb
 https://twitter.com/aigonewrong/status/1320605318691262464
+```
 
 + realized-and-implied-volatilities
+```
+realized-and-implied-volatilities.ipynb
 https://twitter.com/aigonewrong/status/1326626008439480320
+```
 
 + mean-reversion
+```
+mean-reversion.ipynb
 https://twitter.com/aigonewrong/status/1329700527110643712
+```
 
++ option pricing with black-schole-merton model
+```
+black-schole-merton-option-pricing.ipynb
 
+```
+
++ poor man's back-testing
+```
+
+```
