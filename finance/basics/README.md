@@ -35,11 +35,13 @@ https://twitter.com/aigonewrong/status/1329700527110643712
 
 + option pricing with black-schole-merton model
 ```
+https://twitter.com/aigonewrong/status/1330650128961572867
 black-schole-merton-option-pricing.ipynb
 
 ```
 
-+ poor man's back-testing
++ poor man's backtesting - attempt 0
 ```
-
+https://twitter.com/aigonewrong/status/1330650122548441089
+poor-persons-option-backtest-attempt-0.ipynb
 ```
