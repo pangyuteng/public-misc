@@ -33,6 +33,14 @@ mean-reversion.ipynb
 https://twitter.com/aigonewrong/status/1329700527110643712
 ```
 
++ trading $BABA with mean-reversion signals.
+```
+mean-reversion-2020-11-11-BABA.ipynb
+mean-reversion-2020-11-12-BABA.ipynb
+https://twitter.com/aigonewrong/status/1326571891683782657
+https://twitter.com/aigonewrong/status/1327090636210618368
+```
+
 + option pricing with black-schole-merton model
 ```
 https://twitter.com/aigonewrong/status/1330650128961572867
