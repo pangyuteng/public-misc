@@ -53,3 +53,12 @@ black-schole-merton-option-pricing.ipynb
 https://twitter.com/aigonewrong/status/1330650122548441089
 poor-persons-option-backtest-attempt-0.ipynb
 ```
+
+
+
+### TODOS:
+
++ transformers forecast mean reversion signals.
++ do wsb sentiment analysis again
++ backest with quantconnect
++ make website from above items
