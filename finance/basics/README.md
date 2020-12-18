@@ -54,6 +54,11 @@ https://twitter.com/aigonewrong/status/1330650122548441089
 poor-persons-option-backtest-attempt-0.ipynb
 ```
 
++ CBOE CNDR replica - attempt 0
+```
+https://twitter.com/aigonewrong/status/1335783839055024128
+cboe-cndr-replica.ipynb
+```
 
 
 ### TODOS:
