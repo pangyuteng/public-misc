@@ -295,7 +295,7 @@ class Transformer(tf.keras.Model):
 
         self.decoder = Decoder(num_layers, d_model, num_heads, dff, rate)
         
-        self.final_layer = tf.keras.layers.Conv1D(4, 5, activation='linear',padding='same')
+        #self.final_layer = tf.keras.layers.Conv1D(4, 5, activation='linear',padding='same')
         
     def call(self, inp, tar, training, enc_padding_mask, 
            look_ahead_mask, dec_padding_mask):
@@ -304,9 +304,9 @@ class Transformer(tf.keras.Model):
         # dec_output.shape == (batch_size, tar_seq_len, d_model)
         dec_output, attention_weights = self.decoder(
             tar, enc_output, training, look_ahead_mask, dec_padding_mask)
-        final_output = self.final_layer(dec_output)
+        #final_output = self.final_layer(dec_output)
 
-        return final_output, attention_weights
+        return dec_output, attention_weights
 
 
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
