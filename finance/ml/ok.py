@@ -15,12 +15,28 @@ def create_padding_mask(seq):
 
     # add extra dimensions to add the padding
     # to the attention logits.
-    #return seq[:, tf.newaxis, tf.newaxis, :]  # (batch_size, 1, 1, seq_len)
-    return seq[:, tf.newaxis, tf.newaxis, :, :]  # (batch_size, 1, 1, seq_len, d_model)
+    return seq[:, tf.newaxis, tf.newaxis, :]  # (batch_size, 1, 1, seq_len)
 
 def create_look_ahead_mask(size):
     mask = 1 - tf.linalg.band_part(tf.ones((size, size)), -1, 0)
     return mask  # (seq_len, seq_len)
+
+def create_masks(inp, tar):
+    # Encoder padding mask
+    enc_padding_mask = create_padding_mask(inp)
+
+    # Used in the 2nd attention block in the decoder.
+    # This padding mask is used to mask the encoder outputs.
+    dec_padding_mask = create_padding_mask(inp)
+
+    # Used in the 1st attention block in the decoder.
+    # It is used to pad and mask future tokens in the input received by 
+    # the decoder.
+    look_ahead_mask = create_look_ahead_mask(tf.shape(tar)[1])
+    dec_target_padding_mask = create_padding_mask(tar)
+    combined_mask = tf.maximum(dec_target_padding_mask, look_ahead_mask)
+
+    return enc_padding_mask, combined_mask, dec_padding_mask
 
 def scaled_dot_product_attention(q, k, v, mask):
     """Calculate the attention weights.
@@ -97,7 +113,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
         scaled_attention, attention_weights = scaled_dot_product_attention(
             q, k, v, mask)
-
+        #print(scaled_attention.get_shape(),'scaled_attention###',mask.get_shape() if mask is not None else None)
         scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
 
         concat_attention = tf.reshape(scaled_attention, 
@@ -293,23 +309,6 @@ class Transformer(tf.keras.Model):
         return final_output, attention_weights
 
 
-def create_masks(inp, tar):
-    # Encoder padding mask
-    enc_padding_mask = create_padding_mask(inp)
-
-    # Used in the 2nd attention block in the decoder.
-    # This padding mask is used to mask the encoder outputs.
-    dec_padding_mask = create_padding_mask(inp)
-
-    # Used in the 1st attention block in the decoder.
-    # It is used to pad and mask future tokens in the input received by 
-    # the decoder.
-    look_ahead_mask = create_look_ahead_mask(tf.shape(tar)[1])
-    dec_target_padding_mask = create_padding_mask(tar)
-    combined_mask = tf.maximum(dec_target_padding_mask, look_ahead_mask)
-
-    return enc_padding_mask, combined_mask, dec_padding_mask
-
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     def __init__(self, d_model, warmup_steps=4000):
         super(CustomSchedule, self).__init__()
@@ -465,25 +464,25 @@ def debug():
 
     @tf.function(input_signature=train_step_signature)
     def train_step(inp, tar):
-        tar_inp = tar#[:, :-1]
-        tar_real = tar#[:, 1:]
-
-        #enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp, tar_inp)
+        
+        #_inp = tf.random.uniform((batch_size, input_seq_len, 1), dtype=tf.float32, minval=8, maxval=8)
+        #_tar = tf.random.uniform((batch_size, target_seq_len, 1), dtype=tf.float32, minval=-8, maxval=8)
+        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar[:,:,0])
 
         with tf.GradientTape() as tape:
-            predictions, _ = transformer(inp, tar_inp, 
+            predictions, _ = transformer(inp, tar, 
                                          training=True, 
-                                         enc_padding_mask=None, 
-                                         look_ahead_mask=None, 
-                                         dec_padding_mask=None)
+                                         enc_padding_mask=enc_padding_mask, 
+                                         look_ahead_mask=look_ahead_mask, 
+                                         dec_padding_mask=dec_padding_mask)
             
-            loss = loss_function(tar_real, predictions)
+            loss = loss_function(tar, predictions)
 
         gradients = tape.gradient(loss, transformer.trainable_variables)    
         optimizer.apply_gradients(zip(gradients, transformer.trainable_variables))
 
         train_loss(loss)
-        train_accuracy(accuracy_function(tar_real, predictions))
+        train_accuracy(accuracy_function(tar, predictions))
         
     X_train = tf.random.uniform((batch_size*10, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
     y_train = tf.random.uniform((batch_size*10, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
@@ -514,9 +513,10 @@ def debug():
               epoch + 1, batch, train_loss.result(), train_accuracy.result()))
 
         if (epoch + 1) % 5 == 0:
-            ckpt_save_path = ckpt_manager.save()
-            print ('Saving checkpoint for epoch {} at {}'.format(epoch+1,
-                                                                 ckpt_save_path))
+            pass
+            #ckpt_save_path = ckpt_manager.save()
+            #print ('Saving checkpoint for epoch {} at {}'.format(epoch+1,
+            #                                                     ckpt_save_path))
 
         print ('Epoch {} Loss {:.4f} Accuracy {:.4f}'.format(epoch + 1, 
                                                     train_loss.result(), 
@@ -631,7 +631,7 @@ def train():
         print ('Latest checkpoint restored!!')
     '''
 
-    EPOCHS = 20
+    EPOCHS = 2000
 
     # The @tf.function trace-compiles train_step into a TF graph for faster
     # execution. The function specializes to the precise shape of the argument
@@ -646,20 +646,18 @@ def train():
     ]
 
     @tf.function(input_signature=train_step_signature)
-    def train_step(inp, tar):
-        tar_inp = tar#[:, :-1]
-        tar_real = tar#[:, 1:]
-
-        #enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp, tar_inp)
+    def train_step(inp, tar_real):
+        
+        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar[:,:,0])
 
         with tf.GradientTape() as tape:
-            predictions, _ = transformer(inp, tar_inp, 
+            predictions, _ = transformer(inp, tar,
                                          training=True, 
-                                         enc_padding_mask=None, 
-                                         look_ahead_mask=None, 
-                                         dec_padding_mask=None)
+                                         enc_padding_mask=enc_padding_mask,
+                                         look_ahead_mask=look_ahead_mask, 
+                                         dec_padding_mask=dec_padding_mask)
             
-            loss = loss_function(tar_real, predictions)
+            loss = loss_function(tar, predictions)
 
         gradients = tape.gradient(loss, transformer.trainable_variables)    
         optimizer.apply_gradients(zip(gradients, transformer.trainable_variables))
