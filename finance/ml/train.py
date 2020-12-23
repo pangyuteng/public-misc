@@ -1,3 +1,4 @@
+import yaml
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -406,8 +407,8 @@ def debug():
     
     ####################
 
-    loss_object = tf.keras.losses.Huber(delta=2.0)
-
+    #loss_object = tf.keras.losses.Huber(delta=2.0)
+    loss_object = tf.keras.losses.MeanSquaredError()
     def loss_function(real, pred):
         loss_ = loss_object(real, pred)
         return tf.reduce_sum(loss_)
@@ -589,7 +590,7 @@ def train():
     dropout_rate = 0.1
     
 
-    loss_object = tf.keras.losses.Huber(delta=2.0)
+    loss_object = tf.keras.losses.Huber(delta=100.0)
 
     def loss_function(real, pred):
         loss_ = loss_object(real, pred)
@@ -602,6 +603,9 @@ def train():
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.Mean(name='train_accuracy')
+    
+    eval_loss = tf.keras.metrics.Mean(name='train_loss')
+    eval_accuracy = tf.keras.metrics.Mean(name='train_accuracy')
     
     #############
 
@@ -631,7 +635,7 @@ def train():
         print ('Latest checkpoint restored!!')
     '''
 
-    EPOCHS = 2000
+    EPOCHS = 40000
 
     # The @tf.function trace-compiles train_step into a TF graph for faster
     # execution. The function specializes to the precise shape of the argument
@@ -642,9 +646,24 @@ def train():
     train_step_signature = [
         tf.TensorSpec(shape=(None, input_seq_len, d_model), dtype=tf.float32),
         tf.TensorSpec(shape=(None, target_seq_len, d_model), dtype=tf.float32),
-
     ]
+    
+    @tf.function(input_signature=train_step_signature)
+    def eval_step(inp, tar_real):
+        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar[:,:,0])
 
+        with tf.GradientTape() as tape:
+            predictions, _ = transformer(inp, tar,
+                                         training=True, 
+                                         enc_padding_mask=enc_padding_mask,
+                                         look_ahead_mask=look_ahead_mask, 
+                                         dec_padding_mask=dec_padding_mask)
+            
+            loss = loss_function(tar, predictions)
+
+        eval_loss(loss)
+        eval_accuracy(accuracy_function(tar_real, predictions))
+        
     @tf.function(input_signature=train_step_signature)
     def train_step(inp, tar_real):
         
@@ -674,11 +693,21 @@ def train():
     #print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
 
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
-    test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
     train_dataset = train_dataset.cache()
     train_dataset = train_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
     train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
+    test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+    test_dataset = test_dataset.cache()
+    test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
+    test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+    
+    
+    def to_yaml(history):
+        with open('history.yml','w') as f:
+            f.write(yaml.dump(history))
+            
+    history = []        
     for epoch in range(EPOCHS):
         start = time.time()
 
@@ -689,10 +718,13 @@ def train():
         for (batch, (inp, tar)) in enumerate(train_dataset):
             train_step(inp, tar)
 
+        for (batch, (inp, tar)) in enumerate(test_dataset):
+            eval_step(inp, tar)
+
         if batch % 50 == 0:
             print ('Epoch {} Batch {} Loss {:.4f} Accuracy {:.4f}'.format(
               epoch + 1, batch, train_loss.result(), train_accuracy.result()))
-
+            
         if (epoch + 1) % 5 == 0:
             ckpt_save_path = ckpt_manager.save()
             print ('Saving checkpoint for epoch {} at {}'.format(epoch+1,
@@ -701,8 +733,20 @@ def train():
         print ('Epoch {} Loss {:.4f} Accuracy {:.4f}'.format(epoch + 1, 
                                                     train_loss.result(), 
                                                     train_accuracy.result()))
+        
+        print ('Epoch {} Loss {:.4f} Accuracy {:.4f}'.format(
+          epoch + 1, eval_loss.result(), eval_accuracy.result()))
 
         print ('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
-
+        item = dict(
+            epoch=epoch,
+            train_loss=float(train_loss.result()),
+            train_accuracy=float(train_accuracy.result()),
+            eval_loss=float(eval_loss.result()),
+            eval_accuracy=float(eval_accuracy.result()),
+        )
+        history.append(item)
+        to_yaml(history)
+        
 if __name__ == '__main__':
     train()
