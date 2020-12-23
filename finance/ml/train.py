@@ -555,19 +555,28 @@ def chunckify(arr):
 
 def train():
     final_list = []
-    symbols = ['IWM','SPY','QQQ','GLD','SLV']
-    ticker_list = yf.Tickers(' '.join(symbols))
-    for ticker in ticker_list.tickers:
-        history = ticker.history(period="max")
-        print(ticker.ticker,history.shape)
-        arr = etl(history)
-        if arr.shape[0] > total_days:
-            tmp_list = chunckify(arr)
-            final_list.extend(tmp_list)
-            
-
-    X = np.stack([x[0][:,0] for x in final_list],axis=0).astype(np.float32)
-    y = np.stack([x[1][:,0] for x in final_list],axis=0).astype(np.float32)
+    whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
+    df=pd.read_csv('https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv')
+    whole_list_symbols.extend(list(df.Symbol.values))
+    for x in np.arange(0,len(whole_list_symbols),100):
+        try:
+            symbols = whole_list_symbols[x:x+100]
+            print(symbols)
+            ticker_list = yf.Tickers(' '.join(symbols))
+            for ticker in ticker_list.tickers:
+                try:
+                    history = ticker.history(period="max")
+                    print(ticker.ticker,history.shape)
+                    arr = etl(history)
+                    if arr.shape[0] > total_days:
+                        tmp_list = chunckify(arr)
+                        final_list.extend(tmp_list)
+                except:
+                    pass
+        except:
+            pass
+    X = np.stack([x[0][:,:] for x in final_list],axis=0).astype(np.float32)
+    y = np.stack([x[1][:,:] for x in final_list],axis=0).astype(np.float32)
     X = np.expand_dims(X,axis=-1)
     y = np.expand_dims(y,axis=-1)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
