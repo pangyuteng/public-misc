@@ -590,8 +590,9 @@ def train():
     dropout_rate = 0.1
     
 
-    loss_object = tf.keras.losses.Huber(delta=100.0)
-
+    #loss_object = tf.keras.losses.Huber(delta=10.0)
+    loss_object = tf.keras.losses.MeanSquaredError()
+    
     def loss_function(real, pred):
         loss_ = loss_object(real, pred)
         return tf.reduce_sum(loss_)
