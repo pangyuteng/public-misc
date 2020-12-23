@@ -631,14 +631,15 @@ def train():
 
     #"acc..."
     def accuracy_function(real, pred):
-        accuracies = tf.keras.losses.MSE(real,pred)
+        #accuracies = tf.keras.losses.MSE(real,pred)
+        accuracies = loss_object(real, pred)
         return tf.reduce_sum(accuracies)
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy = tf.keras.metrics.Mean(name='train_accuracy')
     
-    eval_loss = tf.keras.metrics.Mean(name='train_loss')
-    eval_accuracy = tf.keras.metrics.Mean(name='train_accuracy')
+    val_loss = tf.keras.metrics.Mean(name='val_loss')
+    val_accuracy = tf.keras.metrics.Mean(name='val_accuracy')
     
     #############
 
@@ -694,8 +695,8 @@ def train():
             
             loss = loss_function(tar, predictions)
 
-        eval_loss(loss)
-        eval_accuracy(accuracy_function(tar_real, predictions))
+        val_loss(loss)
+        val_accuracy(accuracy_function(tar_real, predictions))
         
     @tf.function(input_signature=train_step_signature)
     def train_step(inp, tar_real):
@@ -746,6 +747,8 @@ def train():
 
         train_loss.reset_states()
         train_accuracy.reset_states()
+        val_loss.reset_states()
+        val_accuracy.reset_states()
 
         # inp -> portuguese, tar -> english
         for (batch, (inp, tar)) in enumerate(train_dataset):
@@ -763,20 +766,20 @@ def train():
             print ('Saving checkpoint for epoch {} at {}'.format(epoch+1,
                                                                  ckpt_save_path))
 
-        print ('Epoch {} Loss {:.4f} Accuracy {:.4f}'.format(epoch + 1, 
+        print ('Epoch {} Train Loss {:.4f} Accuracy {:.4f}'.format(epoch + 1, 
                                                     train_loss.result(), 
                                                     train_accuracy.result()))
         
-        print ('Epoch {} Loss {:.4f} Accuracy {:.4f}'.format(
-          epoch + 1, eval_loss.result(), eval_accuracy.result()))
+        print ('Epoch {} Val Loss {:.4f} Accuracy {:.4f}'.format(
+          epoch + 1, val_loss.result(), val_accuracy.result()))
 
         print ('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
         item = dict(
             epoch=epoch,
             train_loss=float(train_loss.result()),
             train_accuracy=float(train_accuracy.result()),
-            eval_loss=float(eval_loss.result()),
-            eval_accuracy=float(eval_accuracy.result()),
+            val_loss=float(val_loss.result()),
+            val_accuracy=float(val_accuracy.result()),
         )
         history.append(item)
         to_yaml(history)
