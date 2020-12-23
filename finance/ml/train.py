@@ -289,14 +289,18 @@ class Decoder(tf.keras.layers.Layer):
 
 
 class Transformer(tf.keras.Model):
-    def __init__(self, num_layers, d_model, num_heads, dff, rate=0.1):
+    def __init__(self, num_layers, d_model, num_heads, dff, rate=0.1,target_seq_len=20):
         super(Transformer, self).__init__()
 
         self.encoder = Encoder(num_layers, d_model, num_heads, dff, rate)
 
         self.decoder = Decoder(num_layers, d_model, num_heads, dff, rate)
         
-        #self.final_layer = tf.keras.layers.Conv1D(4, 5, activation='linear',padding='same')
+        self.final_layer0 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+        self.final_layer1 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+        self.final_layer2 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+        self.final_layer3 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+        
         
     def call(self, inp, tar, training, enc_padding_mask, 
            look_ahead_mask, dec_padding_mask):
@@ -305,9 +309,14 @@ class Transformer(tf.keras.Model):
         # dec_output.shape == (batch_size, tar_seq_len, d_model)
         dec_output, attention_weights = self.decoder(
             tar, enc_output, training, look_ahead_mask, dec_padding_mask)
-        #final_output = self.final_layer(dec_output)
-
-        return dec_output, attention_weights
+        
+        final_output0 = self.final_layer0(dec_output[:,:,0])
+        final_output1 = self.final_layer1(dec_output[:,:,1])
+        final_output2 = self.final_layer2(dec_output[:,:,2])
+        final_output3 = self.final_layer3(dec_output[:,:,3])
+        final_output = tf.stack([final_output0,final_output1,final_output2,final_output3],axis=-1)
+        
+        return final_output, attention_weights
 
 
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
@@ -395,8 +404,8 @@ def debug():
     ####################
     
     sample_transformer = Transformer(num_layers, d_model,num_heads,dff)
-    temp_input = tf.random.uniform((batch_size, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
-    temp_target = tf.random.uniform((batch_size, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
+    temp_input = tf.random.uniform((batch_size, input_seq_len, d_model), dtype=tf.float32, minval=-1, maxval=1)
+    temp_target = tf.random.uniform((batch_size, target_seq_len, d_model), dtype=tf.float32, minval=-1, maxval=1)
 
     fn_out, _ = sample_transformer(temp_input, temp_target, training=False, 
                                    enc_padding_mask=None, 
@@ -554,33 +563,46 @@ def chunckify(arr):
     return tmp_list
 
 def train():
-    final_list = []
-    whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
-    df=pd.read_csv('https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv')
-    whole_list_symbols.extend(list(df.Symbol.values))
-    for x in np.arange(0,len(whole_list_symbols),100):
-        try:
-            symbols = whole_list_symbols[x:x+100]
-            print(symbols)
-            ticker_list = yf.Tickers(' '.join(symbols))
-            for ticker in ticker_list.tickers:
-                try:
-                    history = ticker.history(period="max")
-                    print(ticker.ticker,history.shape)
-                    arr = etl(history)
-                    if arr.shape[0] > total_days:
-                        tmp_list = chunckify(arr)
-                        final_list.extend(tmp_list)
-                except:
-                    pass
-        except:
-            pass
-    X = np.stack([x[0][:,:] for x in final_list],axis=0).astype(np.float32)
-    y = np.stack([x[1][:,:] for x in final_list],axis=0).astype(np.float32)
-    X = np.expand_dims(X,axis=-1)
-    y = np.expand_dims(y,axis=-1)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-    print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
+    data_exists = os.path.exists('X_train.npy')
+    if data_exists:
+        X_train = np.load('X_train.npy')
+        X_test = np.load('X_test.npy')
+        y_train = np.load('y_train.npy')
+        y_test = np.load('y_test.npy')
+
+    else:
+        final_list = []
+        whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
+        df=pd.read_csv('https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv')
+        whole_list_symbols.extend(list(df.Symbol.values))
+        for x in np.arange(0,len(whole_list_symbols),100):
+            try:
+                symbols = whole_list_symbols[x:x+100]
+                print(symbols)
+                ticker_list = yf.Tickers(' '.join(symbols))
+                for ticker in ticker_list.tickers:
+                    try:
+                        history = ticker.history(period="max")
+                        print(ticker.ticker,history.shape)
+                        arr = etl(history)
+                        if arr.shape[0] > total_days:
+                            tmp_list = chunckify(arr)
+                            final_list.extend(tmp_list)
+                    except:
+                        pass
+            except:
+                pass
+        X = np.stack([x[0][:,:] for x in final_list],axis=0).astype(np.float32)
+        y = np.stack([x[1][:,:] for x in final_list],axis=0).astype(np.float32)
+        X = np.expand_dims(X,axis=-1)
+        y = np.expand_dims(y,axis=-1)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+        print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
+        
+        np.save('X_train.npy', X_train)
+        np.save('X_test.npy', X_test)
+        np.save('y_train.npy', y_train)
+        np.save('y_test.npy', y_test)
 
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
@@ -628,7 +650,7 @@ def train():
 
     ########
     
-    transformer = Transformer(num_layers, d_model, num_heads, dff ,rate=dropout_rate)
+    transformer = Transformer(num_layers, d_model, num_heads, dff ,rate=dropout_rate,target_seq_len=target_seq_len)
 
     ########
     
