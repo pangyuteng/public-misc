@@ -1,6 +1,9 @@
-version: "3.3"
+version: "2.3"
 services:
   tasty:
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
     image: tasty
     build:
       context: .
