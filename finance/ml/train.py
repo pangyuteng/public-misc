@@ -297,31 +297,49 @@ class Transformer(tf.keras.Model):
 
         self.decoder = Decoder(num_layers, d_model, num_heads, dff, rate)
         
-        #self.final_layer0 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
-        #self.final_layer1 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
-        #self.final_layer2 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
-        #self.final_layer3 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
-        filters, kernel_size = 4, 3
-        self.conv = tf.keras.layers.Conv1D(filters, kernel_size, activation='tanh',padding='same')
+        self.option = 'option0'
         
+        if self.option == 'option0':
+            pass
+        elif self.option == 'option1':
+            # pred month, day not converging.
+            # justification for using this
+            # if output from decoder "works", dense likely will weigh the last item heaviest
+            # and activation of tanh enables to scaling to -1 to 1.
+            self.final_layer0 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+            self.final_layer1 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+            self.final_layer2 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+            self.final_layer3 = tf.keras.layers.Dense(target_seq_len,activation='tanh')
+        elif self.option == 'option2': 
+            # pred month, day not converging.
+            # justification for not using this: how would a kernel 3 help predict month, and day?
+            filters, kernel_size = d_model, 3
+            self.conv = tf.keras.layers.Conv1D(filters, kernel_size, activation='tanh',padding='same')
+        else:
+            raise NotImplementedError()
+
     def call(self, inp, tar, training, enc_padding_mask, 
            look_ahead_mask, dec_padding_mask):
+        
         enc_output = self.encoder(inp, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
 
         # dec_output.shape == (batch_size, tar_seq_len, d_model)
         dec_output, attention_weights = self.decoder(
             tar, enc_output, training, look_ahead_mask, dec_padding_mask)
 
-        final_output = self.conv(dec_output)
-        return dec_output, attention_weights
-    
-        #final_output0 = self.final_layer0(dec_output[:,:,0])
-        #final_output1 = self.final_layer1(dec_output[:,:,1])
-        #final_output2 = self.final_layer2(dec_output[:,:,2])
-        #final_output3 = self.final_layer3(dec_output[:,:,3])
-        #final_output = tf.stack([final_output0,final_output1,final_output2,final_output3],axis=-1)
-        #return final_output, attention_weights
-        
+        if self.option == 'option0':
+            return dec_output, attention_weights
+        elif self.option == 'option1':
+            final_output0 = self.final_layer0(dec_output[:,:,0])
+            final_output1 = self.final_layer1(dec_output[:,:,1])
+            final_output2 = self.final_layer2(dec_output[:,:,2])
+            final_output3 = self.final_layer3(dec_output[:,:,3])
+            final_output = tf.stack([final_output0,final_output1,final_output2,final_output3],axis=-1)
+            return final_output, attention_weights
+        elif self.option == 'option2':
+            final_output = self.conv(dec_output)
+        else:
+            raise NotImplementedError()        
 
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     def __init__(self, d_model, warmup_steps=4000):
