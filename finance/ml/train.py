@@ -628,11 +628,15 @@ def train():
     print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
     
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
-    test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
     train_dataset = train_dataset.cache()
     train_dataset = train_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
     train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
+    test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+    test_dataset = test_dataset.cache()
+    test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
+    test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+    
     input_seq_len = 124
     target_seq_len = 8
     batch_size = 32
@@ -642,7 +646,23 @@ def train():
     dff = 4
     num_heads = 4
     dropout_rate = 0.1
-    
+       
+    mock = False
+    if mock:
+        X_train = tf.random.uniform((batch_size*10, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
+        y_train = tf.random.uniform((batch_size*10, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
+        X_test = tf.random.uniform((batch_size*2, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
+        y_test = tf.random.uniform((batch_size*2, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
+
+        train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+        train_dataset = train_dataset.cache()
+        train_dataset = train_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
+        train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+
+        test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+        test_dataset = test_dataset.cache()
+        test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
+        test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
     #loss_object = tf.keras.losses.Huber(delta=10.0)
     loss_object = tf.keras.losses.MeanSquaredError()
@@ -760,22 +780,6 @@ def train():
         train_accuracy1(accuracy_function(tar_real, predictions, axis=1))
         train_accuracy2(accuracy_function(tar_real, predictions, axis=2))
         train_accuracy3(accuracy_function(tar_real, predictions, axis=3))
-
-    #X_train = tf.random.uniform((batch_size*10, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
-    #y_train = tf.random.uniform((batch_size*10, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
-    #X_test = tf.random.uniform((batch_size*2, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
-    #y_test = tf.random.uniform((batch_size*2, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
-
-    train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
-    train_dataset = train_dataset.cache()
-    train_dataset = train_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
-    train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
-
-    test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-    test_dataset = test_dataset.cache()
-    test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(BATCH_SIZE)
-    test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
-    
     
     def to_yaml(history):
         with open('history.yml','w') as f:
