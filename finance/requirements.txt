@@ -5,6 +5,6 @@ py_vollib==1.0.1
 seaborn
 statsmodels
 scikit-learn
-tensorflow_probability>=0.12.0
+tensorflow-addons
 tensorflow_datasets
 pyyaml

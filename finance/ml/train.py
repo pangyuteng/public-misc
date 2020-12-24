@@ -1,4 +1,5 @@
 import os
+import sys
 import yaml
 import numpy as np
 import pandas as pd
@@ -6,7 +7,6 @@ import yfinance as yf
 import scipy
 from sklearn.model_selection import train_test_split
 import tensorflow_datasets as tfds
-import tensorflow_probability as tfp
 import tensorflow as tf
 import time
 
@@ -617,8 +617,6 @@ def train():
                 pass
         X = np.stack([x[0][:,:] for x in final_list],axis=0).astype(np.float32)
         y = np.stack([x[1][:,:] for x in final_list],axis=0).astype(np.float32)
-        X = np.expand_dims(X,axis=-1)
-        y = np.expand_dims(y,axis=-1)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
         print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
         
@@ -626,7 +624,9 @@ def train():
         np.save('X_test.npy', X_test)
         np.save('y_train.npy', y_train)
         np.save('y_test.npy', y_test)
-
+    
+    print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
+    
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
     train_dataset = train_dataset.cache()
@@ -650,10 +650,20 @@ def train():
     def loss_function(real, pred):
         loss_ = loss_object(real, pred)
         return tf.reduce_sum(loss_)
-
+    
+    # https://stackoverflow.com/a/58890795/868736
+    def correlation(x, y):    
+        mx = tf.math.reduce_mean(x)
+        my = tf.math.reduce_mean(y)
+        xm, ym = x-mx, y-my
+        r_num = tf.math.reduce_mean(tf.multiply(xm,ym))        
+        r_den = tf.math.reduce_std(xm) * tf.math.reduce_std(ym)
+        return r_num / r_den
+    
     #"acc..."
     def accuracy_function(real, pred, axis=0):
-        accuracies = tfp.stats.correlation(real[:,:,axis],pred[:,:,axis])
+        y_true, y_pred = real[:,:,axis],pred[:,:,axis]
+        accuracies = correlation(y_pred, y_true)
         return tf.reduce_sum(accuracies)
     
     train_loss = tf.keras.metrics.Mean(name='train_loss')
@@ -776,9 +786,16 @@ def train():
         start = time.time()
 
         train_loss.reset_states()
-        train_accuracy.reset_states()
+        train_accuracy0.reset_states()
+        train_accuracy1.reset_states()
+        train_accuracy2.reset_states()
+        train_accuracy3.reset_states()
+
         val_loss.reset_states()
-        val_accuracy.reset_states()
+        val_accuracy0.reset_states()
+        val_accuracy1.reset_states()
+        val_accuracy2.reset_states()
+        val_accuracy3.reset_states()
 
         # inp -> portuguese, tar -> english
         for (batch, (inp, tar)) in enumerate(train_dataset):
