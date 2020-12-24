@@ -6,6 +6,7 @@ import yfinance as yf
 import scipy
 from sklearn.model_selection import train_test_split
 import tensorflow_datasets as tfds
+import tensorflow_probability as tfp
 import tensorflow as tf
 import time
 
@@ -651,16 +652,21 @@ def train():
         return tf.reduce_sum(loss_)
 
     #"acc..."
-    def accuracy_function(real, pred):
-        #accuracies = tf.keras.losses.MSE(real,pred)
-        accuracies = loss_object(real, pred)
+    def accuracy_function(real, pred, axis=0):
+        accuracies = tfp.stats.correlation(real[:,:,axis],pred[:,:,axis])
         return tf.reduce_sum(accuracies)
-
+    
     train_loss = tf.keras.metrics.Mean(name='train_loss')
-    train_accuracy = tf.keras.metrics.Mean(name='train_accuracy')
+    train_accuracy0 = tf.keras.metrics.Mean(name='train_accuracy0')
+    train_accuracy1 = tf.keras.metrics.Mean(name='train_accuracy1')
+    train_accuracy2 = tf.keras.metrics.Mean(name='train_accuracy2')
+    train_accuracy3 = tf.keras.metrics.Mean(name='train_accuracy3')
     
     val_loss = tf.keras.metrics.Mean(name='val_loss')
-    val_accuracy = tf.keras.metrics.Mean(name='val_accuracy')
+    val_accuracy0 = tf.keras.metrics.Mean(name='val_accuracy0')
+    val_accuracy1 = tf.keras.metrics.Mean(name='val_accuracy1')
+    val_accuracy2 = tf.keras.metrics.Mean(name='val_accuracy2')
+    val_accuracy3 = tf.keras.metrics.Mean(name='val_accuracy3')
     
     #############
 
@@ -717,7 +723,10 @@ def train():
             loss = loss_function(tar, predictions)
 
         val_loss(loss)
-        val_accuracy(accuracy_function(tar_real, predictions))
+        val_accuracy0(accuracy_function(tar_real, predictions, axis=0))
+        val_accuracy1(accuracy_function(tar_real, predictions, axis=1))
+        val_accuracy2(accuracy_function(tar_real, predictions, axis=2))
+        val_accuracy3(accuracy_function(tar_real, predictions, axis=3))
         
     @tf.function(input_signature=train_step_signature)
     def train_step(inp, tar_real):
@@ -737,15 +746,15 @@ def train():
         optimizer.apply_gradients(zip(gradients, transformer.trainable_variables))
 
         train_loss(loss)
-        train_accuracy(accuracy_function(tar_real, predictions))
-        
-    X_train = tf.random.uniform((batch_size*10, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
-    y_train = tf.random.uniform((batch_size*10, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
-    X_test = tf.random.uniform((batch_size*2, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
-    y_test = tf.random.uniform((batch_size*2, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
+        train_accuracy0(accuracy_function(tar_real, predictions, axis=0))
+        train_accuracy1(accuracy_function(tar_real, predictions, axis=1))
+        train_accuracy2(accuracy_function(tar_real, predictions, axis=2))
+        train_accuracy3(accuracy_function(tar_real, predictions, axis=3))
 
-    #X_train, X_test, y_train, y_test = train_test_split(temp_input, temp_target, test_size=0.33, random_state=42)
-    #print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
+    #X_train = tf.random.uniform((batch_size*10, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
+    #y_train = tf.random.uniform((batch_size*10, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
+    #X_test = tf.random.uniform((batch_size*2, input_seq_len, d_model), dtype=tf.float32, minval=8, maxval=8)
+    #y_test = tf.random.uniform((batch_size*2, target_seq_len, d_model), dtype=tf.float32, minval=-8, maxval=8)
 
     train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
     train_dataset = train_dataset.cache()
@@ -789,18 +798,24 @@ def train():
 
         print ('Epoch {} Train Loss {:.4f} Accuracy {:.4f}'.format(epoch + 1, 
                                                     train_loss.result(), 
-                                                    train_accuracy.result()))
+                                                    train_accuracy0.result()))
         
         print ('Epoch {} Val Loss {:.4f} Accuracy {:.4f}'.format(
-          epoch + 1, val_loss.result(), val_accuracy.result()))
+          epoch + 1, val_loss.result(), val_accuracy0.result()))
 
         print ('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
         item = dict(
             epoch=epoch,
             train_loss=float(train_loss.result()),
-            train_accuracy=float(train_accuracy.result()),
+            train_accuracy0=float(train_accuracy0.result()),
+            train_accuracy1=float(train_accuracy1.result()),
+            train_accuracy2=float(train_accuracy2.result()),
+            train_accuracy3=float(train_accuracy3.result()),
             val_loss=float(val_loss.result()),
-            val_accuracy=float(val_accuracy.result()),
+            val_accuracy0=float(val_accuracy0.result()),
+            val_accuracy1=float(val_accuracy1.result()),
+            val_accuracy2=float(val_accuracy2.result()),
+            val_accuracy3=float(val_accuracy3.result()),
         )
         history.append(item)
         to_yaml(history)
