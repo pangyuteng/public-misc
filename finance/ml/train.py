@@ -483,6 +483,7 @@ def chunckify(arr):
         tmp_list.append((x,y))
     return tmp_list
 
+url = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv'
 def train():
     
     input_seq_len = 125
@@ -518,7 +519,7 @@ def train():
         test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
     else:
 
-        data_exists = False# os.path.exists('X_train.npy')
+        data_exists = os.path.exists('X_train.npy')
         if data_exists:
             X_train = np.load('X_train.npy')
             X_test = np.load('X_test.npy')
@@ -528,9 +529,10 @@ def train():
             #sys.exit(0)
         else:
             final_list = []
+            df=pd.read_csv(url)
             whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
-            #df=pd.read_csv('https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv')
-            #whole_list_symbols.extend(list(df.Symbol.values))
+            whole_list_symbols.extend(list(df.Symbol.values))
+            
             for x in np.arange(0,len(whole_list_symbols),100):
                 try:
                     symbols = whole_list_symbols[x:x+100]
