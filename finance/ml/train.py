@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 import scipy
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 import tensorflow_datasets as tfds
 import tensorflow as tf
@@ -298,8 +299,8 @@ class Transformer(tf.keras.Model):
 
         self.decoder = Decoder(num_layers, d_model, num_heads, dff, rate)
         
-        self.option = 'option0'
-        
+        self.option = 'option3'
+
         if self.option == 'option0':
             pass
         elif self.option == 'option1':
@@ -316,6 +317,8 @@ class Transformer(tf.keras.Model):
             # justification for not using this: how would a kernel 3 help predict month, and day?
             filters, kernel_size = d_model, 3
             self.conv = tf.keras.layers.Conv1D(filters, kernel_size, activation='tanh',padding='same')
+        elif self.option == 'option3':
+            self.final_act = tf.keras.layers.Activation('sigmoid')
         else:
             raise NotImplementedError()
 
@@ -339,6 +342,10 @@ class Transformer(tf.keras.Model):
             return final_output, attention_weights
         elif self.option == 'option2':
             final_output = self.conv(dec_output)
+            return final_output, attention_weights
+        elif self.option == 'option3':
+            final_output = self.final_act(dec_output)
+            return final_output, attention_weights
         else:
             raise NotImplementedError()        
 
@@ -448,69 +455,38 @@ def etl(history):
     df['ret_mean'] = df.log_ret.rolling(21).mean()
     df['hist_vol'] = df.log_ret.rolling(21).std()*np.sqrt(252)*100
     df = df.dropna()
-    df['z_vol']=np.clip(scipy.stats.zscore(df.hist_vol)/10,-1,1)
-    df['z_ret']=np.clip(scipy.stats.zscore(df.ret_mean)/10,-1,1)
-    df['month']=df.index.month.values/12
-    df['day']=df.index.day.values/31
+    df['s_vol']=df.hist_vol
+    df['s_ret']=df.ret_mean
+    df['s_month']=df.index.month.values
+    df['s_day']=df.index.day.values
+    data = df[['s_vol','s_ret','s_month','s_day']].values
+    scaler = MinMaxScaler() # same reasoning, also not a fan of minmax scaler
+    scaler.fit(data)
+    transformed = scaler.transform(data)
+    df['s_vol']=transformed[:,0]
+    df['s_ret']=transformed[:,1]
+    df['s_month']=transformed[:,2]
+    df['s_day']=transformed[:,3]
     # add in interest rate.
-    return np.stack([df.z_vol.values,df.z_ret.values,df.month.values,df.day.values],axis=-1)
+    return np.stack([df.s_vol.values,df.s_ret.values,df.s_month.values,df.s_day.values],axis=-1)
 
 look_back=125
-look_forward=8
-total_days = look_back+look_forward-1
+look_forward=10
+total_days = look_back+look_forward
 def chunckify(arr):
     tmp_list = []
-    for x in np.arange(total_days,arr.shape[0]-total_days,5):
+    for x in np.arange(total_days,arr.shape[0]-total_days,look_forward):
         tmp = arr[x:x+total_days]
         if tmp.shape != (total_days,4):
             continue
-        x,y = tmp[:-1*look_forward,:],tmp[-1*look_forward:,:]
+        x,y = tmp[:look_back,:],tmp[-1*look_forward:,:]
         tmp_list.append((x,y))
     return tmp_list
 
 def train():
-    data_exists = os.path.exists('X_train.npy')
-    if data_exists:
-        X_train = np.load('X_train.npy')
-        X_test = np.load('X_test.npy')
-        y_train = np.load('y_train.npy')
-        y_test = np.load('y_test.npy')
-
-    else:
-        final_list = []
-        whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
-        df=pd.read_csv('https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv')
-        whole_list_symbols.extend(list(df.Symbol.values))
-        for x in np.arange(0,len(whole_list_symbols),100):
-            try:
-                symbols = whole_list_symbols[x:x+100]
-                print(symbols)
-                ticker_list = yf.Tickers(' '.join(symbols))
-                for ticker in ticker_list.tickers:
-                    try:
-                        history = ticker.history(period="max")
-                        print(ticker.ticker,history.shape)
-                        arr = etl(history)
-                        if arr.shape[0] > total_days:
-                            tmp_list = chunckify(arr)
-                            final_list.extend(tmp_list)
-                    except:
-                        pass
-            except:
-                pass
-        X = np.stack([x[0][:,:] for x in final_list],axis=0).astype(np.float32)
-        y = np.stack([x[1][:,:] for x in final_list],axis=0).astype(np.float32)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-        print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
-        
-        np.save('X_train.npy', X_train)
-        np.save('X_test.npy', X_test)
-        np.save('y_train.npy', y_train)
-        np.save('y_test.npy', y_test)
     
-    print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
-    input_seq_len = 124
-    target_seq_len = 8
+    input_seq_len = 125
+    target_seq_len = 10
     batch_size = 32
     
     num_layers = 4
@@ -518,17 +494,10 @@ def train():
     dff = 4
     num_heads = 4
     dropout_rate = 0.1
-       
-    train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
-    train_dataset = train_dataset.cache()
-    train_dataset = train_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size,drop_remainder=True)
-    train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
-    test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-    test_dataset = test_dataset.cache()
-    test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size,drop_remainder=True)
-    test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
-    
+    assert(look_back==input_seq_len)
+    assert(look_forward==target_seq_len)
+
     mock = False
     if mock:
         X_train = tf.random.uniform((batch_size*10, input_seq_len, d_model), dtype=tf.float32, minval=1, maxval=1)
@@ -537,7 +506,7 @@ def train():
         y_test = tf.random.uniform((batch_size*2, target_seq_len, d_model), dtype=tf.float32, minval=-1, maxval=1)
         
         print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
-        sys.exit(0)
+        #sys.exit(0)
         train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
         train_dataset = train_dataset.cache()
         train_dataset = train_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size)
@@ -546,6 +515,59 @@ def train():
         test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
         test_dataset = test_dataset.cache()
         test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size)
+        test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+    else:
+
+        data_exists = False# os.path.exists('X_train.npy')
+        if data_exists:
+            X_train = np.load('X_train.npy')
+            X_test = np.load('X_test.npy')
+            y_train = np.load('y_train.npy')
+            y_test = np.load('y_test.npy')
+            print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
+            #sys.exit(0)
+        else:
+            final_list = []
+            whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
+            #df=pd.read_csv('https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv')
+            #whole_list_symbols.extend(list(df.Symbol.values))
+            for x in np.arange(0,len(whole_list_symbols),100):
+                try:
+                    symbols = whole_list_symbols[x:x+100]
+                    print(symbols)
+                    ticker_list = yf.Tickers(' '.join(symbols))
+                    for ticker in ticker_list.tickers:
+                        try:
+                            history = ticker.history(period="max")
+                            print(ticker.ticker,history.shape)
+                            arr = etl(history)
+                            if arr.shape[0] > total_days:
+                                tmp_list = chunckify(arr)
+                                final_list.extend(tmp_list)
+                        except:
+                            pass
+                except:
+                    pass
+            X = np.stack([x[0][:,:] for x in final_list],axis=0).astype(np.float32)
+            y = np.stack([x[1][:,:] for x in final_list],axis=0).astype(np.float32)
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+            print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
+            #sys.exit(0)
+            
+            np.save('X_train.npy', X_train)
+            np.save('X_test.npy', X_test)
+            np.save('y_train.npy', y_train)
+            np.save('y_test.npy', y_test)
+
+        print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
+        train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
+        train_dataset = train_dataset.cache()
+        train_dataset = train_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size,drop_remainder=True)
+        train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+
+        test_dataset = tf.data.Dataset.from_tensor_slices((X_test, y_test))
+        test_dataset = test_dataset.cache()
+        test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size,drop_remainder=True)
         test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
     #loss_object = tf.keras.losses.Huber(delta=10.0)
@@ -560,7 +582,7 @@ def train():
         mx = tf.math.reduce_mean(x)
         my = tf.math.reduce_mean(y)
         xm, ym = x-mx, y-my
-        r_num = tf.math.reduce_mean(tf.multiply(xm,ym))        
+        r_num = tf.math.reduce_mean(tf.multiply(xm,ym))  
         r_den = tf.math.reduce_std(xm) * tf.math.reduce_std(ym)
         return r_num / r_den
     
