@@ -13,6 +13,7 @@ import time
 
 BUFFER_SIZE = 20000
 BATCH_SIZE = 64
+STEPS_PER_EPOCH = 1000
 
 def create_padding_mask(seq):
     seq = tf.cast(tf.math.equal(seq, 0), tf.float32)
@@ -708,10 +709,12 @@ def train():
         val_accuracy1.reset_states()
         val_accuracy2.reset_states()
         val_accuracy3.reset_states()
-
+        
         # inp -> portuguese, tar -> english
         for (batch, (inp, tar)) in enumerate(train_dataset):
             train_step(inp, tar)
+            if batch == STEPS_PER_EPOCH:
+                break
 
         for (batch, (inp, tar)) in enumerate(test_dataset):
             eval_step(inp, tar)
