@@ -518,6 +518,7 @@ def train():
         test_dataset = test_dataset.cache()
         test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size)
         test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
+        # https://www.tensorflow.org/guide/data_performance
     else:
 
         data_exists = os.path.exists('X_train.npy')
