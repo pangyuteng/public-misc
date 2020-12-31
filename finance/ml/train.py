@@ -13,7 +13,7 @@ import time
 
 BUFFER_SIZE = 20000
 BATCH_SIZE = 64
-STEPS_PER_EPOCH = 1000
+STEPS_PER_EPOCH = 10#00
 
 def create_padding_mask(seq):
     seq = tf.cast(tf.math.equal(seq, 0), tf.float32)
@@ -594,7 +594,7 @@ def train():
     def accuracy_function(real, pred, axis=0):
         y_true, y_pred = real[:,:,axis],pred[:,:,axis]
         accuracies = correlation(y_pred, y_true)
-        return tf.reduce_sum(accuracies)
+        return accuracies
     
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_accuracy0 = tf.keras.metrics.Mean(name='train_accuracy0')
@@ -729,12 +729,12 @@ def train():
             print ('Saving checkpoint for epoch {} at {}'.format(epoch+1,
                                                                  ckpt_save_path))
 
-        print ('Epoch {} Train Loss {:.4f} Accuracy {:.4f}'.format(epoch + 1, 
+        print ('Epoch {} Train Loss {:.4f} Corr0 {:.4f} Corr1 {:.4f} Corr2 {:.4f} Corr3 {:.4f}'.format(epoch + 1, 
                                                     train_loss.result(), 
-                                                    train_accuracy0.result()))
+                                                    train_accuracy0.result(),train_accuracy1.result(),train_accuracy2.result(),train_accuracy3.result()))
         
-        print ('Epoch {} Val Loss {:.4f} Accuracy {:.4f}'.format(
-          epoch + 1, val_loss.result(), val_accuracy0.result()))
+        print ('Epoch {} Val Loss {:.4f} Coor0 {:.4f} Coor1 {:.4f} Coor2 {:.4f} Coor3 {:.4f}'.format(
+          epoch + 1, val_loss.result(), val_accuracy0.result(), val_accuracy1.result(), val_accuracy2.result(), val_accuracy3.result()))
 
         print ('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
         item = dict(
