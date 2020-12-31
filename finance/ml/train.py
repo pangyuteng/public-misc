@@ -574,13 +574,13 @@ def train():
         test_dataset = test_dataset.shuffle(BUFFER_SIZE).padded_batch(batch_size,drop_remainder=True)
         test_dataset = test_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
-    #loss_object = tf.keras.losses.Huber(delta=10.0)
+    #loss_object = tf.keras.losses.Huber(delta=1.0)
     loss_object = tf.keras.losses.MeanSquaredError()
     
     def loss_function(real, pred):
         loss_ = loss_object(real, pred)
         return tf.reduce_sum(loss_)
-    
+
     # https://stackoverflow.com/a/58890795/868736
     def correlation(x, y):    
         mx = tf.math.reduce_mean(x)
