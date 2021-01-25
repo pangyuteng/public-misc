@@ -1,5 +1,10 @@
 
+
++ clone repo and launch jupyter lab via docker-compose.
 ```
-docker build -t tasty .
-docker run -it -v ${PWD}:/opt -w /opt -p 8888:8888 tasty bash -c "jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root"
+git clone https://github.com/pangyuteng/aigonewrong.git
+cd aigonewrong/finance
+docker-compose up --build
 ```
++ in browser, goto `localhost:8888`, and open `btc/s2f.ipynb`.
+

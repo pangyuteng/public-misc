@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile
     working_dir: /opt
     ports:
-      - "8889:8888"
+      - "8888:8888"
     volumes:
       - ${PWD}:/opt
     command: jupyter lab --ip='*' --port=8888 --allow-root --NotebookApp.token='' --NotebookApp.password=''
