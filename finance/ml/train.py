@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 import scipy
-from sklearn.preprocessing import MinMaxScaler
+from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 import tensorflow_datasets as tfds
 import tensorflow as tf
@@ -300,7 +300,7 @@ class Transformer(tf.keras.Model):
 
         self.decoder = Decoder(num_layers, d_model, num_heads, dff, rate)
         
-        self.option = 'option3'
+        self.option = 'option1'
 
         if self.option == 'option0':
             pass
@@ -320,6 +320,8 @@ class Transformer(tf.keras.Model):
             self.conv = tf.keras.layers.Conv1D(filters, kernel_size, activation='tanh',padding='same')
         elif self.option == 'option3':
             self.final_act = tf.keras.layers.Activation('sigmoid')
+        elif self.option == 'option4':
+            self.final_act = tf.keras.layers.Activation('tanh')
         else:
             raise NotImplementedError()
 
@@ -345,6 +347,9 @@ class Transformer(tf.keras.Model):
             final_output = self.conv(dec_output)
             return final_output, attention_weights
         elif self.option == 'option3':
+            final_output = self.final_act(dec_output)
+            return final_output, attention_weights
+        elif self.option == 'option4':
             final_output = self.final_act(dec_output)
             return final_output, attention_weights
         else:
@@ -461,9 +466,12 @@ def etl(history):
     df['s_month']=df.index.month.values
     df['s_day']=df.index.day.values
     data = df[['s_vol','s_ret','s_month','s_day']].values
-    scaler = MinMaxScaler() # same reasoning, also not a fan of minmax scaler
+    #scaler = MinMaxScaler() # same reasoning, also not a fan of minmax scaler
+    # compute zscore and scale to -1 to 1, and use tanh as oppose to clip so value still makes some sense for fat tails.
+    scaler = preprocessing.StandardScaler()
     scaler.fit(data)
     transformed = scaler.transform(data)
+    transformed = np.tanh(transformed)
     df['s_vol']=transformed[:,0]
     df['s_ret']=transformed[:,1]
     df['s_month']=transformed[:,2]
