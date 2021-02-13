@@ -411,7 +411,6 @@ def debug():
     num_heads = 4
     dropout_rate = 0.1
     
-    
     temp_mha = MultiHeadAttention(d_model=d_model, num_heads=num_heads)
     y = tf.random.uniform((1, input_seq_len, d_model))  # (batch_size, encoder_sequence, d_model)
     out, attn = temp_mha(y, k=y, q=y, mask=None)
@@ -496,7 +495,7 @@ url = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/d
 def train():
     
     input_seq_len = 125
-    target_seq_len = 10
+    target_seq_len = 9
     batch_size = 32
     
     num_layers = 4
@@ -506,7 +505,7 @@ def train():
     dropout_rate = 0.1
 
     assert(look_back==input_seq_len)
-    assert(look_forward==target_seq_len)
+    assert(look_forward==target_seq_len+1)
 
     mock = False
     if mock:
@@ -658,17 +657,20 @@ def train():
     ]
     
     @tf.function(input_signature=train_step_signature)
-    def eval_step(inp, tar_real):
-        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar[:,:,0])
+    def eval_step(inp, tar):
+        tar_inp = tar[:, :-1,:]
+        tar_real = tar[:, 1:,:]
+
+        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar_inp[:,:,0])#tar[:,:,0])
 
         with tf.GradientTape() as tape:
-            predictions, _ = transformer(inp, tar,
-                                         training=True, 
+            predictions, _ = transformer(inp, tar_inp,
+                                         training=True,
                                          enc_padding_mask=enc_padding_mask,
                                          look_ahead_mask=look_ahead_mask, 
                                          dec_padding_mask=dec_padding_mask)
             
-            loss = loss_function(tar, predictions)
+            loss = loss_function(tar_real, predictions)
 
         val_loss(loss)
         val_accuracy0(accuracy_function(tar_real, predictions, axis=0))
@@ -677,18 +679,20 @@ def train():
         val_accuracy3(accuracy_function(tar_real, predictions, axis=3))
         
     @tf.function(input_signature=train_step_signature)
-    def train_step(inp, tar_real):
+    def train_step(inp, tar):
+        tar_inp  = tar[:, :-1,:]
+        tar_real = tar[:, 1:,:]
         
-        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar[:,:,0])
+        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar_inp[:,:,0])
 
         with tf.GradientTape() as tape:
-            predictions, _ = transformer(inp, tar,
+            predictions, _ = transformer(inp, tar_inp,
                                          training=True, 
                                          enc_padding_mask=enc_padding_mask,
                                          look_ahead_mask=look_ahead_mask, 
                                          dec_padding_mask=dec_padding_mask)
             
-            loss = loss_function(tar, predictions)
+            loss = loss_function(tar_real, predictions)
 
         gradients = tape.gradient(loss, transformer.trainable_variables)    
         optimizer.apply_gradients(zip(gradients, transformer.trainable_variables))
