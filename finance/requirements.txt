@@ -7,4 +7,5 @@ statsmodels
 scikit-learn
 tensorflow-addons
 tensorflow_datasets
+tensorflow_text
 pyyaml
