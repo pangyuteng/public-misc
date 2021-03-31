@@ -1,6 +1,6 @@
 
 
-allowed list to purchase in 401k/403b:
+allowed list to purchase:
 
 + etf screener -> legal structure:
     can: open-ended investment company, unit investment trust.
