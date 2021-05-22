@@ -10,4 +10,7 @@ python write.py
 time python vanilla.py
 ```
 
-
++ wip
+```
+time python solution0.py
+```

@@ -5,11 +5,11 @@ import string
 import numpy as np
 
 seed = 21
-line_num = 1000
+line_num = 10000
 fname = 'data_test'
 max_x_per_line = 5000
 max_y_per_line = 100
-max_lim = 1e4
+max_lim = 1e6
 
 random.seed(seed)
 np.random.seed(seed)
