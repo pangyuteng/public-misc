@@ -68,7 +68,7 @@ def process(chunk):
     m_pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
      
 
-chunksize = 10000
+chunksize = 2048
 with pd.read_csv(fname, 
     chunksize=chunksize,
     header=None) as reader:
