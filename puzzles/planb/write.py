@@ -18,6 +18,8 @@ np.random.seed(seed)
 def random_char(y):
    return ''.join(random.choice(string.ascii_letters) for x in range(y))
 
+cum_x = 0
+cum_y = 0
 with open(fname,'w') as f:
     for x in range(line_num):
         b = np.random.randint(1000) # not used
@@ -28,7 +30,10 @@ with open(fname,'w') as f:
         x_list = np.random.randint(0,high=max_lim,size=x_len)
         tmp.extend(y_list)
         tmp.extend(x_list)
+        cum_y += len(y_list)
+        cum_x += len(x_list)
         myline = ' '.join([str(x) for x in tmp])+'\n'
         f.write(myline)
 
-
+print(f'cumulative y {cum_y}')
+print(f'cumulative x {cum_x}')

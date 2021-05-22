@@ -12,7 +12,7 @@ with open('data_test','r') as f:
         for x in range(4+i,4+i+o):
             d[str(v[x])]=(b,float(v[x]))
         for y in range(4,4+i):
-            d.pop(str(v[y]),None)
+            p = d.pop(str(v[y]),None)
 
 print(len(d))
 m = hashlib.sha256()
