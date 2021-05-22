@@ -22,9 +22,9 @@ with open(fname,'w') as f:
         b = np.random.randint(1000) # not used
         y_len = np.random.randint(1,high=max_y_per_line)
         x_len = np.random.randint(1,high=max_x_per_line)
-        tmp = [b,None,i,o]
+        tmp = [b,None,y_len,x_len]
         y_list = np.random.rand(y_len)
-        x_list = np.random.rand(x+len)
+        x_list = np.random.rand(x_len)
         tmp.extend(y_list)
         tmp.extend(x_list)
         myline = ' '.join([str(x) for x in tmp])+'\n'
