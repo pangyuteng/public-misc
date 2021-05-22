@@ -20,5 +20,5 @@ time python vanilla.py
 time python solution-pandarallel.py
 ```
 
-+ asyncio
++ over-kill ? redis+celery-workers
 
