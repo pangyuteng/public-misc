@@ -1,10 +1,12 @@
-
+import hashlib
 import pandas as pd
+from pandarallel import pandarallel
 import itertools
+
+pandarallel.initialize()
 
 fname = 'data_test'
 
-master_df = pd.DataFrame()
 m_push_df = pd.DataFrame([],columns=['op','uid','mykey','myval'])
 m_pop_df = pd.DataFrame([],columns=['op','uid','mykey'])
 
@@ -16,6 +18,7 @@ def transform_row(row):
     b=int(v[0])
     i=int(v[2])
     o=int(v[3])
+
     # to push
     for x in range(4+i,4+i+o):
         op_list.append(dict(
@@ -24,6 +27,7 @@ def transform_row(row):
             mykey=str(v[x]),
             myval=(b,float(v[x])),
         ))
+
     # to pop
     for y in range(4,4+i):
         op_list.append(dict(
@@ -34,42 +38,63 @@ def transform_row(row):
 
     return op_list
 
+keep = 'last'
 # map-reduce
 def process(chunk):
     global m_push_df
     global m_pop_df
 
-    p = chunk.apply(transform_row,axis=1)
+    p = chunk.parallel_apply(transform_row,axis=1)
     op_list = list(itertools.chain(*p))
     op_df=pd.DataFrame(op_list)
     
     # get then remove duplicates
     push_df = op_df[op_df.op == 'push'].copy()
-    push_df.drop_duplicates(subset=['mykey'],keep='last',inplace=True)
+    push_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
     # note keep is set to `last`, repecting vanilla implementation of keeping only last val
     
     pop_df = op_df[op_df.op == 'pop'].copy()
-    pop_df.drop_duplicates(subset=['mykey'],keep='last',inplace=True)
+    pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
 
     # iterim merge
     m_push_df = pd.concat([m_push_df,push_df])
-    m_push_df.drop_duplicates(subset=['mykey'],keep='last',inplace=True) 
+    m_push_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True) 
     
     # iterm merge
     m_pop_df = pd.concat([m_pop_df,pop_df])
-    m_pop_df.drop_duplicates(subset=['mykey'],keep='last',inplace=True)
-        
+    m_pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
+     
 
-chunksize = 500 #** 6
+chunksize = 1000 #** 6
 with pd.read_csv(fname, 
     chunksize=chunksize,
     header=None) as reader:
-
     # todo make below parallelized
     for chunk in reader:
         process(chunk)
 
-# final processing.
 
+# further reduce
+df = m_push_df.merge(m_pop_df,how='left',on=['mykey'])
+df['todel'] = False
 
-print(m_push_df.shape,m_pop_df.shape)
+def markdel(row):
+    # if `pop` is found and `pop` operation occured post `push` operation, mark as delete
+    if row.op_y == 'pop' and row.uid_y >= row.uid_x:
+        df.at[row.name,'todel']=True
+
+df.parallel_apply(markdel,axis=1)
+df=df[df.todel==False]
+df = df[['mykey','myval_x']]
+
+mylist = list(df.T.to_dict().values())
+
+d = {}
+for x in mylist:
+    d.update({x['mykey']:x['myval_x']})
+print(len(d))
+
+m = hashlib.sha256()
+m.update(str(d).encode('utf-8'))
+
+print(m.digest().hex())
