@@ -54,7 +54,7 @@ def process(chunk):
     # note keep is set to `last`, repecting vanilla implementation of keeping only last val
     
     pop_df = op_df[op_df.op == 'pop'].copy()
-    pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
+    #pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
 
     # iterim merge
     m_push_df = pd.concat([m_push_df,push_df])
@@ -62,10 +62,10 @@ def process(chunk):
     
     # iterm merge
     m_pop_df = pd.concat([m_pop_df,pop_df])
-    m_pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
+    #m_pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
      
 
-chunksize = 1000 #** 6
+chunksize = 1000 ** 6
 with pd.read_csv(fname, 
     chunksize=chunksize,
     header=None) as reader:
@@ -81,10 +81,14 @@ df['todel'] = False
 def markdel(row):
     # if `pop` is found and `pop` operation occured post `push` operation, mark as delete
     if row.op_y == 'pop' and row.uid_y >= row.uid_x:
-        df.at[row.name,'todel']=True
+        row.todel = True
+    return row
 
-df.parallel_apply(markdel,axis=1)
+df = df.parallel_apply(markdel,axis=1)
+print(df.shape)
 df=df[df.todel==False]
+print(df.shape)
+
 df = df[['mykey','myval_x']]
 
 mylist = list(df.T.to_dict().values())
@@ -93,7 +97,7 @@ d = {}
 for x in mylist:
     d.update({x['mykey']:x['myval_x']})
 print(len(d))
-
+print(str(d)[0:100])
 m = hashlib.sha256()
 m.update(str(d).encode('utf-8'))
 
