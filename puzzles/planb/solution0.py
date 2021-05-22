@@ -4,7 +4,7 @@ import pandas as pd
 from pandarallel import pandarallel
 import itertools
 
-#pandarallel.initialize()
+pandarallel.initialize()
 
 fname = 'data_test'
 
