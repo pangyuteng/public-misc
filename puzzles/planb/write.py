@@ -5,10 +5,10 @@ import string
 import numpy as np
 
 seed = 21
-line_num = 100000
+line_num = 10
 fname = 'data_test'
-max_num_per_line = 1000
-max_char_per_line = 20
+max_x_per_line = 15
+max_y_per_line = 5
 
 random.seed(seed)
 np.random.seed(seed)
@@ -20,13 +20,13 @@ def random_char(y):
 with open(fname,'w') as f:
     for x in range(line_num):
         b = np.random.randint(1000) # not used
-        o = np.random.randint(1,high=max_num_per_line) # num of float elements
-        i = np.random.randint(1,high=max_char_per_line) # offset
+        y_len = np.random.randint(1,high=max_y_per_line)
+        x_len = np.random.randint(1,high=max_x_per_line)
         tmp = [b,None,i,o]
-        char_list = [random_char(3) for _ in range(i)]
-        num_list = np.random.rand(o)
-        tmp.extend(char_list)
-        tmp.extend(num_list)
+        y_list = np.random.rand(y_len)
+        x_list = np.random.rand(x+len)
+        tmp.extend(y_list)
+        tmp.extend(x_list)
         myline = ' '.join([str(x) for x in tmp])+'\n'
         f.write(myline)
 
