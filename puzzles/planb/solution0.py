@@ -1,9 +1,10 @@
+import time
 import hashlib
 import pandas as pd
 from pandarallel import pandarallel
 import itertools
 
-pandarallel.initialize()
+#pandarallel.initialize()
 
 fname = 'data_test'
 
@@ -13,7 +14,9 @@ m_pop_df = pd.DataFrame([],columns=['op','uid','mykey'])
 # transform each row
 def transform_row(row):
     op_list = []
+
     l = row.iloc[0]
+    
     v=l.strip('\n').split(" ")
     b=int(v[0])
     i=int(v[2])
@@ -50,29 +53,28 @@ def process(chunk):
     
     # get then remove duplicates
     push_df = op_df[op_df.op == 'push'].copy()
-    push_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
+    #push_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
     # note keep is set to `last`, repecting vanilla implementation of keeping only last val
     
     pop_df = op_df[op_df.op == 'pop'].copy()
     #pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
 
-    # iterim merge
+    # interim merge
     m_push_df = pd.concat([m_push_df,push_df])
     m_push_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True) 
     
-    # iterm merge
+    # interim merge
     m_pop_df = pd.concat([m_pop_df,pop_df])
-    #m_pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
+    m_pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
      
 
-chunksize = 1000 ** 6
+chunksize = 10000
 with pd.read_csv(fname, 
     chunksize=chunksize,
     header=None) as reader:
     # todo make below parallelized
     for chunk in reader:
         process(chunk)
-
 
 # further reduce
 df = m_push_df.merge(m_pop_df,how='left',on=['mykey'])
@@ -85,20 +87,14 @@ def markdel(row):
     return row
 
 df = df.parallel_apply(markdel,axis=1)
-print(df.shape)
 df=df[df.todel==False]
-print(df.shape)
-
-df = df[['mykey','myval_x']]
-
-mylist = list(df.T.to_dict().values())
+df.sort_values(['uid_x'],axis=0,ascending=True)
 
 d = {}
-for x in mylist:
-    d.update({x['mykey']:x['myval_x']})
-print(len(d))
-print(str(d)[0:100])
+for n,row in df.iterrows():
+    d.update({row['mykey']:row['myval_x']})
+
 m = hashlib.sha256()
 m.update(str(d).encode('utf-8'))
-
+print(len(d))
 print(m.digest().hex())

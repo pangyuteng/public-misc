@@ -14,8 +14,8 @@ with open('data_test','r') as f:
         for y in range(4,4+i):
             p = d.pop(str(v[y]),None)
 
-print(len(d))
 m = hashlib.sha256()
 m.update(str(d).encode('utf-8'))
+print(len(d))
 print(m.digest().hex())
 
