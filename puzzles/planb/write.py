@@ -5,10 +5,11 @@ import string
 import numpy as np
 
 seed = 21
-line_num = 10
+line_num = 1000
 fname = 'data_test'
-max_x_per_line = 15
-max_y_per_line = 5
+max_x_per_line = 5000
+max_y_per_line = 100
+max_lim = 1e4
 
 random.seed(seed)
 np.random.seed(seed)
@@ -23,12 +24,11 @@ with open(fname,'w') as f:
         y_len = np.random.randint(1,high=max_y_per_line)
         x_len = np.random.randint(1,high=max_x_per_line)
         tmp = [b,None,y_len,x_len]
-        y_list = np.random.rand(y_len)
-        x_list = np.random.rand(x_len)
+        y_list = np.random.randint(0,high=max_lim,size=y_len)
+        x_list = np.random.randint(0,high=max_lim,size=x_len)
         tmp.extend(y_list)
         tmp.extend(x_list)
         myline = ' '.join([str(x) for x in tmp])+'\n'
         f.write(myline)
-
 
 
