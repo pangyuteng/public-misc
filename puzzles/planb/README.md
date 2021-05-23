@@ -17,6 +17,7 @@ time python vanilla.py
 
 + pandas with pandarallel
 ```
+time python solution-pandas.py
 time python solution-pandarallel.py
 ```
 

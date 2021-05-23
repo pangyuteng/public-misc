@@ -5,9 +5,9 @@ import string
 import numpy as np
 
 seed = 21
-line_num = 100000
+line_num = 100
 fname = 'data_test'
-max_x_per_line = 2560
+max_x_per_line = 256
 max_y_per_line = 20
 max_lim = 1e6
 
