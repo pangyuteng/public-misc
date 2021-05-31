@@ -19,3 +19,5 @@ time python vanilla.py
 time python mymapreduce.py
 ```
 
+
++ actual impl will be at aigonewrong/finance/bitcoin
