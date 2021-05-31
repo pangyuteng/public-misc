@@ -63,7 +63,7 @@ def process(chunk):
 
 
 if __name__ == '__main__':
-    chunksize = 2048
+    chunksize = 80000
     with pd.read_csv(fname, 
         chunksize=chunksize,
         header=None) as reader:
