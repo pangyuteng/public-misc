@@ -1,6 +1,8 @@
+import sys
+fname = sys.argv[1]
 d={}					# d will be ~60GB in ram
 
-with open('data_test','r') as f:	# 200GB csv file
+with open(fname,'r') as f:	# 200GB csv file
  for l in f: 				# ~700,000 lines
   v=l.split(" ") 			# v contains thousands of items
   b=int(v[0])

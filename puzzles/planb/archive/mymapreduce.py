@@ -1,10 +1,11 @@
+import sys
 import pandas as pd
 from pandarallel import pandarallel
 import itertools
 
 pandarallel.initialize()
 
-fname = 'data_test'
+fname = sys.argv[1]
 
 m_push_df = pd.DataFrame([],columns=['op','uid','mykey','myval'])
 m_pop_df = pd.DataFrame([],columns=['op','uid','mykey'])
@@ -40,8 +41,8 @@ def transform_row(row):
 
     return op_list
 
+# gather all operations 
 keep = 'last'
-# iterim-reduce: gather all operations 
 def process(chunk):
     global m_push_df
     global m_pop_df
@@ -61,35 +62,39 @@ def process(chunk):
     m_pop_df.drop_duplicates(subset=['mykey'],keep=keep,inplace=True)
 
 
-chunksize = 2048
-with pd.read_csv(fname, 
-    chunksize=chunksize,
-    header=None) as reader:
-    # todo make below parallelized
-    for chunk in reader:
-        process(chunk)
+if __name__ == '__main__':
+    chunksize = 2048
+    with pd.read_csv(fname, 
+        chunksize=chunksize,
+        header=None) as reader:
+        # todo make below parallelized
+        for chunk in reader:
+            process(chunk)
 
-# further reduce
-df = m_push_df.merge(m_pop_df,how='left',on=['mykey'])
-df['todel'] = False
+    # `filter`
+    df = m_push_df.merge(m_pop_df,how='left',on=['mykey'])
+    df['todel'] = False
 
-def markdel(row):
-    # if `pop` is found and `pop` operation occured post `push` operation, mark as delete
-    if row.op_y == 'pop' and row.uid_y >= row.uid_x:
-        row.todel = True
-    return row
+    def markdel(row):
+        # if `pop` is found and `pop` operation occured post `push` operation, mark as delete
+        if row.op_y == 'pop' and row.uid_y >= row.uid_x:
+            row.todel = True
+        return row
 
-df = df.parallel_apply(markdel,axis=1)
-df=df[df.todel==False]
-df.sort_values(['uid_x'],axis=0,ascending=True)
+    df = df.parallel_apply(markdel,axis=1)
+    df=df[df.todel==False]
+    df.sort_values(['uid_x'],axis=0,ascending=True)
 
-d = {}
-for n,row in df.iterrows():
-    d.update({row['mykey']:row['myval_x']})
+    # finally transform to dict
+    df=df[['mykey','myval_x']].copy()
+    df.drop_duplicates(subset=['mykey','myval_x'],keep=keep,inplace=True) 
+    ds = df.myval_x
+    ds.index = df.mykey
+    d = ds.to_dict()
 
-print(str(d)[-256:])
-import hashlib
-m = hashlib.sha256()
-m.update(str(d).encode('utf-8'))
-print(len(d))
-print(m.digest().hex())
+    print(str(d)[-256:])
+    import hashlib
+    m = hashlib.sha256()
+    m.update(str(d).encode('utf-8'))
+    print(len(d))
+    print(m.digest().hex())
