@@ -4,9 +4,8 @@
     https://twitter.com/100trillionUSD/status/1396109728468684805
 
 
-+ generate data, install dependencies
++ install dependencies
 ```
-python write.py
 pip install -r requirements.txt
 ```
 
@@ -17,9 +16,6 @@ time python vanilla.py
 
 + pandas with pandarallel
 ```
-time python solution-pandas.py
-time python solution-pandarallel.py
+time python mymapreduce.py
 ```
-
-+ over-kill ? redis+celery-workers
 
