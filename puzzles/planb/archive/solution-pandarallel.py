@@ -1,5 +1,3 @@
-import time
-import hashlib
 import pandas as pd
 from pandarallel import pandarallel
 import itertools
@@ -27,7 +25,7 @@ def transform_row(row):
         op_list.append(dict(
             op='push',
             uid=int(row.name),
-            mykey=str(v[x]),
+            mykey=v[x],
             myval=(b,float(v[x])),
         ))
 
@@ -36,7 +34,7 @@ def transform_row(row):
         op_list.append(dict(
             op='pop',
             uid=int(row.name),
-            mykey=str(v[y]),
+            mykey=v[y],
         ))
 
     return op_list
@@ -94,6 +92,7 @@ d = {}
 for n,row in df.iterrows():
     d.update({row['mykey']:row['myval_x']})
 
+import hashlib
 m = hashlib.sha256()
 m.update(str(d).encode('utf-8'))
 print(len(d))
