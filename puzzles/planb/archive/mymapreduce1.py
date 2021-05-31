@@ -2,9 +2,9 @@
 import sys
 import multiprocessing
 import pandas as pd
-from pandarallel import pandarallel
+#from pandarallel import pandarallel
 import itertools
-pandarallel.initialize()
+#pandarallel.initialize()
 
 fname = sys.argv[1]
 
@@ -73,8 +73,8 @@ def mymerge(op_df):
 if __name__ == '__main__':
 
     # https://stackoverflow.com/questions/4047789/parallel-file-parsing-multiple-cpu-cores
-    numthreads = 100
-    numlines = 2000
+    numthreads = 8
+    numlines = 10000
     lines = open(fname).readlines()
     lines = [(n,l) for n,l in enumerate(lines)]
     # create the process pool
@@ -90,17 +90,6 @@ if __name__ == '__main__':
     print(m_push_df.shape,m_pop_df.shape,)
     # `filter`
     df = m_push_df.merge(m_pop_df,how='left',on=['mykey'])
-    '''
-    df['todel'] = False
-    def markdel(row):
-        # if `pop` is found and `pop` operation occured post `push` operation, mark as delete
-        if row.op_y == 'pop' and row.uid_y >= row.uid_x:
-            row.todel = True
-        return row
-
-    df = df.parallel_apply(markdel,axis=1)
-    df=df[df.todel==False]
-    '''
     df=df[df.op_y!='pop']
 
     # final reduce
