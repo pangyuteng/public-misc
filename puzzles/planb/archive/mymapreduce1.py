@@ -92,7 +92,7 @@ if __name__ == '__main__':
     df = m_push_df.merge(m_pop_df,how='left',on=['mykey'])
     df=df[df.op_y!='pop']
 
-    # final reduce
+    # final "reduce"
     df.sort_values(['uid_x'],axis=0,ascending=True)
     df=df[['mykey','myval_x']].copy()
     df.drop_duplicates(subset=['mykey','myval_x'],keep=keep,inplace=True) 
