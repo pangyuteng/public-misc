@@ -7,9 +7,10 @@ import yfinance as yf
 import scipy
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
-import tensorflow_datasets as tfds
+#import tensorflow_datasets as tfds
 import tensorflow as tf
 import time
+import traceback
 
 BUFFER_SIZE = 20000
 BATCH_SIZE = 64
@@ -441,7 +442,8 @@ def debug():
     sample_transformer = Transformer(num_layers, d_model,num_heads,dff)
     temp_input = tf.random.uniform((batch_size, input_seq_len, d_model), dtype=tf.float32, minval=-1, maxval=1)
     temp_target = tf.random.uniform((batch_size, target_seq_len, d_model), dtype=tf.float32, minval=-1, maxval=1)
-
+    print(temp_input.shape,'!!!')
+    print(temp_target.shape,'!!!')
     fn_out, _ = sample_transformer(temp_input, temp_target, training=False, 
                                    enc_padding_mask=None, 
                                    look_ahead_mask=None,
@@ -451,20 +453,22 @@ def debug():
     
     ####################
 
-
+FEATURE_DIM = 4
 def etl(history):
     df = pd.DataFrame()
     df['price'] = history.Close
+    df['volume'] = history.Volume
     df.index = history.index
     df['log_ret'] = np.log(df.price) - np.log(df.price.shift(1))
-    df['ret_mean'] = df.log_ret.rolling(21).mean()
+    df['price_mean'] = df.price.rolling(5).mean()
     df['hist_vol'] = df.log_ret.rolling(21).std()*np.sqrt(252)*100
     df = df.dropna()
     df['s_vol']=df.hist_vol
-    df['s_ret']=df.ret_mean
+    df['s_price']=df.price_mean # who would care
+    df['s_volume']=df.volume
     df['s_month']=df.index.month.values
     df['s_day']=df.index.day.values
-    data = df[['s_vol','s_ret','s_month','s_day']].values
+    data = df[['s_vol','s_price','s_month','s_day']].values
     #scaler = MinMaxScaler() # same reasoning, also not a fan of minmax scaler
     # compute zscore and scale to -1 to 1, and use tanh as oppose to clip so value still makes some sense for fat tails.
     scaler = preprocessing.StandardScaler()
@@ -472,20 +476,21 @@ def etl(history):
     transformed = scaler.transform(data)
     transformed = np.tanh(transformed)
     df['s_vol']=transformed[:,0]
-    df['s_ret']=transformed[:,1]
+    df['s_price']=transformed[:,1]
     df['s_month']=transformed[:,2]
     df['s_day']=transformed[:,3]
-    # add in interest rate.
-    return np.stack([df.s_vol.values,df.s_ret.values,df.s_month.values,df.s_day.values],axis=-1)
+    mylist = [df.s_vol.values,df.s_price.values,df.s_month.values,df.s_day.values]
+    assert(len(mylist)==FEATURE_DIM)
+    return np.stack(mylist,axis=-1)
 
-look_back=125
-look_forward=10
+look_back=80
+look_forward=20
 total_days = look_back+look_forward
 def chunckify(arr):
     tmp_list = []
     for x in np.arange(total_days,arr.shape[0]-total_days,look_forward):
         tmp = arr[x:x+total_days]
-        if tmp.shape != (total_days,4):
+        if tmp.shape != (total_days,FEATURE_DIM):
             continue
         x,y = tmp[:look_back,:],tmp[-1*look_forward:,:]
         tmp_list.append((x,y))
@@ -493,19 +498,29 @@ def chunckify(arr):
 
 url = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv'
 def train():
-    
-    input_seq_len = 125
-    target_seq_len = 9
+    '''
+        print("------------------")
+        input_seq_len = 80
+        target_seq_len = 20
+        batch_size = 32
+        
+        num_layers = 4
+        d_model = 4
+        dff = 4
+        num_heads = 4
+        dropout_rate = 0.1
+
+        transformer = Transformer(num_layers, d_model, num_heads, dff ,rate=dropout_rate,target_seq_len=target_seq_len)
+    '''
+    input_seq_len = 80
+    target_seq_len = 20
     batch_size = 32
     
     num_layers = 4
     d_model = 4
-    dff = 4
+    dff = 32
     num_heads = 4
     dropout_rate = 0.1
-
-    assert(look_back==input_seq_len)
-    assert(look_forward==target_seq_len+1)
 
     mock = False
     if mock:
@@ -528,6 +543,9 @@ def train():
         # https://www.tensorflow.org/guide/data_performance
     else:
 
+        assert(look_back==input_seq_len)
+        assert(look_forward==target_seq_len)
+
         data_exists = os.path.exists('X_train.npy')
         if data_exists:
             X_train = np.load('X_train.npy')
@@ -540,35 +558,36 @@ def train():
             final_list = []
             df=pd.read_csv(url)
             whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
-            whole_list_symbols.extend(list(df.Symbol.values))
+            #whole_list_symbols.extend(list(df.Symbol.values))
             
             for x in np.arange(0,len(whole_list_symbols),100):
                 try:
                     symbols = whole_list_symbols[x:x+100]
                     print(symbols)
                     ticker_list = yf.Tickers(' '.join(symbols))
+                    history = ticker_list.history(period="max")
                     for ticker in ticker_list.tickers:
                         try:
-                            history = ticker.history(period="max")
-                            print(ticker.ticker,history.shape)
-                            arr = etl(history)
+                            mydf = history[[('Close',ticker),('Volume',ticker)]]
+                            arr = etl(mydf)
                             if arr.shape[0] > total_days:
                                 tmp_list = chunckify(arr)
                                 final_list.extend(tmp_list)
                         except:
-                            pass
+                            traceback.print_exc()
                 except:
-                    pass
+                    traceback.print_exc()
+
             X = np.stack([x[0][:,:] for x in final_list],axis=0).astype(np.float32)
             y = np.stack([x[1][:,:] for x in final_list],axis=0).astype(np.float32)
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
             print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
-            #sys.exit(0)
             
             np.save('X_train.npy', X_train)
             np.save('X_test.npy', X_test)
             np.save('y_train.npy', y_train)
             np.save('y_test.npy', y_test)
+
 
         print(X_train.shape,y_train.shape,X_test.shape,y_test.shape)
         train_dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))
@@ -598,22 +617,23 @@ def train():
         return r_num / r_den
     
     #"acc..."
-    def accuracy_function(real, pred, axis=0):
+    def corr_func(real, pred, axis=0):
         y_true, y_pred = real[:,:,axis],pred[:,:,axis]
-        accuracies = correlation(y_pred, y_true)
-        return accuracies
+        corr = correlation(y_pred, y_true)
+        return corr
     
     train_loss = tf.keras.metrics.Mean(name='train_loss')
-    train_accuracy0 = tf.keras.metrics.Mean(name='train_accuracy0')
-    train_accuracy1 = tf.keras.metrics.Mean(name='train_accuracy1')
-    train_accuracy2 = tf.keras.metrics.Mean(name='train_accuracy2')
-    train_accuracy3 = tf.keras.metrics.Mean(name='train_accuracy3')
+    train_corr0 = tf.keras.metrics.Mean(name='train_corr0')
+    train_corr1 = tf.keras.metrics.Mean(name='train_corr1')
+    train_corr2 = tf.keras.metrics.Mean(name='train_corr2')
+    train_corr3 = tf.keras.metrics.Mean(name='train_corr3')
+
     
     val_loss = tf.keras.metrics.Mean(name='val_loss')
-    val_accuracy0 = tf.keras.metrics.Mean(name='val_accuracy0')
-    val_accuracy1 = tf.keras.metrics.Mean(name='val_accuracy1')
-    val_accuracy2 = tf.keras.metrics.Mean(name='val_accuracy2')
-    val_accuracy3 = tf.keras.metrics.Mean(name='val_accuracy3')
+    val_corr0 = tf.keras.metrics.Mean(name='val_corr0')
+    val_corr1 = tf.keras.metrics.Mean(name='val_corr1')
+    val_corr2 = tf.keras.metrics.Mean(name='val_corr2')
+    val_corr3 = tf.keras.metrics.Mean(name='val_corr3')
     
     #############
 
@@ -630,7 +650,7 @@ def train():
 
     ########
     
-    checkpoint_path = "./checkpoints/train"
+    checkpoint_path = "./checkpoints_price/train"
 
     ckpt = tf.train.Checkpoint(transformer=transformer,
                                optimizer=optimizer)
@@ -657,14 +677,15 @@ def train():
     ]
     
     @tf.function(input_signature=train_step_signature)
-    def eval_step(inp, tar):
-        tar_inp = tar[:, :-1,:]
-        tar_real = tar[:, 1:,:]
+    def eval_step(inp, tar_real):
+        #tar_inp = tar[:, :-1,:]
+        #tar_real = tar[:, 1:,:]
+        #enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar_inp[:,:,0])#tar[:,:,0])
 
-        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar_inp[:,:,0])#tar[:,:,0])
+        enc_padding_mask, look_ahead_mask, dec_padding_mask = None, None, None
 
         with tf.GradientTape() as tape:
-            predictions, _ = transformer(inp, tar_inp,
+            predictions, _ = transformer(inp, tar,
                                          training=True,
                                          enc_padding_mask=enc_padding_mask,
                                          look_ahead_mask=look_ahead_mask, 
@@ -673,20 +694,20 @@ def train():
             loss = loss_function(tar_real, predictions)
 
         val_loss(loss)
-        val_accuracy0(accuracy_function(tar_real, predictions, axis=0))
-        val_accuracy1(accuracy_function(tar_real, predictions, axis=1))
-        val_accuracy2(accuracy_function(tar_real, predictions, axis=2))
-        val_accuracy3(accuracy_function(tar_real, predictions, axis=3))
+        val_corr0(corr_func(tar_real, predictions, axis=0))
+        val_corr1(corr_func(tar_real, predictions, axis=1))
+        val_corr2(corr_func(tar_real, predictions, axis=2))
+        val_corr3(corr_func(tar_real, predictions, axis=3))
         
     @tf.function(input_signature=train_step_signature)
-    def train_step(inp, tar):
-        tar_inp  = tar[:, :-1,:]
-        tar_real = tar[:, 1:,:]
-        
-        enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar_inp[:,:,0])
+    def train_step(inp, tar_real):
+        #tar_inp  = tar[:, :-1,:]
+        #tar_real = tar[:, 1:,:]        
+        #enc_padding_mask, look_ahead_mask, dec_padding_mask = create_masks(inp[:,:,0], tar_inp[:,:,0])
 
+        enc_padding_mask, look_ahead_mask, dec_padding_mask = None, None, None
         with tf.GradientTape() as tape:
-            predictions, _ = transformer(inp, tar_inp,
+            predictions, _ = transformer(inp, tar,
                                          training=True, 
                                          enc_padding_mask=enc_padding_mask,
                                          look_ahead_mask=look_ahead_mask, 
@@ -698,10 +719,10 @@ def train():
         optimizer.apply_gradients(zip(gradients, transformer.trainable_variables))
 
         train_loss(loss)
-        train_accuracy0(accuracy_function(tar_real, predictions, axis=0))
-        train_accuracy1(accuracy_function(tar_real, predictions, axis=1))
-        train_accuracy2(accuracy_function(tar_real, predictions, axis=2))
-        train_accuracy3(accuracy_function(tar_real, predictions, axis=3))
+        train_corr0(corr_func(tar_real, predictions, axis=0))
+        train_corr1(corr_func(tar_real, predictions, axis=1))
+        train_corr2(corr_func(tar_real, predictions, axis=2))
+        train_corr3(corr_func(tar_real, predictions, axis=3))
     
     def to_yaml(history):
         with open('history.yml','w') as f:
@@ -712,16 +733,16 @@ def train():
         start = time.time()
 
         train_loss.reset_states()
-        train_accuracy0.reset_states()
-        train_accuracy1.reset_states()
-        train_accuracy2.reset_states()
-        train_accuracy3.reset_states()
+        train_corr0.reset_states()
+        train_corr1.reset_states()
+        train_corr2.reset_states()
+        train_corr3.reset_states()
 
         val_loss.reset_states()
-        val_accuracy0.reset_states()
-        val_accuracy1.reset_states()
-        val_accuracy2.reset_states()
-        val_accuracy3.reset_states()
+        val_corr0.reset_states()
+        val_corr1.reset_states()
+        val_corr2.reset_states()
+        val_corr3.reset_states()
         
         # inp -> portuguese, tar -> english
         for (batch, (inp, tar)) in enumerate(train_dataset):
@@ -734,7 +755,7 @@ def train():
 
         if batch % 50 == 0:
             print ('Epoch {} Batch {} Loss {:.4f} Accuracy {:.4f}'.format(
-              epoch + 1, batch, train_loss.result(), train_accuracy0.result()))
+              epoch + 1, batch, train_loss.result(), train_corr0.result()))
             
         if (epoch + 1) % 5 == 0:
             ckpt_save_path = ckpt_manager.save()
@@ -743,27 +764,34 @@ def train():
 
         print ('Epoch {} Train Loss {:.4f} Corr0 {:.4f} Corr1 {:.4f} Corr2 {:.4f} Corr3 {:.4f}'.format(epoch + 1, 
                                                     train_loss.result(), 
-                                                    train_accuracy0.result(),train_accuracy1.result(),train_accuracy2.result(),train_accuracy3.result()))
+                                                    train_corr0.result(),train_corr1.result(),train_corr2.result(),train_corr3.result()))
         
         print ('Epoch {} Val Loss {:.4f} Coor0 {:.4f} Coor1 {:.4f} Coor2 {:.4f} Coor3 {:.4f}'.format(
-          epoch + 1, val_loss.result(), val_accuracy0.result(), val_accuracy1.result(), val_accuracy2.result(), val_accuracy3.result()))
+          epoch + 1, val_loss.result(), val_corr0.result(), val_corr1.result(), val_corr2.result(), val_corr3.result()))
 
         print ('Time taken for 1 epoch: {} secs\n'.format(time.time() - start))
         item = dict(
             epoch=epoch,
             train_loss=float(train_loss.result()),
-            train_accuracy0=float(train_accuracy0.result()),
-            train_accuracy1=float(train_accuracy1.result()),
-            train_accuracy2=float(train_accuracy2.result()),
-            train_accuracy3=float(train_accuracy3.result()),
+            train_corr0=float(train_corr0.result()),
+            train_corr1=float(train_corr1.result()),
+            train_corr2=float(train_corr2.result()),
+            train_corr3=float(train_corr3.result()),
             val_loss=float(val_loss.result()),
-            val_accuracy0=float(val_accuracy0.result()),
-            val_accuracy1=float(val_accuracy1.result()),
-            val_accuracy2=float(val_accuracy2.result()),
-            val_accuracy3=float(val_accuracy3.result()),
+            val_corr0=float(val_corr0.result()),
+            val_corr1=float(val_corr1.result()),
+            val_corr2=float(val_corr2.result()),
+            val_corr3=float(val_corr3.result()),
         )
         history.append(item)
         to_yaml(history)
         
 if __name__ == '__main__':
-    train()
+    kind = sys.argv[1]
+    if kind == 'debug':
+        debug()
+    elif kind == 'train':
+        train()
+    else:
+        raise NotImplementedError()
+    

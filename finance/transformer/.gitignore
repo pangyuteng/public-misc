@@ -1,0 +1,6 @@
+*.npy
+checkpoints/*
+checkpoints_price/*
+ted_hrlr_translate_pt_en_converter.zip
+ted_hrlr_translate_pt_en_converter/*
+*.yml

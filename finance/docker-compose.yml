@@ -3,14 +3,14 @@ services:
   tasty:
     runtime: nvidia
     environment:
-      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=1
     image: tasty
     build:
       context: .
       dockerfile: Dockerfile
-    working_dir: /opt
+    working_dir: /workdir
     ports:
       - "8888:8888"
     volumes:
-      - ${PWD}:/opt
+      - ${PWD}:/workdir
     command: jupyter lab --ip='*' --port=8888 --allow-root --NotebookApp.token='' --NotebookApp.password=''
