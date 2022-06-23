@@ -13,10 +13,10 @@ seconday objective.  quick example to show case how to:
     + train and evaluate a vanilla transformer model using X & y s.
     + with the trained model, forecast next 5-day price trend for a basket of stocks.
 
-misc objective.
+misc thoughts.
 
-    + how are we ** not ** going to work neural networks into tasty.
-    + or if you want, tweak the code to attempt to predict volatility.
+    + the use case may be more usefule if you tweak the code to attempt to predict volatility.
+    + snr for future price return is low, so the 51% accuracy on test set is quiet comforting & surprising - indication of no overfitting using just free data.
 
 reading materials:
 
