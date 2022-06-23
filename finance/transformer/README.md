@@ -13,13 +13,6 @@ seconday objective.  quick example to show case how to:
     + train and evaluate a vanilla transformer model using X & y s.
     + with the trained model, forecast next 5-day price trend for a basket of stocks.
 
-misc thoughts.
-
-    + this model could be actually useful if you tweak the code to attempt to predict volatility.
-    + an alternative to predicting up/down is to predict up/down/sideways.
-    + as with all ml models, there are lots of hyperparameters that can be tuned, ideally you want to be retraining every so often, examining the data multiple times, and finally front-test prior actual deployment.
-    + snr for future price return is low, so the 51% accuracy on test set is quiet comforting & surprising - indication of no overfitting using just free data.
-
 reading materials:
 
 for traders: 
@@ -92,3 +85,13 @@ next five day forecast:
 
 ```
 
+misc thoughts.
+```
+
+    + this model could be actually useful if you tweak the code to attempt to predict volatility.
+    + an alternative to predicting up/down is to predict up/down/sideways.
+    + as with all ml models, there are lots of hyperparameters that can be tuned, ideally you want to be retraining every so often, examining the data multiple times, and finally front-test prior actual deployment.
+    + snr for future price return is low, so the 51% accuracy on test set is quiet comforting & surprising - indication of no overfitting using just free data.
+    + again, this is a "hello world" demo, do not use this as trading advice.
+
+```
