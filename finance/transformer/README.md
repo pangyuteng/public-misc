@@ -15,7 +15,7 @@ seconday objective.  quick example to show case how to:
 
 misc thoughts.
 
-    + the use case may be more usefule if you tweak the code to attempt to predict volatility.
+    + this model could be actually useful if you tweak the code to attempt to predict volatility.
     + snr for future price return is low, so the 51% accuracy on test set is quiet comforting & surprising - indication of no overfitting using just free data.
 
 reading materials:
