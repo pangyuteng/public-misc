@@ -3,7 +3,7 @@ training a transformer with financial data.
 
 ```
 
-reference. https://keras.io/examples/timeseries/timeseries_transformer_classification
+
 
 primary objective. for shits and giggles
 
@@ -13,19 +13,43 @@ seconday objective.  quick example to show case how to:
     + train and evaluate a vanilla transformer model using X & y s.
     + with the trained model, forecast next 5-day price trend for a basket of stocks.
 
+misc objective.
+
+    + how are we ** not ** going to work neural networks into tasty.
+    + or if you want, tweak the code to attempt to predict volatility.
+
+reading materials:
+
+for traders: 
+    a gentle intro on neural network by Julia Spina (@FinancePhoton)
+    https://www.tastytrade.com/shows/alpha-bytes/episodes/neural-networks-06-23-2022
+
+reference / for devs: 
+    Timeseries classification with a Transformer model by Theodoros Ntakouris (@zarkopafilis)
+    https://keras.io/examples/timeseries/timeseries_transformer_classification
+
 
 ```
 
 instructions
 
 ```
+
+# build container
+
+cd finance
+docker build -t tasty .
+
+
+
 # with no gpu
 
+cd finance/transformer
 docker run -it -u $(id -u):$(id -g) \
     -w /workdir -v $PWD:/workdir tasty:latest bash
 
 # with 1 gpu, device 0
-
+cd finance/transformer
 docker run -it -u $(id -u):$(id -g) \
     --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=1 
     -w /workdir -v $PWD:/workdir tasty:latest bash
