@@ -77,7 +77,7 @@ def get_latest_data(symbols=['SPY','QQQ',]):
 url = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv'
 def main():
     
-    symbols_list = ['SPY','QQQ','IWM','GLD','TSLA','NVDA','NFLX','AMC']
+    symbols_list = ['SPY','QQQ','IWM','GLD','UVXY','TLT','TSLA','NVDA','NFLX','AMC']
     #df=pd.read_csv(url)
     #symbols_list.extend(list(df.Symbol.values))
     final_list = []
