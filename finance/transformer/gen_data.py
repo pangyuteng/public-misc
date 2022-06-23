@@ -77,13 +77,13 @@ def get_latest_data(symbols=['SPY','QQQ',]):
 url = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv'
 def main():
     
-    whole_list_symbols = ['IWM','SPY','QQQ','GLD','SLV']
+    symbols_list = ['SPY','QQQ','IWM','GLD','TSLA','NVDA','NFLX','AMC']
     #df=pd.read_csv(url)
-    #whole_list_symbols.extend(list(df.Symbol.values))
+    #symbols_list.extend(list(df.Symbol.values))
     final_list = []
-    for x in np.arange(0,len(whole_list_symbols),100):
+    for x in np.arange(0,len(symbols_list),100):
         try:
-            symbols = whole_list_symbols[x:x+100]
+            symbols = symbols_list[x:x+100]
             print(symbols)
             ticker_list = yf.Tickers(' '.join(symbols))
             history = ticker_list.history(period="max")

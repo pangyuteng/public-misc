@@ -1,7 +1,7 @@
 from gen_data import get_latest_data
 from train import get_model, checkpoint_filepath
 
-symbols_list = ['SPY','QQQ','IWM','GLD']
+symbols_list = ['SPY','QQQ','IWM','GLD','TSLA','NVDA','NFLX','AMC']
 x = get_latest_data(symbols=symbols_list)
 print(x.shape)
 

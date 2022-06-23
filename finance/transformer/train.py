@@ -1,9 +1,5 @@
 """
-Title: Timeseries classification with a Transformer model
-Author: [Theodoros Ntakouris](https://github.com/ntakouris)
-Date created: 2021/06/25
-Last modified: 2021/08/05
-Description: This notebook demonstrates how to do timeseries classification using a Transformer model.
+reference. https://keras.io/examples/timeseries/timeseries_transformer_classification
 """
 
 import os

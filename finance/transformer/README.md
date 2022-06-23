@@ -18,8 +18,8 @@ python train.py
 # evaluate the model
 python evaluate.py
 
-train set: 56% accuracy
-test set: 55% accuracy
+train set: 60% accuracy
+test set: 57% accuracy
 
 
 # forecast next 5 day trend
@@ -28,12 +28,16 @@ python predict.py
 
 ```
 
-below shows sample output from `python predict.py`, indicating price trend will go up for SPY,QQQ,IWM (with 59% confidence) while GLD will likely go down (with lower confidence >50%).
+below shows sample output from `python predict.py`, indicating price trend will go up for all ticker below with 51 to 60% confidence.
 
 ```
-SPY [0.4073227  0.59267724]
-QQQ [0.4052036 0.5947964]
-IWM [0.40801558 0.5919844 ]
-GLD [0.502255   0.49774495]
+SPY [0.4309829 0.5690171]
+QQQ [0.40523878 0.5947612 ]
+IWM [0.38824543 0.61175454]
+GLD [0.48685786 0.5131421 ]
+TSLA [0.40803763 0.59196234]
+NVDA [0.41636002 0.58364   ]
+NFLX [0.4152975  0.58470243]
+AMC [0.39998144 0.6000186 ]
 ```
 
