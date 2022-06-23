@@ -65,13 +65,13 @@ def get_latest_data(symbols=['SPY','QQQ',]):
     ticker_list = yf.Tickers(' '.join(symbols))
     history = ticker_list.history(period="max")
     for ticker in ticker_list.tickers:
-        mydf = history[[('Close',ticker),('Volume',ticker)]]        
+        mydf = history[[('Close',ticker),('Volume',ticker)]]
         arr = etl(mydf)
         # get most recent Y
         arr = arr[-look_back:,1:]
         final_list.append(arr)
-    x = np.array(final_list)
-    return x
+    x = np.array(final_list)    
+    return x, history
 
 #DEBUG = False
 url = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv'
