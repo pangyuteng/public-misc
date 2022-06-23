@@ -21,7 +21,7 @@ misc objective.
 reading materials:
 
 for traders: 
-    a gentle intro on neural network by Julia Spina (@FinancePhoton)
+    a gentle intro to neural network by Julia Spina (@FinancePhoton)
     https://www.tastytrade.com/shows/alpha-bytes/episodes/neural-networks-06-23-2022
 
 reference / for devs: 
