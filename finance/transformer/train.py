@@ -62,6 +62,7 @@ def build_model(
     outputs = layers.Dense(n_classes, activation="softmax")(x)
     return keras.Model(inputs, outputs)
 
+checkpoint_filepath = 'model.h5'
 def get_model():
 
     model = build_model(
@@ -102,8 +103,7 @@ if __name__ == "__main__":
         metrics=["sparse_categorical_accuracy"],
     )
     model.summary()
-
-    checkpoint_filepath = 'model.h5'
+    
     model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
         filepath=checkpoint_filepath,
         save_weights_only=True,
