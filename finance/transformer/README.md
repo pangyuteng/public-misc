@@ -5,9 +5,6 @@
 
 training a transformer with financial data.
 ```
-
-
-
 primary objective. for shits and giggles
 
 seconday objective.  quick example to show case how to:
@@ -35,15 +32,12 @@ reference / for devs:
 ```
 
 instructions
-
 ```
 
 # build container
 
 cd finance
 docker build -t tasty .
-
-
 
 # with no gpu
 
@@ -56,7 +50,6 @@ cd finance/transformer
 docker run -it -u $(id -u):$(id -g) \
     --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=1 
     -w /workdir -v $PWD:/workdir tasty:latest bash
-
 
 # get historical data
 python gen_data.py
@@ -78,7 +71,6 @@ python predict.py
 ```
 
 below shows sample output from `python predict.py`, where model predicts the price trend for June 23-30 for a basket of tickers.
-
 ```
 
 historical data obtained (shape (7405, 10)) with last date being 2022-06-23 00:00:00
