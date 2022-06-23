@@ -16,6 +16,8 @@ seconday objective.  quick example to show case how to:
 misc thoughts.
 
     + this model could be actually useful if you tweak the code to attempt to predict volatility.
+    + an alternative to predicting up/down is to predict up/down/sideways.
+    + as with all ml models, there are lots of hyperparameters that can be tuned, ideally you want to be retraining every so often, examining the data multiple times, and finally front-test prior actual deployment.
     + snr for future price return is low, so the 51% accuracy on test set is quiet comforting & surprising - indication of no overfitting using just free data.
 
 reading materials:
