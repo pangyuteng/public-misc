@@ -1,6 +1,6 @@
 
 training a transformer with financial data.
-
+[<img src="./static/tom-nn.png">](https://www.tastytrade.com/shows/alpha-bytes/episodes/neural-networks-06-23-2022)
 ```
 
 
