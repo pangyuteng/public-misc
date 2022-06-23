@@ -9,7 +9,7 @@ primary objective. for shits and giggles
 
 seconday objective.  quick example to show case how to:
 
-    + transform price and volume as features (X) and "price trend for the following 5-day" as output (y).
+    + transform price and volume as `X` (features) and `y` (price trend for the following 5-day).
     + train and evaluate a vanilla transformer model using X & y s.
     + with the trained model, forecast next 5-day price trend for a basket of stocks.
 
@@ -40,8 +40,9 @@ python train.py
 # evaluate the model
 python evaluate.py
 
-train set: 63% accuracy
-test set: 51% accuracy
+# trained date 2022-06-23
+# train set: 63% accuracy
+# test set: 51% accuracy
 
 # forecast next 5 day trend
 python predict.py
