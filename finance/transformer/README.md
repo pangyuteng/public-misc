@@ -9,7 +9,7 @@ primary objective. for shits and giggles
 
 seconday objective.  quick example to show case how to:
 
-    + transform price and volume as `X` (features) and `y` (price trend for the following 5-day).
+    + transform price and volume as `X` (features from past 80 days) and `y` (price trend for the subsequent 5 days).
     + train and evaluate a vanilla transformer model using X & y s.
     + with the trained model, forecast next 5-day price trend for a basket of stocks.
 
