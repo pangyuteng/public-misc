@@ -70,18 +70,18 @@ below shows sample output from `python predict.py`, where model predicts the pri
 
 historical data obtained (shape (7405, 10)) with last date being 2022-06-23 00:00:00
 
-next five day forecast:
-  ticker  pred_int pred_str  pred_prob direction
-0    SPY         1       up   0.637715        up
-1    QQQ         1       up   0.674343        up
-2    IWM         1       up   0.713386        up
-3    GLD         0     down   0.500847      down
-4   UVXY         0     down   0.631274      down
-5    TLT         0     down   0.620470      down
-6   TSLA         1       up   0.699413        up
-7   NVDA         1       up   0.666117        up
-8   NFLX         1       up   0.670497        up
-9    AMC         1       up   0.687950        up
+next five day forecast: (executed on 2022-06-24 14:24:32 utc)
+  ticker  last_price  pred_prob direction
+0    SPY      387.01       0.62        up
+1    QQQ      292.93       0.56        up
+2    IWM      174.51       0.56        up
+3    GLD      170.39       0.57      down
+4   UVXY       14.25       0.54        up
+5    TLT      113.95       0.52      down
+6   TSLA      733.84       0.52      down
+7   NVDA      169.65       0.54        up
+8   NFLX      190.29       0.55        up
+9    AMC       12.31       0.50      down
 
 ```
 
@@ -91,7 +91,7 @@ misc thoughts.
     + this model could be actually useful if you tweak the code to attempt to predict volatility.
     + an alternative to predicting up/down is to predict up/down/sideways.
     + as with all ml models, there are lots of hyperparameters that can be tuned, ideally you want to be retraining every so often, examining the data multiple times, and finally front-test prior actual deployment.
-    + snr for future price return is low, so the 51% accuracy on test set is quiet comforting & surprising - indication of no overfitting using just free data.
+    + snr for future price return is low, so the 51% accuracy on test set (below that of train set) is quiet comforting & surprising. comforting and expected as this is indication of some overfitting, surprising as accuracy of 51% seems believable and counters the arguement that past price data provide no information to predict future price trend.
     + again, this is a "hello world" demo, do not use this as trading advice.
 
 ```
