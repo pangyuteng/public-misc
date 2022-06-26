@@ -16,18 +16,12 @@ last_date = rawdf.index[-1]
 mylist = []
 for ticker,yitem,vitem in zip(symbols_list,y_hat,v_hat):
     close_price = np.around(rawdf[('Close',ticker)][-1],2)
-    print(ticker,close_price,yitem,vitem)
-    idx_price = np.argmax(yitem)
-    pred_price = yitem[idx_price]
-    idx_volatility = np.argmax(vitem)
-    pred_volatility = vitem[idx_volatility]
+    print(ticker,close_price,'price',yitem,'volatility',vitem)
     mydict = dict(
         ticker=ticker,
         last_price=close_price,
-        price_prob=np.around(pred_price,2),
-        volatility_prob=np.around(pred_volatility,2),
-        price_trend='up' if idx_price == 1 else 'down',
-        volatility_trend='up' if idx_volatility ==1 else 'down',
+        price_trend='up' if yitem[-1]>yitem[0] else 'down',
+        volatility_trend='up' if vitem[-1]>vitem[0] else 'down',
     )
     mylist.append(mydict)
 df = pd.DataFrame(mylist)

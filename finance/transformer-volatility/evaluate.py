@@ -10,18 +10,18 @@ if __name__ == "__main__":
     x_train, x_test, yv_train, yv_test = train_test_split(X, Y, test_size=0.2, random_state=42)
     print(x_train.shape, x_test.shape, yv_train.shape, yv_test.shape)
         
-    y_train = yv_train[:,0]
-    v_train = yv_train[:,1]
+    y_train = yv_train[:,:,0]
+    v_train = yv_train[:,:,1]
 
-    y_test = yv_test[:,0]
-    v_test = yv_test[:,1]
+    y_test = yv_test[:,:,0]
+    v_test = yv_test[:,:,1]
 
     model = get_model()
     model.load_weights(checkpoint_filepath)
     model.compile(
-        loss=["sparse_categorical_crossentropy","sparse_categorical_crossentropy"],
+        loss=["mse","mse"],
         optimizer=keras.optimizers.Adam(learning_rate=1e-4),
-        metrics=["sparse_categorical_accuracy"],
+        metrics=["mse"],
     )
 
     out = model.evaluate(x_train, [y_train,v_train], verbose=1)

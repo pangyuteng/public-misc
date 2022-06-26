@@ -55,15 +55,15 @@ def build_model(
     for dim in mlp_units:
         x = layers.Dense(dim, activation="relu")(x)
         x = layers.Dropout(mlp_dropout)(x)
-    outputs0 = layers.Dense(2, activation="softmax")(x)
-    outputs1 = layers.Dense(2, activation="softmax")(x)
+    outputs0 = layers.Dense(5, activation="tanh")(x)
+    outputs1 = layers.Dense(5, activation="tanh")(x)
     return keras.Model(inputs, [outputs0,outputs1])
 
 checkpoint_filepath = 'model.h5'
 def get_model():
 
     model = build_model(
-        input_shape=(80,4),
+        input_shape=(80,5),
         n_classes=2,
         head_size=256,
         num_heads=4,
@@ -85,20 +85,20 @@ if __name__ == "__main__":
     idx = np.random.permutation(np.arange(x_train.shape[0]))
 
     x_train = x_train[idx,:,:]
-    y_train = yv_train[idx,0]
-    v_train = yv_train[idx,1]
+    y_train = yv_train[idx,:,0]
+    v_train = yv_train[idx,:,1]
     
-    y_test = yv_test[:,0]
-    v_test = yv_test[:,1]
+    y_test = yv_test[:,:,0]
+    v_test = yv_test[:,:,1]
     
     input_shape = x_train.shape[1:]
-    assert(input_shape==(80,4))
+    assert(input_shape==(80,5))
     
     model = get_model()
     model.compile(
-        loss=["sparse_categorical_crossentropy","sparse_categorical_crossentropy"],
+        loss=["mse","mse"],
         optimizer=keras.optimizers.Adam(learning_rate=1e-4),
-        metrics=["sparse_categorical_accuracy"],
+        metrics=["mse"],
     )
 
     model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
