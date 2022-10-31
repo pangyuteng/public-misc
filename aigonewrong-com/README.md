@@ -11,12 +11,14 @@ source myvenv/bin/activate
 pip install -r requirements.txt
 
 
-stage: prod
-lambda name: zappa-aigonewrong-com
 
 zappa init
-zappa deploy production
-zappa update production
+
+-- stage: prod
+-- lambda name: zappa-aigonewrong-com
+
+zappa deploy prod
+zappa update prod
 
 
 https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html

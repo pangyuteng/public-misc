@@ -3,8 +3,7 @@
 
 ```
 
-
-aigonewrong
+aigonewrong.com
 
 ```
 
