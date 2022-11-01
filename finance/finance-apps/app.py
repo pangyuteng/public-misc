@@ -1,9 +1,11 @@
 import argparse
 from flask import Flask, render_template, request, jsonify
 from PIL import Image
+import os
 import base64
 import io
 import tempfile
+
 import numpy as np
 import pandas as pd
 import yfinance as yf
