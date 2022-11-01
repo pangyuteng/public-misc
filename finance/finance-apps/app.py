@@ -14,29 +14,22 @@ def generate_plot(file_path,lookback=0,roll=200):
 
     # get historical daily price for SPY and ^VIX
     sector_list = ['XLE','XLF','XLU','XLI','XLK','XLV','XLY','XLP','XLB']
-    ticker_list = ['^VIX','^TNX','^IRX']
+    ticker_list = ['SPY','^VIX','^TNX','^IRX']
     ticker_list.extend(sector_list)
-    spy_history = yf.Ticker('SPY').history(period="max")
-    ret = np.log(spy_history.Close) - np.log(spy_history.Close.shift(1))
-    spy_history['ret']=ret
+    cool = ' '.join(ticker_list)
 
-    df=pd.DataFrame()
-    df['SPY_ret'] = spy_history['ret']
-    df['SPY'] = spy_history.Close
-
+    df = yf.download(cool,period="max",interval="1d")
+    df = df['Close']
+    df=df.dropna()
+    spy_ret = np.log(df['SPY']) - np.log(df['SPY'].shift(1))
+    df['SPY_ret'] = spy_ret
 
     for x in ticker_list:
-        if x.startswith('^'):        
-            tmp = yf.Ticker(x).history(period="max")
-            tmp[x] = tmp.Close
-            tmp = tmp[[x]]
-            df = pd.merge(df,tmp,how='left',on=['Date'])
+        if x.startswith('^'):
+            pass
         else:
-            tmp = yf.Ticker(x).history(period="max")
-            print(x,tmp.columns)
-            tmp[x+"_ret"]=np.log(tmp.Close) - np.log(tmp.Close.shift(1))
-            tmp = tmp[[x+"_ret"]]
-            df = pd.merge(df,tmp,how='left',on=['Date'])
+            price_ret=np.log(df[x]) - np.log(df[x].shift(1))
+            df[x+"_ret"]=price_ret
     df = df.dropna()
     odf = df.copy()
     print(df.shape)
@@ -46,7 +39,6 @@ def generate_plot(file_path,lookback=0,roll=200):
     m2sl = pd.read_csv(m2sl_url)
     m2sl['Date'] = m2sl.DATE.apply(lambda x: datetime.datetime.strptime(x,"%Y-%m-%d"))
     m2sl = m2sl.set_index('Date')
-    m2sl.index = pd.to_datetime(m2sl.index).tz_localize('est')
     m2sl = m2sl.reindex(odf.index, method='ffill')
     m2sl = m2sl[['M2SL']]
     print(df.shape)
@@ -107,7 +99,7 @@ def ping():
 # https://stackoverflow.com/questions/20107414/passing-a-matplotlib-figure-to-html-flask
 @app.route('/finance/us-market-misc-plots')
 def misc_plots():
-    lookback_days = int(request.args.get('lookback_days',-500))
+    lookback_days = int(request.args.get('lookback_days',-2000))
     roll_days = int(request.args.get('roll_days',200))
 
     file_path = "generated_plot.png"
