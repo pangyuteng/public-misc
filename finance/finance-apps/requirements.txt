@@ -1,0 +1,11 @@
+flask>=2.2.2
+zappa>=0.55.0
+matplotlib>=3.6.1
+yfinance>=0.1.84
+# keep lambda small
+#numba==0.51.2
+#py_vollib==1.0.1
+#seaborn
+#statsmodels
+#scikit-learn
+#pyyaml
