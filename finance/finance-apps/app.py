@@ -12,6 +12,8 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import datetime
 
+yf.set_tz_cache_location("/tmp/cache/location")
+
 def generate_plot(file_path,lookback=0,roll=200):
 
     # get historical daily price for SPY and ^VIX
