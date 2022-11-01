@@ -12,6 +12,7 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import datetime
 
+# perm issue with default cache dir, switch to /tmp
 yf.set_tz_cache_location("/tmp/cache/location")
 
 def generate_plot(file_path,lookback=0,roll=200):
