@@ -1,5 +1,5 @@
 import argparse
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from PIL import Image
 import base64
 import io
