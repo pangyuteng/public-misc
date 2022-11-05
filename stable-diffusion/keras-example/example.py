@@ -5,7 +5,7 @@ import keras_cv
 from tensorflow import keras
 import imageio
 
-BATCH_SIZE = 3
+BATCH_SIZE = 5
 text = """
 artificial intelligence gone wrong, watercolor
 """
