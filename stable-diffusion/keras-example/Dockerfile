@@ -9,8 +9,3 @@ RUN git clone https://github.com/fchollet/stable-diffusion-tensorflow
 WORKDIR /opt/stable-diffusion-tensorflow
 RUN pip install -r requirements.txt
 RUN python setup.py install
-
-# download model as part of container
-WORKDIR /opt/
-COPY init.py .
-RUN python init.py 
