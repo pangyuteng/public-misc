@@ -7,4 +7,8 @@ docker build -t keras-stable-diffusion .
 
 docker run --runtime=nvidia -it -u $(id -u):$(id -g) -w $PWD -v /mnt:/mnt keras-stable-diffusion bash
 
+python example.py
+
+cd /opt/stable-diffusion-tensorflow
+
 ```

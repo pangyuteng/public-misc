@@ -4,3 +4,13 @@ RUN python -m pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt 
 
+WORKDIR /opt/
+RUN git clone https://github.com/fchollet/stable-diffusion-tensorflow
+WORKDIR /opt/stable-diffusion-tensorflow
+RUN pip install -r requirements.txt
+RUN python setup.py install
+
+# download model as part of container
+WORKDIR /opt/
+COPY init.py .
+RUN python init.py 
