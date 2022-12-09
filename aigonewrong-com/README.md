@@ -38,8 +38,17 @@ once lambda deploy via zappa, goto coresponding apigateway: https://us-east-1.co
 + create domainname `www.aigonewrong.com` and associate it with the just created ACM certificate ( cert may take 10 min to get created/approved )
 + once created, use `Configure API mappings` to map to lambda
 
-+ go back to route53, and goto hostedzones->CreateRecord, follow below to create route to api gateway
++ go back to route53, and goto hostedzones->CreateRecord, follow below to create route to api gateway ( use simple record )
+```
+www.aigonewrong.com
+Record type: A 
+Route to: api gateway us-east-1 xxxxxxxx.execute-api...
+```
+https://hackernoon.com/how-to-setup-subdomain-for-aws-api-gateway-d526a9fd6722
 https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-api-gateway.html
+
+
+
 
 
 ```

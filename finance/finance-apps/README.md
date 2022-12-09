@@ -11,4 +11,8 @@ zappa init
 zappa deploy prod
 zappa update prod
 
+
+api-gateway, api mappings
+finance-apps-prod, prod, `finance/us-market-misc-plots`
+
 ```
