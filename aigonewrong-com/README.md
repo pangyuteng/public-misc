@@ -5,8 +5,8 @@ sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt-get update
 sudo apt-get install python3.8-dev python3.8-venv -yq
 
-python3.8 -m venv myvenv
-source myvenv/bin/activate
+python3.8 -m venv ~/virtual_env/agw-com
+source ~/virtual_env/agw-com/bin/activate
 
 pip install -r requirements.txt
 
@@ -16,6 +16,9 @@ zappa init
 
 -- stage: prod
 -- lambda name: zappa-aigonewrong-com
+
+echo $(openssl rand -hex 4)
+append above to s3_bucket in `zappa_settings.json`
 
 zappa deploy prod
 zappa update prod
@@ -47,6 +50,14 @@ Route to: api gateway us-east-1 xxxxxxxx.execute-api...
 https://hackernoon.com/how-to-setup-subdomain-for-aws-api-gateway-d526a9fd6722
 https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-api-gateway.html
 
+
+
++ create a wild card certificate
+*.aigonewrong.com
++ then click "Create records in Route 53 "(or copied CNAME name and value from above certificate to aigonewrong.com hosted zone
+by adding "create record" just like prior certificate (??? forgot if i did this or aws did it automagicallyh) )
+
++ "create record" again with "dev*****.aigonewrong.com" and route to same gateway api domain address
 
 
 

@@ -5,6 +5,6 @@
         "profile_name": "default",
         "project_name": "aigonewrong-com",
         "runtime": "python3.8",
-        "s3_bucket": "zappa-aigonewrong-com"
+        "s3_bucket": "zappa-aigonewrong-com-99c6c55e"
     }
 }
