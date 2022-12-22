@@ -14,7 +14,7 @@ os.makedirs(folder,exist_ok=True)
 print(text)
 print(folder)
 
-BATCH_SIZE = 5
+BATCH_SIZE = 20
 model = keras_cv.models.StableDiffusion(img_width=512, img_height=512)
 for x in range(BATCH_SIZE):
     images = model.text_to_image(text,batch_size=1)
