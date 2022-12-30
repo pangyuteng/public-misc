@@ -5,7 +5,7 @@ import os
 import base64
 import io
 import tempfile
-
+import traceback
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -106,15 +106,18 @@ def ping():
 def misc_plots():
     lookback_days = int(request.args.get('lookback_days',-2000))
     roll_days = int(request.args.get('roll_days',200))
-    
-    with tempfile.TemporaryDirectory() as tmpdirname:        
-        file_path = os.path.join(tmpdirname,"generated_plot.png")
-        generate_plot(file_path,lookback=lookback_days,roll=roll_days)
-        im = Image.open(file_path) #Open the generated image
-        data = io.BytesIO() 
-        im.save(data, "png")
-        encoded_img_data = base64.b64encode(data.getvalue())
-
+    try:
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            file_path = os.path.join(tmpdirname,"generated_plot.png")
+            generate_plot(file_path,lookback=lookback_days,roll=roll_days)
+            im = Image.open(file_path) #Open the generated image
+            data = io.BytesIO()
+            im.save(data, "png")
+            encoded_img_data = base64.b64encode(data.getvalue())
+    except:
+        traceback.print_exc()
+        myerror = {"message":"likely data pulling from yahoo finance failed.","traceback":traceback.format_exc()}
+        return jsonify(myerror)
     return render_template("misc_plots.html", misc_img=encoded_img_data.decode('utf-8'))
 
 
