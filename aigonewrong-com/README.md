@@ -5,8 +5,8 @@ sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt-get update
 sudo apt-get install python3.8-dev python3.8-venv -yq
 
-python3.8 -m venv ~/virtual_env/agw-com
-source ~/virtual_env/agw-com/bin/activate
+python3.8 -m venv /mnt/scratch/venv/agw-com
+source /mnt/scratch/venv/agw-com/bin/activate
 
 pip install -r requirements.txt
 

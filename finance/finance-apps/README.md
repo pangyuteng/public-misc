@@ -1,6 +1,7 @@
 ```
-python3.8 -m venv ~/virtual_env/myvenv
-source ~/virtual_env/myvenv/bin/activate
+
+python3.8 -m venv /mnt/scratch/venv/myvenv
+source /mnt/scratch/venv/myvenv/bin/activate
 pip install -r requirements.txt
 
 zappa init
