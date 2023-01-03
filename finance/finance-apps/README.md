@@ -1,7 +1,7 @@
 ```
 
-python3.8 -m venv /mnt/scratch/venv/myvenv
-source /mnt/scratch/venv/myvenv/bin/activate
+python3.8 -m venv /mnt/scratch/venv/finance
+source /mnt/scratch/venv/finance/bin/activate
 pip install -r requirements.txt
 
 zappa init
