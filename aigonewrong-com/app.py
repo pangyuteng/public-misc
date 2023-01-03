@@ -1,6 +1,8 @@
 import argparse
 import traceback
 import os
+import sys
+import json
 import tempfile
 
 from flask import (
@@ -25,6 +27,23 @@ def ping():
 @app.route("/")
 def serve():
     return render_template('home.html')
+
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+NOSTR_JSON_FILE = os.path.join(THIS_DIR,'nostr.json')
+with open(NOSTR_JSON_FILE,'r') as f:
+    nostr_json = json.loads(f.read())
+
+@app.route("/.well-known/nostr.json")
+def well_known_nostr():
+    try:
+        if request.method == "GET":
+            name = request.args.get("name")
+            if name is not None and name == "aigonewrong":
+                return jsonify(nostr_json),200
+        return jsonify({"message":"invalid request"}),401
+    except:
+        traceback.print_exc()
+        return jsonify({"message":"unexpected error"}),401
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
