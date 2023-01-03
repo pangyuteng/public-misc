@@ -39,7 +39,9 @@ def well_known_nostr():
         if request.method == "GET":
             name = request.args.get("name")
             if name is not None and name == "aigonewrong":
-                return jsonify(nostr_dict)
+                response = jsonify(nostr_dict)
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                return response
         return jsonify({"message":"invalid request"}),401
     except:
         traceback.print_exc()
