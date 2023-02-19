@@ -76,7 +76,7 @@ def preprocess_image(data):
     return tf.clip_by_value(image / 255.0, 0.0, 1.0)
 
 
-def prepare_dataset(split):
+def prepare_datasetBAK(split):
     # the validation dataset is shuffled as well, because data order matters
     # for the KID estimation
     return (
@@ -90,10 +90,35 @@ def prepare_dataset(split):
     )
 
 
-# load dataset
-train_dataset = prepare_dataset("train[:80%]+validation[:80%]+test[:80%]")
-val_dataset = prepare_dataset("train[80%:]+validation[80%:]+test[80%:]")
+def prepare_dataset():
+    directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
+    train_ds, val_ds = tf.keras.utils.image_dataset_from_directory(
+        directory,
+        label_mode=None,
+        validation_split=0.2,
+        subset="both",
+        seed=1337,
+        image_size=(image_size,image_size),
+        batch_size=batch_size,
+    )
+    return (train_ds
+    .cache()
+    .repeat(dataset_repetitions)
+    .shuffle(10 * batch_size)
+    .batch(batch_size, drop_remainder=True)
+    .prefetch(buffer_size=tf.data.AUTOTUNE)),(
+    val_ds
+    .cache()
+    .repeat(dataset_repetitions)
+    .shuffle(10 * batch_size)
+    .batch(batch_size, drop_remainder=True)
+    .prefetch(buffer_size=tf.data.AUTOTUNE)
+    )
 
+# load dataset
+#train_dataset = prepare_dataset("train[:80%]+validation[:80%]+test[:80%]")
+#val_dataset = prepare_dataset("train[80%:]+validation[80%:]+test[80%:]")
+train_dataset, val_dataset = prepare_dataset()
 """
 ## Kernel inception distance
 
