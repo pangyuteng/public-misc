@@ -126,10 +126,10 @@ for images in train_dataset.take(1):
         ax = plt.subplot(3, 3, i + 1)
         plt.imshow(images[i,:].numpy().astype("uint8"))
         plt.axis("off")
-        os.makedirs('tmp',exist_ok=True)
-        plt.savefig(f"tmp/{test-i:05d}.png")
-        plt.close()
-sys.exit(1)
+    os.makedirs('tmp',exist_ok=True)
+    plt.savefig(f"tmp/test.png")
+    plt.close()
+
 """
 ## Kernel inception distance
 
