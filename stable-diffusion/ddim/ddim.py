@@ -555,7 +555,8 @@ class DiffusionModel(keras.Model):
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
-        plt.savefig(f"{epoch:05d}.png")
+        os.makedirs('tmp',exist_ok=True)
+        plt.savefig(f"tmp/{epoch:05d}.png")
         plt.close()
 
 
