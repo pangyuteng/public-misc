@@ -4,6 +4,7 @@ https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
 20a32b18c0b95e914101ec226ef35af9fdac3970
 """
 import os
+import sys
 import math
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -105,13 +106,11 @@ def prepare_dataset():
     .cache()
     .repeat(dataset_repetitions)
     .shuffle(10 * batch_size)
-    .batch(batch_size, drop_remainder=True)
     .prefetch(buffer_size=tf.data.AUTOTUNE)),(
     val_ds
     .cache()
     .repeat(dataset_repetitions)
     .shuffle(10 * batch_size)
-    .batch(batch_size, drop_remainder=True)
     .prefetch(buffer_size=tf.data.AUTOTUNE)
     )
 
@@ -119,6 +118,18 @@ def prepare_dataset():
 #train_dataset = prepare_dataset("train[:80%]+validation[:80%]+test[:80%]")
 #val_dataset = prepare_dataset("train[80%:]+validation[80%:]+test[80%:]")
 train_dataset, val_dataset = prepare_dataset()
+
+plt.figure(figsize=(10, 10))
+for images in train_dataset.take(1):
+    print(images.shape)
+    for i in range(batch_size):
+        ax = plt.subplot(3, 3, i + 1)
+        plt.imshow(images[i,:].numpy().astype("uint8"))
+        plt.axis("off")
+        os.makedirs('tmp',exist_ok=True)
+        plt.savefig(f"tmp/{test-i:05d}.png")
+        plt.close()
+sys.exit(1)
 """
 ## Kernel inception distance
 
