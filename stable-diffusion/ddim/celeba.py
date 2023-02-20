@@ -86,8 +86,8 @@ def prepare_dataset():
     directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
     path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
     
-    train_dg = MyGenerator(path_list[:-1000],batch_size)
-    val_dg = MyGenerator(path_list[-1000:],batch_size)
+    train_dg = MyGenerator(path_list[:1000],batch_size)
+    val_dg = MyGenerator(path_list[1000:2000],batch_size)
     
     output_shapes = (image_size,image_size,3)
 
@@ -117,21 +117,6 @@ for images in train_dataset.take(1):
     os.makedirs('tmp',exist_ok=True)
     plt.savefig(f"tmp/test.png")
     plt.close()
-
-
-# plt.figure(figsize=(10, 10))
-# for n in range(1):
-#     images = train_dataset[n]
-#     for i in range(batch_size):
-#         ax = plt.subplot(3, 3, i + 1)
-#         img = (images[i,:]*255).clip(0,255).astype("uint8")
-#         plt.imshow(img)
-#         plt.axis("off")
-#         if i > 7 :
-#             break
-#     os.makedirs('tmp',exist_ok=True)
-#     plt.savefig(f"tmp/test.png")
-#     plt.close()
 
 """
 ## Kernel inception distance
