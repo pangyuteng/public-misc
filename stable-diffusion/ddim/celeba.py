@@ -559,9 +559,9 @@ class DiffusionModel(keras.Model):
         plt.show()
         os.makedirs('tmp',exist_ok=True)
         if isinstance(epoch,int):
-            fname = f"{epoch:05d}.png"
+            fname = f"tmp/{epoch:05d}.png"
         else:
-            fname = f"{epoch}"
+            fname = f"tmp/{epoch}"
         plt.savefig(fname)
         plt.close()
 

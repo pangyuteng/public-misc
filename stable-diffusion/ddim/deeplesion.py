@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 """
 
 # data
-dataset_name = "oxford_flowers102"
 dataset_repetitions = 5
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
@@ -48,15 +47,17 @@ ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
 
+min_val,max_val = -1000,1000
 def png_read(file_path):
-    #im = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
-    #im = (im.astype(np.int32) - 32768).astype(np.int16) # HU
-    #im = ((im + 1024)/(1024 + 3071))*255
+
     file_path = file_path.decode('utf-8')
-    img = imageio.imread(file_path)
+
+    img = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
+    img = (img.astype(np.int32) - 32768).astype(np.int16) # HU
     img = img.astype(np.float32)
-    img = (img/255.0).clip(0,1)
+    img = ((img - min_val)/(max_val-min_val)).clip(0,1)
     img = resize(img,(image_size,image_size),anti_aliasing=True)
+    img = np.tile(img,(1,1,3))
     dummpy = np.array([0.0]).astype(np.float32)
     return img, dummpy
 
@@ -66,11 +67,13 @@ def parse_fn(file_path):
         inp=[file_path],
         Tout=[tf.float32, tf.float32],
     )
+    img = tf.reshape(img, [image_size,image_size,3])
     return img
 
 def prepare_dataset():
-    directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
-    path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
+    directory = '/mnt/hd2/data/DeepLesion/Images_png'
+    path_list = [str(x) for x in Path(directory).rglob('*.png')]
+    print(len(path_list))
 
     train_ds = tf.data.experimental.from_list(path_list[:1000]).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
@@ -86,9 +89,10 @@ train_dataset , val_dataset = prepare_dataset()
 
 plt.figure(figsize=(10, 10))
 for images in train_dataset.take(1):
+    print(images.shape)
     for i in range(batch_size):
         ax = plt.subplot(3, 3, i + 1)
-        plt.imshow((images[i,:].numpy()*255).astype("uint8"))
+        plt.imshow((images[i,:].numpy()*255).astype("uint8"),cmap='gray')
         plt.axis("off")
         if i > 7 :
             break
@@ -553,15 +557,15 @@ class DiffusionModel(keras.Model):
             for col in range(num_cols):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
-                plt.imshow(generated_images[index])
+                plt.imshow(generated_images[index],cmap='gray')
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
         os.makedirs('tmp',exist_ok=True)
         if isinstance(epoch,int):
-            fname = f"{epoch:05d}.png"
+            fname = f"tmp/{epoch:05d}.png"
         else:
-            fname = f"{epoch}"
+            fname = f"tmp/{epoch}"
         plt.savefig(fname)
         plt.close()
 
@@ -601,8 +605,8 @@ model.normalizer.adapt(train_dataset)
 model.fit(
     train_dataset,
     epochs=num_epochs,
-    steps_per_epoch=10,
-    validation_steps=10,
+    steps_per_epoch=10,#000,
+    validation_steps=10,#000,
     validation_data=val_dataset,
     callbacks=[
         keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
