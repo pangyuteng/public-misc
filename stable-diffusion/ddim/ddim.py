@@ -127,6 +127,8 @@ for images in train_dataset.take(1):
         ax = plt.subplot(3, 3, i + 1)
         plt.imshow(images[i,:].numpy().astype("uint8"))
         plt.axis("off")
+        if i>8:
+            break
     os.makedirs('tmp',exist_ok=True)
     plt.savefig(f"tmp/test.png")
     plt.close()
