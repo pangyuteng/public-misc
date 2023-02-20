@@ -39,7 +39,7 @@ widths = [32, 64, 96, 128]
 block_depth = 2
 
 # optimization
-batch_size = 4
+batch_size = 64
 ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
@@ -78,7 +78,7 @@ def preprocess_image(data):
     return tf.clip_by_value(image / 255.0, 0.0, 1.0)
 
 
-def prepare_datasetBAK(split):
+def prepare_dataset(split):
     # the validation dataset is shuffled as well, because data order matters
     # for the KID estimation
     return (
@@ -92,7 +92,7 @@ def prepare_datasetBAK(split):
     )
 
 
-def prepare_dataset():
+def prepare_datasetBAK():
     directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
     train_ds, val_ds = tf.keras.utils.image_dataset_from_directory(
         directory,
@@ -116,9 +116,9 @@ def prepare_dataset():
     )
 
 # load dataset
-#train_dataset = prepare_dataset("train[:80%]+validation[:80%]+test[:80%]")
-#val_dataset = prepare_dataset("train[80%:]+validation[80%:]+test[80%:]")
-train_dataset, val_dataset = prepare_dataset()
+train_dataset = prepare_dataset("train[:80%]+validation[:80%]+test[:80%]")
+val_dataset = prepare_dataset("train[80%:]+validation[80%:]+test[80%:]")
+#train_dataset, val_dataset = prepare_dataset()
 
 plt.figure(figsize=(10, 10))
 for images in train_dataset.take(1):
