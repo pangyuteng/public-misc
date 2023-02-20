@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 """
 
 # data
-dataset_repetitions = 5
+dataset_repetitions = 100
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
 
@@ -427,7 +427,7 @@ class DiffusionModel(keras.Model):
         plt.tight_layout()
         plt.show()
         os.makedirs('tmp',exist_ok=True)
-        plt.savefig(f"tmp/{epoch:05d}.png")
+        plt.savefig(f"tmp/lesion{epoch:05d}.png")
         plt.close()
 
 
