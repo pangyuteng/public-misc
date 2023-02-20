@@ -57,6 +57,7 @@ def png_read(file_path):
     img = img.astype(np.float32)
     img = ((img - min_val)/(max_val-min_val)).clip(0,1)
     img = resize(img,(image_size,image_size),anti_aliasing=True)
+    img = np.expand_dims(img,axis=-1)
     img = np.tile(img,(1,1,3))
     dummpy = np.array([0.0]).astype(np.float32)
     return img, dummpy
