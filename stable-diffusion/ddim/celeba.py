@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 """
 
 # data
-dataset_repetitions = 100
+dataset_repetitions = 1000
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
 
@@ -72,7 +72,7 @@ def prepare_dataset():
     directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
     path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
 
-    train_ds = tf.data.experimental.from_list(path_list[:1000]).map(
+    train_ds = tf.data.experimental.from_list(path_list[:-1000]).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 

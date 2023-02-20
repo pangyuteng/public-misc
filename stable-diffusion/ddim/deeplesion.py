@@ -76,7 +76,7 @@ def prepare_dataset():
     path_list = [str(x) for x in Path(directory).rglob('*.png')]
     print(len(path_list))
 
-    train_ds = tf.data.experimental.from_list(path_list[:1000]).map(
+    train_ds = tf.data.experimental.from_list(path_list[:-1000]).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
