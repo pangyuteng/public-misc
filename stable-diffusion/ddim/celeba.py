@@ -75,6 +75,7 @@ class MyGenerator():
         return len(self.indices)
 
     def __getitem__(self, idx):
+        print(idx)
         return png_read(self.x[idx])
     
     def on_epoch_end(self):
@@ -92,11 +93,13 @@ def prepare_dataset():
 
     train_ds = tf.data.Dataset.from_generator(
         train_dg, output_shapes=output_shapes,output_types=(tf.float32)
-    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    ).cache().shuffle(2 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    #.cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
     
     val_ds = tf.data.Dataset.from_generator(
         val_dg, output_shapes=output_shapes,output_types=(tf.float32)
-    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    ).cache().shuffle(2 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    #.cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
     return train_ds, val_ds
 
