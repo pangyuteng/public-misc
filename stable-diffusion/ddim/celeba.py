@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 """
 
 # data
-dataset_name = "oxford_flowers102"
 dataset_repetitions = 5
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
@@ -48,66 +47,45 @@ ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
 
+def png_read(file_path):
+    #im = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
+    #im = (im.astype(np.int32) - 32768).astype(np.int16) # HU
+    #im = ((im + 1024)/(1024 + 3071))*255
+    file_path = file_path.decode('utf-8')
+    img = imageio.imread(file_path)
+    img = img.astype(np.float32)
+    img = (img/255.0).clip(0,1)
+    img = resize(img,(image_size,image_size),anti_aliasing=True)
+    dummpy = np.array([0.0]).astype(np.float32)
+    return img, dummpy
 
-def png_read(image_path):
-    #im = cv2.imread(image_path)
-    im = imageio.imread(image_path)
-    im = im.astype(np.float16)
-    im = (im/255.0).clip(0,1)
-    im = resize(im, (image_size,image_size),anti_aliasing=True)
-    return im
-
-class MyGenerator():
-    def __init__(self,file_list,batch_size):
-        self.x = np.array(file_list)
-        self.indices = np.arange(len(self.x))
-        self.batch_size = batch_size
-        self.shuffle = True
-        
-    def __call__(self):
-        for i in range(self.__len__()):
-            yield self.__getitem__(i)
-            
-            if i == self.__len__()-1:
-                self.on_epoch_end()
-
-    def __len__(self):
-        return len(self.indices)
-
-    def __getitem__(self, idx):
-        print(idx)
-        return png_read(self.x[idx])
-    
-    def on_epoch_end(self):
-        if self.shuffle:
-            np.random.shuffle(self.indices)
+def parse_fn(file_path):
+    img, dummy = tf.numpy_function(
+        func=png_read, 
+        inp=[file_path],
+        Tout=[tf.float32, tf.float32],
+    )
+    img = tf.reshape(img, [image_size,image_size,3])
+    return img
 
 def prepare_dataset():
     directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
     path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
-    
-    train_dg = MyGenerator(path_list[:1000],batch_size)
-    val_dg = MyGenerator(path_list[1000:2000],batch_size)
-    
-    output_shapes = (image_size,image_size,3)
 
-    train_ds = tf.data.Dataset.from_generator(
-        train_dg, output_shapes=output_shapes,output_types=(tf.float32)
-    ).cache().shuffle(2 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
-    #.cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
-    
-    val_ds = tf.data.Dataset.from_generator(
-        val_dg, output_shapes=output_shapes,output_types=(tf.float32)
-    ).cache().shuffle(2 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
-    #.cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    train_ds = tf.data.experimental.from_list(path_list[:1000]).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
+    val_ds = tf.data.experimental.from_list(path_list[-1000:]).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    
     return train_ds, val_ds
 
 train_dataset , val_dataset = prepare_dataset()
 
 plt.figure(figsize=(10, 10))
 for images in train_dataset.take(1):
-    print(images.shape)
     for i in range(batch_size):
         ax = plt.subplot(3, 3, i + 1)
         plt.imshow((images[i,:].numpy()*255).astype("uint8"))
@@ -580,7 +558,11 @@ class DiffusionModel(keras.Model):
         plt.tight_layout()
         plt.show()
         os.makedirs('tmp',exist_ok=True)
-        plt.savefig(f"tmp/{epoch:05d}.png")
+        if isinstance(epoch,int):
+            fname = f"{epoch:05d}.png"
+        else:
+            fname = f"{epoch}"
+        plt.savefig(fname)
         plt.close()
 
 
@@ -619,7 +601,7 @@ model.normalizer.adapt(train_dataset)
 model.fit(
     train_dataset,
     epochs=num_epochs,
-    steps_per_epoch=10,
+    steps_per_epoch=100,
     validation_steps=10,
     validation_data=val_dataset,
     callbacks=[
