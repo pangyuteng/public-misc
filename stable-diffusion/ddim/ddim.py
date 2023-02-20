@@ -39,7 +39,7 @@ widths = [32, 64, 96, 128]
 block_depth = 2
 
 # optimization
-batch_size = 64
+batch_size = 8
 ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
@@ -103,12 +103,13 @@ def prepare_dataset():
         image_size=(image_size,image_size),
         batch_size=batch_size,
     )
-    return (train_ds
+
+    return ( train_ds
     .cache()
     .repeat(dataset_repetitions)
     .shuffle(10 * batch_size)
-    .prefetch(buffer_size=tf.data.AUTOTUNE)),(
-    val_ds
+    .prefetch(buffer_size=tf.data.AUTOTUNE)),
+    ( val_ds
     .cache()
     .repeat(dataset_repetitions)
     .shuffle(10 * batch_size)
@@ -127,7 +128,7 @@ for images in train_dataset.take(1):
         ax = plt.subplot(3, 3, i + 1)
         plt.imshow(images[i,:].numpy().astype("uint8"))
         plt.axis("off")
-        if i>8:
+        if i > 7 :
             break
     os.makedirs('tmp',exist_ok=True)
     plt.savefig(f"tmp/test.png")
