@@ -558,11 +558,7 @@ class DiffusionModel(keras.Model):
         plt.tight_layout()
         plt.show()
         os.makedirs('tmp',exist_ok=True)
-        if isinstance(epoch,int):
-            fname = f"tmp/{epoch:05d}.png"
-        else:
-            fname = f"tmp/{epoch}"
-        plt.savefig(fname)
+        plt.savefig(f"tmp/{epoch:05d}.png")
         plt.close()
 
 
@@ -601,8 +597,8 @@ model.normalizer.adapt(train_dataset)
 model.fit(
     train_dataset,
     epochs=num_epochs,
-    steps_per_epoch=100,
-    validation_steps=10,
+    steps_per_epoch=10000,
+    validation_steps=1000,
     validation_data=val_dataset,
     callbacks=[
         keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
@@ -616,4 +612,4 @@ model.fit(
 
 # load the best model and generate images
 model.load_weights(checkpoint_path)
-model.plot_images(epoch='999')
+model.plot_images(num_epochs+1)
