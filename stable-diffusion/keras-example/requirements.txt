@@ -1,3 +1,6 @@
 keras-cv
 tensorflow_datasets
 imageio
+scipy
+scikit-image
+opencv-python

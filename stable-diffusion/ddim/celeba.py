@@ -5,14 +5,18 @@ https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
 """
 import os
 import sys
+from pathlib import Path
 import math
-import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
-
 from tensorflow import keras
 from keras import layers
-
+from keras.utils import Sequence
+import cv2
+import imageio
+from skimage.transform import resize
+import matplotlib.pyplot as plt
 """
 ## Hyperparameters
 """
@@ -44,60 +48,87 @@ ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
 
-"""
-## Data pipeline
 
-We will use the
-[Oxford Flowers 102](https://www.tensorflow.org/datasets/catalog/oxford_flowers102)
-dataset for
-generating images of flowers, which is a diverse natural dataset containing around 8,000
-images. Unfortunately the official splits are imbalanced, as most of the images are
-contained in the test split. We create new splits (80% train, 20% validation) using the
-[Tensorflow Datasets slicing API](https://www.tensorflow.org/datasets/splits). We apply
-center crops as preprocessing, and repeat the dataset multiple times (reason given in the
-next section).
-"""
+def png_read(image_path):
+    #im = cv2.imread(image_path)
+    im = imageio.imread(image_path)
+    im = im.astype(np.float16)
+    im = (im/255.0).clip(0,1)
+    im = resize(im, (image_size,image_size),anti_aliasing=True)
+    return im
 
+class MyGenerator():
+    def __init__(self,file_list,batch_size):
+        self.x = np.array(file_list)
+        self.indices = np.arange(len(self.x))
+        self.batch_size = batch_size
+        self.shuffle = True
+        
+    def __call__(self):
+        for i in range(self.__len__()):
+            yield self.__getitem__(i)
+            
+            if i == self.__len__()-1:
+                self.on_epoch_end()
 
-def preprocess_image(image):
-    image = tf.image.resize(image, size=[image_size, image_size], antialias=True)
-    return tf.clip_by_value(image / 255.0, 0.0, 1.0)
+    def __len__(self):
+        return len(self.indices)
+
+    def __getitem__(self, idx):
+        return png_read(self.x[idx])
+    
+    def on_epoch_end(self):
+        if self.shuffle:
+            np.random.shuffle(self.indices)
 
 def prepare_dataset():
     directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
-    train_ds, val_ds = tf.keras.utils.image_dataset_from_directory(
-        directory,
-        label_mode=None,
-        validation_split=0.2,
-        subset="both",
-        seed=1337,
-        color_mode='rgb',
-        image_size=(image_size,image_size),
-        batch_size=batch_size,
-    )
+    path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
     
-    train_ds = train_ds.map(preprocess_image, num_parallel_calls=tf.data.AUTOTUNE).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).prefetch(buffer_size=tf.data.AUTOTUNE)
-    val_ds = val_ds.map(preprocess_image, num_parallel_calls=tf.data.AUTOTUNE).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).prefetch(buffer_size=tf.data.AUTOTUNE)
-    return train_ds,val_ds
+    train_dg = MyGenerator(path_list[:-1000],batch_size)
+    val_dg = MyGenerator(path_list[-1000:],batch_size)
+    
+    output_shapes = (image_size,image_size,3)
 
-# You should use `dataset.take(k).cache().repeat()` instead.
+    train_ds = tf.data.Dataset.from_generator(
+        train_dg, output_shapes=output_shapes,output_types=(tf.float32)
+    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    
+    val_ds = tf.data.Dataset.from_generator(
+        val_dg, output_shapes=output_shapes,output_types=(tf.float32)
+    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-# load dataset
-train_dataset, val_dataset = prepare_dataset()
+    return train_ds, val_ds
+
+train_dataset , val_dataset = prepare_dataset()
 
 plt.figure(figsize=(10, 10))
 for images in train_dataset.take(1):
     print(images.shape)
     for i in range(batch_size):
         ax = plt.subplot(3, 3, i + 1)
-        images = (images[i,:].numpy()*255).clip(0,255)
-        plt.imshow(.astype("uint8"))
+        plt.imshow((images[i,:].numpy()*255).astype("uint8"))
         plt.axis("off")
         if i > 7 :
             break
     os.makedirs('tmp',exist_ok=True)
     plt.savefig(f"tmp/test.png")
     plt.close()
+
+
+# plt.figure(figsize=(10, 10))
+# for n in range(1):
+#     images = train_dataset[n]
+#     for i in range(batch_size):
+#         ax = plt.subplot(3, 3, i + 1)
+#         img = (images[i,:]*255).clip(0,255).astype("uint8")
+#         plt.imshow(img)
+#         plt.axis("off")
+#         if i > 7 :
+#             break
+#     os.makedirs('tmp',exist_ok=True)
+#     plt.savefig(f"tmp/test.png")
+#     plt.close()
 
 """
 ## Kernel inception distance
@@ -600,6 +631,8 @@ model.normalizer.adapt(train_dataset)
 model.fit(
     train_dataset,
     epochs=num_epochs,
+    steps_per_epoch=10,
+    validation_steps=10,
     validation_data=val_dataset,
     callbacks=[
         keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
@@ -614,179 +647,3 @@ model.fit(
 # load the best model and generate images
 model.load_weights(checkpoint_path)
 model.plot_images(epoch='999')
-
-"""
-## Results
-
-By running the training for at least 50 epochs (takes 2 hours on a T4 GPU and 30 minutes
-on an A100 GPU), one can get high quality image generations using this code example.
-
-The evolution of a batch of images over a 80 epoch training (color artifacts are due to
-GIF compression):
-
-![flowers training gif](https://i.imgur.com/FSCKtZq.gif)
-
-Images generated using between 1 and 20 sampling steps from the same initial noise:
-
-![flowers sampling steps gif](https://i.imgur.com/tM5LyH3.gif)
-
-Interpolation (spherical) between initial noise samples:
-
-![flowers interpolation gif](https://i.imgur.com/hk5Hd5o.gif)
-
-Deterministic sampling process (noisy images on top, predicted images on bottom, 40
-steps):
-
-![flowers deterministic generation gif](https://i.imgur.com/wCvzynh.gif)
-
-Stochastic sampling process (noisy images on top, predicted images on bottom, 80 steps):
-
-![flowers stochastic generation gif](https://i.imgur.com/kRXOGzd.gif)
-
-Trained model and demo available on HuggingFace:
-
-| Trained Model | Demo |
-| :--: | :--: |
-| [![model badge](https://img.shields.io/badge/%F0%9F%A4%97%20Model-DDIM-black.svg)](https://huggingface.co/keras-io/denoising-diffusion-implicit-models) | [![spaces badge](https://img.shields.io/badge/%F0%9F%A4%97%20Spaces-DDIM-black.svg)](https://huggingface.co/spaces/keras-io/denoising-diffusion-implicit-models) |
-"""
-
-"""
-## Lessons learned
-
-During preparation for this code example I have run numerous experiments using
-[this repository](https://github.com/beresandras/clear-diffusion-keras).
-In this section I list
-the lessons learned and my recommendations in my subjective order of importance.
-
-### Algorithmic tips
-
-* **min. and max. signal rates**: I found the min. signal rate to be an important
-hyperparameter. Setting it too low will make the generated images oversaturated, while
-setting it too high will make them undersaturated. I recommend tuning it carefully. Also,
-setting it to 0 will lead to a division by zero error. The max. signal rate can be set to
-1, but I found that setting it lower slightly improves generation quality.
-* **loss function**: While large models tend to use mean squared error (MSE) loss, I
-recommend using mean absolute error (MAE) on this dataset. In my experience MSE loss
-generates more diverse samples (it also seems to hallucinate more
-[Section 3](https://arxiv.org/abs/2111.05826)), while MAE loss leads to smoother images.
-I recommend trying both.
-* **weight decay**: I did occasionally run into diverged trainings when scaling up the
-model, and found that weight decay helps in avoiding instabilities at a low performance
-cost. This is why I use
-[AdamW](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/experimental/AdamW)
-instead of [Adam](https://keras.io/api/optimizers/adam/) in this example.
-* **exponential moving average of weights**: This helps to reduce the variance of the KID
-metric, and helps in averaging out short-term changes during training.
-* **image augmentations**: Though I did not use image augmentations in this example, in
-my experience adding horizontal flips to the training increases generation performance,
-while random crops do not. Since we use a supervised denoising loss, overfitting can be
-an issue, so image augmentations might be important on small datasets. One should also be
-careful not to use
-[leaky augmentations](https://keras.io/examples/generative/gan_ada/#invertible-data-augmentation),
-which can be done following
-[this method (end of Section 5)](https://arxiv.org/abs/2206.00364) for instance.
-* **data normalization**: In the literature the pixel values of images are usually
-converted to the -1 to 1 range. For theoretical correctness, I normalize the images to
-have zero mean and unit variance instead, exactly like the random noises.
-* **noise level input**: I chose to input the noise variance to the network, as it is
-symmetrical under our sampling schedule. One could also input the noise rate (similar
-performance), the signal rate (lower performance), or even the
-[log-signal-to-noise ratio (Appendix B.1)](https://arxiv.org/abs/2107.00630)
-(did not try, as its range is highly
-dependent on the min. and max. signal rates, and would require adjusting the min.
-embedding frequency accordingly).
-* **gradient clipping**: Using global gradient clipping with a value of 1 can help with
-training stability for large models, but decreased performance significantly in my
-experience.
-* **residual connection downscaling**: For
-[deeper models (Appendix B)](https://arxiv.org/abs/2205.11487), scaling the residual
-connections with 1/sqrt(2) can be helpful, but did not help in my case.
-* **learning rate**: For me, [Adam optimizer's](https://keras.io/api/optimizers/adam/)
-default learning rate of 1e-3 worked very well, but lower learning rates are more common
-in the [literature (Tables 11-13)](https://arxiv.org/abs/2105.05233).
-
-### Architectural tips
-
-* **sinusoidal embedding**: Using sinusoidal embeddings on the noise level input of the
-network is crucial for good performance. I recommend setting the min. embedding frequency
-to the reciprocal of the range of this input, and since we use the noise variance in this
-example, it can be left always at 1. The max. embedding frequency controls the smallest
-change in the noise variance that the network will be sensitive to, and the embedding
-dimensions set the number of frequency components in the embedding. In my experience the
-performance is not too sensitive to these values.
-* **skip connections**: Using skip connections in the network architecture is absolutely
-critical, without them the model will fail to learn to denoise at a good performance.
-* **residual connections**: In my experience residual connections also significantly
-improve performance, but this might be due to the fact that we only input the noise
-level embeddings to the first layer of the network instead of to all of them.
-* **normalization**: When scaling up the model, I did occasionally encounter diverged
-trainings, using normalization layers helped to mitigate this issue. In the literature it
-is common to use
-[GroupNormalization](https://www.tensorflow.org/addons/api_docs/python/tfa/layers/GroupNormalization)
-(with 8 groups for example) or
-[LayerNormalization](https://keras.io/api/layers/normalization_layers/layer_normalization/)
-in the network, I however chose to use
-[BatchNormalization](https://keras.io/api/layers/normalization_layers/batch_normalization/),
-as it gave similar benefits in my experiments but was computationally lighter.
-* **activations**: The choice of activation functions had a larger effect on generation
-quality than I expected. In my experiments using non-monotonic activation functions
-outperformed monotonic ones (such as
-[ReLU](https://www.tensorflow.org/api_docs/python/tf/keras/activations/relu)), with
-[Swish](https://www.tensorflow.org/api_docs/python/tf/keras/activations/swish) performing
-the best (this is also what [Imagen uses, page 41](https://arxiv.org/abs/2205.11487)).
-* **attention**: As mentioned earlier, it is common in the literature to use
-[attention layers](https://keras.io/api/layers/attention_layers/multi_head_attention/) at low
-resolutions for better global coherence. I ommitted them for simplicity.
-* **upsampling**:
-[Bilinear and nearest neighbour upsampling](https://keras.io/api/layers/reshaping_layers/up_sampling2d/)
-in the network performed similarly, I did not try
-[transposed convolutions](https://keras.io/api/layers/convolution_layers/convolution2d_transpose/)
-however.
-
-For a similar list about GANs check out
-[this Keras tutorial](https://keras.io/examples/generative/gan_ada/#gan-tips-and-tricks).
-"""
-
-"""
-## What to try next?
-
-If you would like to dive in deeper to the topic, a recommend checking out
-[this repository](https://github.com/beresandras/clear-diffusion-keras) that I created in
-preparation for this code example, which implements a wider range of features in a
-similar style, such as:
-
-* stochastic sampling
-* second-order sampling based on the
-[differential equation view of DDIMs (Equation 13)](https://arxiv.org/abs/2010.02502)
-* more diffusion schedules
-* more network output types: predicting image or
-[velocity (Appendix D)](https://arxiv.org/abs/2202.00512) instead of noise
-* more datasets
-"""
-
-"""
-## Related works
-
-* [Score-based generative modeling](https://yang-song.github.io/blog/2021/score/)
-(blogpost)
-* [What are diffusion models?](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)
-(blogpost)
-* [Annotated diffusion model](https://huggingface.co/blog/annotated-diffusion) (blogpost)
-* [CVPR 2022 tutorial on diffusion models](https://cvpr2022-tutorial-diffusion-models.github.io/)
-(slides avaliable)
-* [Elucidating the Design Space of Diffusion-Based Generative Models](https://arxiv.org/abs/2206.00364):
-attempts unifying diffusion methods under a common framework
-* High-level video overviews: [1](https://www.youtube.com/watch?v=yTAMrHVG1ew),
-[2](https://www.youtube.com/watch?v=344w5h24-h8)
-* Detailed technical videos: [1](https://www.youtube.com/watch?v=fbLgFrlTnGU),
-[2](https://www.youtube.com/watch?v=W-O7AZNzbzQ)
-* Score-based generative models: [NCSN](https://arxiv.org/abs/1907.05600),
-[NCSN+](https://arxiv.org/abs/2006.09011), [NCSN++](https://arxiv.org/abs/2011.13456)
-* Denoising diffusion models: [DDPM](https://arxiv.org/abs/2006.11239),
-[DDIM](https://arxiv.org/abs/2010.02502), [DDPM+](https://arxiv.org/abs/2102.09672),
-[DDPM++](https://arxiv.org/abs/2105.05233)
-* Large diffusion models: [GLIDE](https://arxiv.org/abs/2112.10741),
-[DALL-E 2](https://arxiv.org/abs/2204.06125/), [Imagen](https://arxiv.org/abs/2205.11487)
-
-
-"""
