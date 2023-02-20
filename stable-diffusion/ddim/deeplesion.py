@@ -97,7 +97,7 @@ for images in train_dataset.take(1):
         if i > 7 :
             break
     os.makedirs('tmp',exist_ok=True)
-    plt.savefig(f"tmp/test.png")
+    plt.savefig(f"tmp/test-deeplesion.png")
     plt.close()
 
 """
@@ -450,7 +450,7 @@ model.compile(
 # pixelwise mean absolute error is used as loss
 
 # save the best model based on the validation KID metric
-checkpoint_path = "checkpoints/diffusion_model"
+checkpoint_path = "checkpoints-deeplesion/diffusion_model"
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=True,
