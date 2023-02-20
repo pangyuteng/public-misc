@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 """
 
 # data
-dataset_repetitions = 100
+dataset_repetitions = 1
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
 
