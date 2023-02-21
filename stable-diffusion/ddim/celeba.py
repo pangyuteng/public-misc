@@ -49,36 +49,26 @@ ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
 
-def png_read(file_path):
-    file_path = file_path.decode('utf-8')
-    #print(file_path)
-    img = imageio.imread(file_path)
-    img = img.astype(np.float32)
-    img = (img/255.0).clip(0,1)
-    img = resize(img,(image_size,image_size),anti_aliasing=True)
-    dummpy = np.array([0.0]).astype(np.float32)
-    return img, dummpy
-
-def parse_fn(file_path):
-    img, dummy = tf.numpy_function(
-        func=png_read, 
-        inp=[file_path],
-        Tout=[tf.float32, tf.float32],
-    )
-    img = tf.reshape(img, [image_size,image_size,3])
-    return img
+def parse_fn(filename):
+    image_string = tf.io.read_file(filename)
+    image_decoded = tf.image.decode_jpeg(image_string, channels=3)
+    image = tf.cast(image_decoded, tf.float32) / 255.0
+    image = tf.image.resize(image, [image_size,image_size],antialias=True)
+    return image
 
 def prepare_dataset():
     directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
     path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
     print(len(path_list))
-
-    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+    
+    train_filenames = tf.constant(path_list[:-1000])
+    train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
-
-    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+    
+    val_filenames = tf.constant(path_list[-1000:])
+    val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)

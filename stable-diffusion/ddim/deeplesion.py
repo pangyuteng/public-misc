@@ -52,48 +52,38 @@ weight_decay = 1e-4
 min_val,max_val = -1000,1000
 def png_read(file_path):
     file_path = file_path.decode('utf-8')
-    #print(file_path)
-    img = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
-    img = (img.astype(np.int32) - 32768).astype(np.int16) # HU
-    img = img.astype(np.float32)
-    img = ((img - min_val)/(max_val-min_val)).clip(0,1)
-    img = resize(img,(image_size,image_size),anti_aliasing=True)
-    img = np.expand_dims(img,axis=-1)
-    img = np.tile(img,(1,1,3))
+    image = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
+    image = (image.astype(np.int32) - 32768).astype(np.int16) # HU
+    image = image.astype(np.float32)
+    image = ((image-min_val)/(max_val-min_val)).clip(0,1)
+    image = np.expand_dims(image,axis=-1)
     dummpy = np.array([0.0]).astype(np.float32)
-    return img, dummpy
+    return image, dummpy
 
 def parse_fn(file_path):
-    img, dummy = tf.numpy_function(
+    image, dummy = tf.numpy_function(
         func=png_read, 
         inp=[file_path],
         Tout=[tf.float32, tf.float32],
     )
-    img = tf.reshape(img, [image_size,image_size,3])
-    return img
+    image = tf.cast(image, tf.float32)
+    image = tf.tile(image, [1,1,3])
+    image = tf.image.resize(image, [image_size,image_size],antialias=True)
+    image = tf.reshape(image,[image_size,image_size,3]) # so tf won't complain about unknown image size
+    return image
 
 def prepare_dataset():
     directory = '/mnt/hd2/data/DeepLesion/Images_png'
     path_list = [str(x) for x in Path(directory).rglob('*.png')]
-    print(len(path_list))
-    '''
-    train_ds = tf.data.experimental.from_list(path_list[:-1000]).map(
-        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
-    ).repeat(num_epochs).shuffle(10 * batch_size)
-    train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-    val_ds = tf.data.experimental.from_list(path_list[-1000:]).map(
-        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
-    ).repeat(num_epochs).shuffle(10 * batch_size)
-    val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
-    '''
-
-    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+    train_filenames = tf.constant(path_list[:-1000])
+    train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
-
-    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+    
+    val_filenames = tf.constant(path_list[-1000:])
+    val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
