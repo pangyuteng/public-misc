@@ -7,6 +7,7 @@ https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
 """
 import os
 import sys
+import pandas as pd
 from pathlib import Path
 import math
 import numpy as np
@@ -58,6 +59,7 @@ def png_read(file_path):
     image = ((image-min_val)/(max_val-min_val)).clip(0,1)
     image = np.expand_dims(image,axis=-1)
     dummpy = np.array([0.0]).astype(np.float32)
+    print(file_path)
     return image, dummpy
 
 def parse_fn(file_path):
@@ -72,9 +74,17 @@ def parse_fn(file_path):
     image = tf.reshape(image,[image_size,image_size,3]) # so tf won't complain about unknown image size
     return image
 
+def cache_png_file_paths():
+    directory = '/mnt/scratch/data/DeepLesion/Images_png'
+    path_list = [{'png_path':str(x)} for x in Path(directory).rglob('*.png')]
+    df = pd.DataFrame(path_list)
+    df.to_csv('pngs.csv',index=False)
+
 def prepare_dataset():
-    directory = '/mnt/hd2/data/DeepLesion/Images_png'
-    path_list = [str(x) for x in Path(directory).rglob('*.png')]
+    if not os.path.exists('pngs.csv'):
+        cache_png_file_paths()
+    df = pd.read_csv('pngs.csv')
+    path_list = df.png_path.tolist()
 
     train_filenames = tf.constant(path_list[:-1000])
     train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
@@ -471,8 +481,8 @@ model.normalizer.adapt(train_dataset)
 model.fit(
     train_dataset,
     epochs=num_epochs,
-    steps_per_epoch=10000,
-    validation_steps=1000,
+    steps_per_epoch=100,
+    validation_steps=100,
     validation_data=val_dataset,
     callbacks=[
         keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
