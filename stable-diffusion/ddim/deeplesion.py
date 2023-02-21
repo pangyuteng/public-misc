@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 """
 https://keras.io/examples/generative/ddim/
 https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
@@ -49,9 +51,8 @@ weight_decay = 1e-4
 
 min_val,max_val = -1000,1000
 def png_read(file_path):
-
     file_path = file_path.decode('utf-8')
-
+    print(file_path)
     img = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
     img = (img.astype(np.int32) - 32768).astype(np.int16) # HU
     img = img.astype(np.float32)
@@ -75,15 +76,28 @@ def prepare_dataset():
     directory = '/mnt/hd2/data/DeepLesion/Images_png'
     path_list = [str(x) for x in Path(directory).rglob('*.png')]
     print(len(path_list))
-
+    '''
     train_ds = tf.data.experimental.from_list(path_list[:-1000]).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
-    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    ).repeat(num_epochs).shuffle(10 * batch_size)
+    train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
     val_ds = tf.data.experimental.from_list(path_list[-1000:]).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
-    ).cache().repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
-    
+    ).repeat(num_epochs).shuffle(10 * batch_size)
+    val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    '''
+
+    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(num_epochs).shuffle(10 * batch_size).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+    )
+    train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+
+    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(num_epochs).shuffle(10 * batch_size).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+    )
+    val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+
     return train_ds, val_ds
 
 train_dataset , val_dataset = prepare_dataset()

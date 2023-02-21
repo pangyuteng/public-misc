@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 """
 https://keras.io/examples/generative/ddim/
 https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
@@ -22,7 +24,6 @@ import matplotlib.pyplot as plt
 """
 
 # data
-dataset_repetitions = 1
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
 
@@ -48,10 +49,8 @@ learning_rate = 1e-3
 weight_decay = 1e-4
 
 def png_read(file_path):
-    #im = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
-    #im = (im.astype(np.int32) - 32768).astype(np.int16) # HU
-    #im = ((im + 1024)/(1024 + 3071))*255
     file_path = file_path.decode('utf-8')
+    #print(file_path)
     img = imageio.imread(file_path)
     img = img.astype(np.float32)
     img = (img/255.0).clip(0,1)
@@ -71,14 +70,17 @@ def parse_fn(file_path):
 def prepare_dataset():
     directory = '/mnt/hd2/data/celeba_gan/img_align_celeba'
     path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
+    print(len(path_list))
 
-    train_ds = tf.data.experimental.from_list(path_list[:-1000]).map(
+    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(num_epochs).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
-    ).repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    )
+    train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-    val_ds = tf.data.experimental.from_list(path_list[-1000:]).map(
+    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(num_epochs).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
-    ).repeat(dataset_repetitions).shuffle(10 * batch_size).batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    )
+    val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
     
     return train_ds, val_ds
 
