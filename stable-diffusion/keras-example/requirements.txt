@@ -1,7 +1,7 @@
-keras-cv
-tensorflow_datasets
-imageio
-scipy
-scikit-image
-opencv-python
-pandas
+keras-cv>=0.4.2
+tensorflow_datasets>=4.8.2
+imageio>=2.25.1
+scipy>=1.10.1
+scikit-image>=0.19.3
+opencv-python>=4.7.0.68
+pandas>=1.5.3
