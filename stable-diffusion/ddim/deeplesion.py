@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 """
 
 # data
-dataset_repetitions = 1
+dataset_repetitions = 5
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
 
@@ -52,7 +52,7 @@ weight_decay = 1e-4
 min_val,max_val = -1000,1000
 def png_read(file_path):
     file_path = file_path.decode('utf-8')
-    print(file_path)
+    #print(file_path)
     img = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
     img = (img.astype(np.int32) - 32768).astype(np.int16) # HU
     img = img.astype(np.float32)
@@ -88,12 +88,12 @@ def prepare_dataset():
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
     '''
 
-    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(num_epochs).shuffle(10 * batch_size).map(
+    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(num_epochs).shuffle(10 * batch_size).map(
+    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)

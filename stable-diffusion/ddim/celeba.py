@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 """
 
 # data
+dataset_repetitions = 5
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
 
@@ -72,12 +73,12 @@ def prepare_dataset():
     path_list = [str(x) for x in Path(directory).rglob('*.jpg')]
     print(len(path_list))
 
-    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(num_epochs).shuffle(10 * batch_size).map(
+    train_ds = tf.data.experimental.from_list(path_list[:-1000]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(num_epochs).shuffle(10 * batch_size).map(
+    val_ds = tf.data.experimental.from_list(path_list[-1000:]).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
