@@ -59,7 +59,6 @@ def png_read(file_path):
     image = ((image-min_val)/(max_val-min_val)).clip(0,1)
     image = np.expand_dims(image,axis=-1)
     dummpy = np.array([0.0]).astype(np.float32)
-    print(file_path)
     return image, dummpy
 
 def parse_fn(file_path):
@@ -481,7 +480,7 @@ model.normalizer.adapt(train_dataset)
 model.fit(
     train_dataset,
     epochs=num_epochs,
-    steps_per_epoch=100,
+    steps_per_epoch=10000,
     validation_steps=100,
     validation_data=val_dataset,
     callbacks=[
