@@ -25,16 +25,6 @@ df = pd.read_parquet(fname)
 print(df.head())
 print(df.columns)
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set_theme(style="ticks")
-palette = sns.color_palette("rocket_r")
-sns.lineplot(
-    data=df,
-    x="Year", y="Total Pay & Benefits",
-    hue="Employee Name",
-    kind="line",
-    height=5, aspect=.75, facet_kws=dict(sharex=False),
-)
-plt.figsave('test.png')
-ptl.close()
+print(df.shape)
+df = df['Job Title'].apply(lamdba x: "Progammer Analyzst" in x)
+print(df.shape)
