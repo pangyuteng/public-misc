@@ -348,8 +348,6 @@ class DiffusionModel(keras.Model):
     def generate(self, num_images, diffusion_steps, labels):
         # noise -> images -> denormalized images
         initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 3))
-        labels = tf.random.normal(shape=(num_images, image_size, image_size, 1))
-        #^^^^ TODO need to feed in actual labels from dataset!!
         generated_images = self.reverse_diffusion(initial_noise, diffusion_steps, labels)
         generated_images = self.denormalize(generated_images)
         return generated_images
@@ -418,9 +416,9 @@ class DiffusionModel(keras.Model):
         # measure KID between real and generated images
         # this is computationally demanding, kid_diffusion_steps has to be small
         images = self.denormalize(images)
-        
+        huh = tf.random.normal(shape=(num_images, image_size, image_size, 1))
         generated_images = self.generate(
-            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
+            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=huh
         )
         
         self.kid.update_state(images, generated_images)
@@ -429,7 +427,8 @@ class DiffusionModel(keras.Model):
 
     def plot_images(self, epoch=None, logs=None, num_rows=3, num_cols=6):
         # plot random generated images for visual evaluation of generation quality
-        mylabels = [x[1] for x in val_dataset.take(num_rows * num_cols)]
+        #mylabels = [x[1] for x in val_dataset.take(num_rows * num_cols)]
+        mylabels = tf.random.normal(shape=(num_images, image_size, image_size, 1))
         generated_images = self.generate(
             num_images=num_rows * num_cols,
             diffusion_steps=plot_diffusion_steps,
