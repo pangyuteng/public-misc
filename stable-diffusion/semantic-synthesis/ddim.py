@@ -483,8 +483,8 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 model.fit(
     train_dataset,
     epochs=num_epochs,
-    steps_per_epoch=10,
-    validation_steps=10,
+    steps_per_epoch=100,
+    validation_steps=100,
     validation_data=val_dataset,
     callbacks=[
         keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
