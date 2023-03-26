@@ -400,7 +400,7 @@ class DiffusionModel(keras.Model):
         noise_rates, signal_rates = self.diffusion_schedule(diffusion_times)
         # mix the images with noises accordingly
         noisy_images = signal_rates * images + noise_rates * noises
-
+        raise NotImeplementedError()
         # use the network to separate noisy images to their components
         pred_noises, pred_images = self.denoise(
             noisy_images, noise_rates, signal_rates, labels, training=False
@@ -415,7 +415,7 @@ class DiffusionModel(keras.Model):
         # measure KID between real and generated images
         # this is computationally demanding, kid_diffusion_steps has to be small
         images = self.denormalize(images)
-
+        
         generated_images = self.generate(
             num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
         )
@@ -493,4 +493,4 @@ model.fit(
 
 # load the best model and generate images
 model.load_weights(checkpoint_path)
-model.plot_images(epoch='999')
+mode
