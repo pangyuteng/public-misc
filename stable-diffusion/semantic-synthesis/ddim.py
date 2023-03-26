@@ -16,7 +16,7 @@ from keras import layers
 
 # data
 dataset_repetitions = 1000
-num_epochs = 500  # train for at least 50 epochs for good results
+num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
 
 # KID = Kernel Inception Distance, see related section
@@ -65,9 +65,10 @@ def preprocess_image(data):
         crop_size,
         crop_size,
     )
+    label = tf.cast(label, dtype=tf.float32)
     label = tf.image.resize(label, size=[image_size, image_size], antialias=False,method='nearest')
 
-    return tf.clip_by_value(image / 255.0, 0.0, 1.0),label
+    return tf.clip_by_value(image / 255.0, 0.0, 1.0),tf.clip_by_value(label / 33.0, 0.0, 1.0)
 
 
 dataset_name = "cityscapes"
@@ -416,23 +417,21 @@ class DiffusionModel(keras.Model):
         # measure KID between real and generated images
         # this is computationally demanding, kid_diffusion_steps has to be small
         images = self.denormalize(images)
-        huh = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
         generated_images = self.generate(
-            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=huh
+            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
         )
-        
+        self._labels = labels.numpy()
         self.kid.update_state(images, generated_images)
 
         return {m.name: m.result() for m in self.metrics}
 
-    def plot_images(self, epoch=None, logs=None, num_rows=3, num_cols=6):
+    def plot_images(self, epoch=None, logs=None, num_rows=8, num_cols=8):
         # plot random generated images for visual evaluation of generation quality
-        #mylabels = [x[1] for x in val_dataset.take(num_rows * num_cols)]
-        mylabels = tf.random.normal(shape=(num_images, image_size, image_size, 1))
+        
         generated_images = self.generate(
             num_images=num_rows * num_cols,
             diffusion_steps=plot_diffusion_steps,
-            labels=mylabels
+            labels=self._labels
         )
 
         plt.figure(figsize=(num_cols * 2.0, num_rows * 2.0))
@@ -462,6 +461,7 @@ model.compile(
         learning_rate=learning_rate, weight_decay=weight_decay
     ),
     loss=keras.losses.mean_absolute_error,
+    run_eagerly=True
 )
 # pixelwise mean absolute error is used as loss
 
@@ -482,7 +482,7 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 model.fit(
     train_dataset,
     epochs=num_epochs,
-    steps_per_epoch=100,
+    steps_per_epoch=50,
     validation_steps=10,
     validation_data=val_dataset,
     callbacks=[
