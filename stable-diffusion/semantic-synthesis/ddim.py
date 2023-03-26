@@ -416,7 +416,7 @@ class DiffusionModel(keras.Model):
         # measure KID between real and generated images
         # this is computationally demanding, kid_diffusion_steps has to be small
         images = self.denormalize(images)
-        huh = tf.random.normal(shape=(num_images, image_size, image_size, 1))
+        huh = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
         generated_images = self.generate(
             num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=huh
         )
