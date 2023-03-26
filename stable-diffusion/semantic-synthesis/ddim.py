@@ -16,7 +16,7 @@ from keras import layers
 
 # data
 dataset_repetitions = 1000
-num_epochs = 50  # train for at least 50 epochs for good results
+num_epochs = 500  # train for at least 50 epochs for good results
 image_size = 64
 
 # KID = Kernel Inception Distance, see related section
