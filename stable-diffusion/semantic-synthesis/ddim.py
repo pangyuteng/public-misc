@@ -400,12 +400,12 @@ class DiffusionModel(keras.Model):
         noise_rates, signal_rates = self.diffusion_schedule(diffusion_times)
         # mix the images with noises accordingly
         noisy_images = signal_rates * images + noise_rates * noises
-        raise NotImeplementedError()
+        
         # use the network to separate noisy images to their components
         pred_noises, pred_images = self.denoise(
             noisy_images, noise_rates, signal_rates, labels, training=False
         )
-
+        raise NotImplementedError()
         noise_loss = self.loss(noises, pred_noises)
         image_loss = self.loss(images, pred_images)
 
@@ -493,4 +493,4 @@ model.fit(
 
 # load the best model and generate images
 model.load_weights(checkpoint_path)
-mode
+model.plot_images(epoch='999')
