@@ -15,7 +15,6 @@ from tensorflow import keras
 from keras import layers
 
 # data
-dataset_name = "cityscapes"
 dataset_repetitions = 5
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 64
@@ -71,6 +70,8 @@ def preprocess_image(data):
     return tf.clip_by_value(image / 255.0, 0.0, 1.0),label
 
 
+dataset_name = "cityscapes"
+
 def prepare_dataset(split):
     # the validation dataset is shuffled as well, because data order matters
     # for the KID estimation
@@ -86,11 +87,11 @@ def prepare_dataset(split):
 
 
 # load dataset
-train_dataset = prepare_dataset("train[:80%]+validation[:80%]+test[:80%]")
-val_dataset = prepare_dataset("train[80%:]+validation[80%:]+test[80%:]")
+train_dataset = prepare_dataset("train[:80%]")
+val_dataset = prepare_dataset("validation[80%:]")
 
 plt.figure(figsize=(10, 10))
-for images,labels in train_dataset.take(1):
+for images,labels in val_dataset.take(1):
     print(images.shape,labels.shape)
     for i in range(batch_size):
         ax = plt.subplot(3, 3, i + 1)
@@ -405,7 +406,7 @@ class DiffusionModel(keras.Model):
         pred_noises, pred_images = self.denoise(
             noisy_images, noise_rates, signal_rates, labels, training=False
         )
-        raise NotImplementedError()
+        
         noise_loss = self.loss(noises, pred_noises)
         image_loss = self.loss(images, pred_images)
 
@@ -419,6 +420,7 @@ class DiffusionModel(keras.Model):
         generated_images = self.generate(
             num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
         )
+        
         self.kid.update_state(images, generated_images)
 
         return {m.name: m.result() for m in self.metrics}
