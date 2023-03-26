@@ -17,7 +17,10 @@ from keras import layers
 # data
 dataset_repetitions = 1000
 num_epochs = 500  # train for at least 50 epochs for good results
-image_size = 64
+image_size = 128
+batch_size = 16
+num_cols = 4
+num_rows = 4
 
 # KID = Kernel Inception Distance, see related section
 kid_image_size = 75
@@ -35,7 +38,6 @@ widths = [32, 64, 96, 128]
 block_depth = 2
 
 # optimization
-batch_size = 64
 ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
@@ -96,9 +98,9 @@ for images,labels in val_dataset.take(1):
     print(images.shape,labels.shape)
     for i in range(batch_size):
         ax = plt.subplot(3, 3, i + 1)
-        tmp_image = (images[i,:].numpy()*255).astype("uint8")
-        tmp_label = labels[i,:].numpy().astype("uint8")
-        tmp_label = np.repeat(tmp_label,3, axis=2)*5 # 33classes*5
+        tmp_image = images[i,:].numpy()
+        tmp_label = labels[i,:].numpy()
+        tmp_label = np.repeat(tmp_label,3, axis=2)
         tmp = np.concatenate([tmp_image,tmp_label],axis=1)
         plt.imshow(tmp)
         plt.axis("off")
@@ -107,7 +109,7 @@ for images,labels in val_dataset.take(1):
     os.makedirs('tmp',exist_ok=True)
     plt.savefig(f"tmp/test.png")
     plt.close()
-
+sys.exit(1)
 """
 ## Kernel inception distance
 
@@ -425,7 +427,7 @@ class DiffusionModel(keras.Model):
 
         return {m.name: m.result() for m in self.metrics}
 
-    def plot_images(self, epoch=None, logs=None, num_rows=8, num_cols=8):
+    def plot_images(self, epoch=None, logs=None, num_rows=num_rows, num_cols=num_cols):
         # plot random generated images for visual evaluation of generation quality
         
         generated_images = self.generate(
@@ -439,7 +441,11 @@ class DiffusionModel(keras.Model):
             for col in range(num_cols):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
-                plt.imshow(generated_images[index])
+                tmp_image = generated_images[index].numpy()
+                tmp_label = self._labels[index,:]
+                tmp_label = np.repeat(tmp_label,3, axis=2)
+                tmp = np.concatenate([tmp_image,tmp_label],axis=1)
+                plt.imshow(tmp)
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
