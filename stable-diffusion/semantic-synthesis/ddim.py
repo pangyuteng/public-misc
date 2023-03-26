@@ -15,8 +15,8 @@ from tensorflow import keras
 from keras import layers
 
 # data
-dataset_repetitions = 5
-num_epochs = 50  # train for at least 50 epochs for good results
+dataset_repetitions = 1000
+num_epochs = 500  # train for at least 50 epochs for good results
 image_size = 64
 
 # KID = Kernel Inception Distance, see related section
@@ -484,7 +484,7 @@ model.fit(
     train_dataset,
     epochs=num_epochs,
     steps_per_epoch=100,
-    validation_steps=100,
+    validation_steps=10,
     validation_data=val_dataset,
     callbacks=[
         keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
@@ -498,4 +498,4 @@ model.fit(
 
 # load the best model and generate images
 model.load_weights(checkpoint_path)
-model.plot_images(epoch='999')
+model.plot_images(epoch=999)
