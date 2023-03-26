@@ -109,7 +109,7 @@ for images,labels in val_dataset.take(1):
     os.makedirs('tmp',exist_ok=True)
     plt.savefig(f"tmp/test.png")
     plt.close()
-sys.exit(1)
+
 """
 ## Kernel inception distance
 
