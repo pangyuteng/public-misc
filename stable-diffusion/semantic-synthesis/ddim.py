@@ -348,6 +348,8 @@ class DiffusionModel(keras.Model):
     def generate(self, num_images, diffusion_steps, labels):
         # noise -> images -> denormalized images
         initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 3))
+        labels = tf.random.normal(shape=(num_images, image_size, image_size, 1))
+        #^^^^ TODO need to feed in actual labels from dataset!!
         generated_images = self.reverse_diffusion(initial_noise, diffusion_steps, labels)
         generated_images = self.denormalize(generated_images)
         return generated_images
@@ -454,6 +456,7 @@ class DiffusionModel(keras.Model):
 
 
 model = DiffusionModel(image_size, widths, block_depth)
+model.network.summary()
 
 model.compile(
     optimizer=keras.optimizers.experimental.AdamW(
