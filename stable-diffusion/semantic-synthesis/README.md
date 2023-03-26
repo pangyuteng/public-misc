@@ -1,0 +1,24 @@
+
+
+
+Weilun Wang, Semantic Image Synthesis via Diffusion Models
+
+https://arxiv.org/abs/2207.00050
+
+
+
+# diffusion model
+https://keras.io/examples/generative/ddim
+
+# stable diffusion
+https://keras.io/guides/keras_cv/generate_images_with_stable_diffusion
+
+
+```
+mkdir -p /mnt/scratch/tmp/tensorflow_datasets/downloads/manual
+cp /mnt/hd0/torrent/downloads/Cityscapes/data/gtFine_trainvaltest.zip /mnt/scratch/tmp/tensorflow_datasets/downloads/manual
+cp /mnt/hd0/torrent/downloads/Cityscapes/data/leftImg8bit_trainvaltest.zip /mnt/scratch/tmp/tensorflow_datasets/downloads/manual
+
+docker run --runtime=nvidia -it -u $(id -u):$(id -g) -w $PWD -v /mnt:/mnt -v /mnt/scratch/tmp/tensorflow_datasets:/tensorflow_datasets keras-stable-diffusion bash
+
+```
