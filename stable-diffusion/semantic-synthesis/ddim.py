@@ -415,9 +415,9 @@ class DiffusionModel(keras.Model):
         # measure KID between real and generated images
         # this is computationally demanding, kid_diffusion_steps has to be small
         images = self.denormalize(images)
-        mylabels = [x[1] for x in train_dataset.take(batch_size)]
+
         generated_images = self.generate(
-            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=mylabels
+            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
         )
         self.kid.update_state(images, generated_images)
 
@@ -425,7 +425,7 @@ class DiffusionModel(keras.Model):
 
     def plot_images(self, epoch=None, logs=None, num_rows=3, num_cols=6):
         # plot random generated images for visual evaluation of generation quality
-        mylabels = [x[1] for x in train_dataset.take(num_rows * num_cols)]
+        mylabels = [x[1] for x in val_dataset.take(num_rows * num_cols)]
         generated_images = self.generate(
             num_images=num_rows * num_cols,
             diffusion_steps=plot_diffusion_steps,
