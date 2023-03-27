@@ -73,7 +73,7 @@ def preprocess_image(data):
     label = tf.cast(label, dtype=tf.float32)
     label = tf.image.resize(label, size=[image_size, image_size], antialias=False,method='nearest')
 
-    return tf.clip_by_value(image / 255.0, 0.0, 1.0),tf.clip_by_value(label / 33.0, 0.0, 1.0)
+    return tf.clip_by_value(image / 255.0, 0.0, 1.0),tf.clip_by_value(label / 104.0, 0.0, 1.0)
 
 min_val,max_val = -1000,1000
 
@@ -132,9 +132,9 @@ def parse_fn(file_path):
         Tout=[tf.float32, tf.float32],
     )
     image = tf.cast(image, tf.float32)
-    image = tf.tile(image, [1,1,3])
+    image = tf.tile(image, [1,1,1]) # trick tf so image is of the proper type.
     image = tf.image.resize(image, [image_size,image_size],antialias=True)
-    image = tf.reshape(image,[image_size,image_size,3]) # so tf won't complain about unknown image size
+    image = tf.reshape(image,[image_size,image_size,1]) # so tf won't complain about unknown image size
 
     mask = tf.cast(mask, tf.float32)
     mask = tf.tile(mask, [1,1,1])
@@ -220,9 +220,8 @@ for images,labels in val_dataset.take(1):
         ax = plt.subplot(3, 3, i + 1)
         tmp_image = images[i,:].numpy()
         tmp_label = labels[i,:].numpy()
-        tmp_label = np.repeat(tmp_label,3, axis=2)
         tmp = np.concatenate([tmp_image,tmp_label],axis=1)
-        plt.imshow(tmp)
+        plt.imshow(tmp,cmap='gray')
         plt.axis("off")
         if i > 7 :
             break
@@ -269,6 +268,9 @@ class KID(keras.metrics.Metric):
         return (features_1 @ tf.transpose(features_2) / feature_dimensions + 1.0) ** 3.0
 
     def update_state(self, real_images, generated_images, sample_weight=None):
+        batch_size = tf.shape(real_images)[0]
+        real_images = tf.tile(real_images, [batch_size,1,1,3])
+        generated_images = tf.tile(generated_images, [batch_size,1,1,3])
         real_features = self.encoder(real_images, training=False)
         generated_features = self.encoder(generated_images, training=False)
 
@@ -361,7 +363,7 @@ def UpBlock(width, block_depth):
 
 
 def get_network(image_size, widths, block_depth):
-    noisy_images = keras.Input(shape=(image_size, image_size, 3))
+    noisy_images = keras.Input(shape=(image_size, image_size, 1))
     noise_variances = keras.Input(shape=(1, 1, 1))
     labels = keras.Input(shape=(image_size, image_size, 1))
 
@@ -382,7 +384,7 @@ def get_network(image_size, widths, block_depth):
     for width in reversed(widths[:-1]):
         x = UpBlock(width, block_depth)([x, l, skips])
 
-    x = layers.Conv2D(3, kernel_size=1, kernel_initializer="zeros")(x)
+    x = layers.Conv2D(1, kernel_size=1, kernel_initializer="zeros")(x)
 
     return keras.Model([noisy_images, noise_variances, labels], x, name="residual_unet")
 
@@ -472,7 +474,7 @@ class DiffusionModel(keras.Model):
 
     def generate(self, num_images, diffusion_steps, labels):
         # noise -> images -> denormalized images
-        initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 3))
+        initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 1))
         generated_images = self.reverse_diffusion(initial_noise, diffusion_steps, labels)
         generated_images = self.denormalize(generated_images)
         return generated_images
@@ -481,7 +483,7 @@ class DiffusionModel(keras.Model):
         images,labels = input_data
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=True)
-        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 3))
+        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
 
         # sample uniform random diffusion times
         diffusion_times = tf.random.uniform(
@@ -517,7 +519,7 @@ class DiffusionModel(keras.Model):
         images,labels = input_data
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=False)
-        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 3))
+        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
 
         # sample uniform random diffusion times
         diffusion_times = tf.random.uniform(
@@ -565,9 +567,8 @@ class DiffusionModel(keras.Model):
                 plt.subplot(num_rows, num_cols, index + 1)
                 tmp_image = generated_images[index].numpy()
                 tmp_label = self._labels[index,:]
-                tmp_label = np.repeat(tmp_label,3, axis=2)
                 tmp = np.concatenate([tmp_image,tmp_label],axis=1)
-                plt.imshow(tmp)
+                plt.imshow(tmp,cmap='gray')
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
