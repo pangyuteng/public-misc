@@ -137,7 +137,7 @@ def parse_fn(file_path):
     image = tf.reshape(image,[image_size,image_size,3]) # so tf won't complain about unknown image size
 
     mask = tf.cast(mask, tf.float32)
-    mask = tf.tile(mask, [1,1,3])
+    mask = tf.tile(mask, [1,1,1])
     mask = tf.image.resize(mask, [image_size,image_size], antialias=False,method='nearest')
     mask = tf.reshape(mask,[image_size,image_size,1]) # so tf won't complain about unknown image size
 
