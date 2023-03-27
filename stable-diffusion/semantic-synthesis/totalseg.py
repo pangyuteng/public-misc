@@ -24,6 +24,13 @@ image_size = 128
 batch_size = 16
 num_cols = 4
 num_rows = 4
+widths = [32, 64, 96, 128]
+
+image_size = 512
+batch_size = 4
+num_cols = 2
+num_rows = 2
+widths = [8, 16, 32, 64]
 
 # KID = Kernel Inception Distance, see related section
 kid_image_size = 75
@@ -37,7 +44,6 @@ max_signal_rate = 0.95
 # architecture
 embedding_dims = 32
 embedding_max_frequency = 1000.0
-widths = [32, 64, 96, 128]
 block_depth = 2
 
 # optimization
