@@ -18,7 +18,7 @@ from tensorflow import keras
 from keras import layers
 
 # data
-dataset_repetitions = 1000
+dataset_repetitions = 10000
 num_epochs = 500  # train for at least 50 epochs for good results
 image_size = 128
 batch_size = 16
@@ -606,6 +606,8 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 
 # calculate mean and variance of training dataset for normalization
 #TODO: temporarily disabled #model.normalizer.adapt(train_dataset)
+if os.path.exists(checkpoint_path):
+    model.load_weights(checkpoint_path)
 
 # run training and plot generated images periodically
 model.fit(
