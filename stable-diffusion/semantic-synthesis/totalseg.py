@@ -18,7 +18,7 @@ from tensorflow import keras
 from keras import layers
 
 # data
-dataset_repetitions = 10000
+dataset_repetitions = 10
 num_epochs = 500  # train for at least 50 epochs for good results
 image_size = 128
 batch_size = 16
@@ -197,21 +197,27 @@ def prepare_dataset():
     df = pd.read_csv('niftis.csv')
     path_list = df.image_path.tolist()
 
-    train_filenames = tf.constant(path_list[:-1000])
+    norm_filenames = tf.constant(path_list[:100])
+    norm_ds = tf.data.Dataset.from_tensor_slices(norm_filenames).repeat(1).shuffle(10 * batch_size).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+    )
+    norm_ds = norm_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+
+    train_filenames = tf.constant(path_list[:-900])
     train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
     
-    val_filenames = tf.constant(path_list[-1000:])
+    val_filenames = tf.constant(path_list[-900:])
     val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-    return train_ds, val_ds
+    return norm_ds, train_ds, val_ds
 
-train_dataset , val_dataset = prepare_dataset()
+norm_dataset, train_dataset , val_dataset = prepare_dataset()
 
 plt.figure(figsize=(10, 10))
 for images,labels in val_dataset.take(1):
@@ -605,7 +611,8 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 )
 
 # calculate mean and variance of training dataset for normalization
-#TODO: temporarily disabled #model.normalizer.adapt(train_dataset)
+model.normalizer.adapt(norm_dataset.map(lambda images, labels: images))
+
 if os.path.exists(checkpoint_path):
     model.load_weights(checkpoint_path)
 
