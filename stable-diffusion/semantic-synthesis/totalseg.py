@@ -26,11 +26,11 @@ num_cols = 4
 num_rows = 4
 widths = [32, 64, 96, 128]
 
-image_size = 512
-batch_size = 4
-num_cols = 2
-num_rows = 2
-widths = [8, 16, 32, 64]
+# image_size = 512
+# batch_size = 4
+# num_cols = 2
+# num_rows = 2
+# widths = [8, 16, 32, 64]
 
 # KID = Kernel Inception Distance, see related section
 kid_image_size = 75
