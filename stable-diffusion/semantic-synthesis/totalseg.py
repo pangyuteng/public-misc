@@ -155,6 +155,8 @@ def cache_png_file_paths():
             mask_path = os.path.join(os.path.dirname(image_path),'segmentations.nii.gz')
             if not os.path.exists(mask_path):
                 continue
+            if not os.path.exists(image_path):
+                continue
             file_reader = sitk.ImageFileReader()
             file_reader.SetFileName(image_path)
             file_reader.ReadImageInformation()
