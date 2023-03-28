@@ -19,6 +19,10 @@ import SimpleITK as sitk
 from tensorflow import keras
 from keras import layers
 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+TMP_DIR = os.path.join(THIS_DIR,'tmp')
+nifti_file = os.path.join(THIS_DIR,'niftis.csv')
+
 # data
 dataset_repetitions = 100000
 num_epochs = 500  # train for at least 50 epochs for good results
@@ -153,7 +157,7 @@ def parse_fn(file_path):
     mask = mask / label_count
     return tf.clip_by_value(image, 0.0, 1.0), tf.clip_by_value(mask, 0.0, 1.0)
 
-def cache_png_file_paths():
+def cache_file_paths():
     directory = '/mnt/scratch/data/Totalsegmentator_dataset'
     path_list = []
     for x in Path(directory).rglob('ct.nii.gz'):
@@ -197,12 +201,12 @@ def cache_png_file_paths():
         
 
     df = pd.DataFrame(path_list)
-    df.to_csv('niftis.csv',index=False)
+    df.to_csv(nifti_file,index=False)
 
 def prepare_dataset():
-    if not os.path.exists('niftis.csv'):
-        cache_png_file_paths()
-    df = pd.read_csv('niftis.csv')
+    if not os.path.exists(nifti_file):
+        cache_file_paths()
+    df = pd.read_csv(nifti_file)
     path_list = df.image_path.tolist()
 
     norm_filenames = tf.constant(path_list[:100])
@@ -239,8 +243,8 @@ for images,labels in val_dataset.take(1):
         plt.axis("off")
         if i > 7 :
             break
-    os.makedirs('tmp',exist_ok=True)
-    plt.savefig(f"tmp/test.png")
+    os.makedirs(TMP_DIR,exist_ok=True)
+    plt.savefig(f"{TMP_DIR}/test.png")
     plt.close()
 
 
@@ -586,8 +590,8 @@ class DiffusionModel(keras.Model):
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
-        os.makedirs('tmp',exist_ok=True)
-        plt.savefig(f"tmp/{epoch:05d}.png")
+        os.makedirs(TMP_DIR,exist_ok=True)
+        plt.savefig(f"{TMP_DIR}/{epoch:05d}.png")
         plt.close()
 
 
