@@ -53,6 +53,14 @@ ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
 
+label_count = 105
+min_val,max_val = -1000,1000
+axis = 2
+WH = 128
+THICKNESS = 1
+TARGET_SHAPE = (WH,WH,THICKNESS)
+IMG_SIZE = (WH,WH,THICKNESS,1)
+
 def preprocess_image(data):
     # center crop image
     height = tf.shape(data["image_left"])[0]
@@ -81,15 +89,7 @@ def preprocess_image(data):
     label = tf.cast(label, dtype=tf.float32)
     label = tf.image.resize(label, size=[image_size, image_size], antialias=False,method='nearest')
 
-    return tf.clip_by_value(image / 255.0, 0.0, 1.0),tf.clip_by_value(label / 104.0, 0.0, 1.0)
-
-min_val,max_val = -1000,1000
-
-axis = 2
-WH = 128
-THICKNESS = 1
-TARGET_SHAPE = (WH,WH,THICKNESS)
-IMG_SIZE = (WH,WH,THICKNESS,1)
+    return tf.clip_by_value(image / 255.0, 0.0, 1.0),tf.clip_by_value(label / label_count, 0.0, 1.0)
 
 def nifti_read(folder_path):
     
@@ -150,7 +150,7 @@ def parse_fn(file_path):
     mask = tf.reshape(mask,[image_size,image_size,1]) # so tf won't complain about unknown image size
 
     image = (image-min_val)/(max_val-min_val)
-    mask = mask / 104
+    mask = mask / label_count
     return tf.clip_by_value(image, 0.0, 1.0), tf.clip_by_value(mask, 0.0, 1.0)
 
 def cache_png_file_paths():
