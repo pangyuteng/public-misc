@@ -482,7 +482,7 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 )
 
 # calculate mean and variance of training dataset for normalization
-#TODO: temporarily disabled #model.normalizer.adapt(train_dataset)
+model.normalizer.adapt(train_dataset.map(lambda images, labels: images))
 
 # run training and plot generated images periodically
 model.fit(
