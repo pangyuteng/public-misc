@@ -21,7 +21,7 @@ from keras import layers
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 TMP_DIR = os.path.join(THIS_DIR,'tmp')
-nifti_file = os.path.join(THIS_DIR,'niftis.csv')
+NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 
 # data
 dataset_repetitions = 100000
@@ -201,12 +201,12 @@ def cache_file_paths():
         
 
     df = pd.DataFrame(path_list)
-    df.to_csv(nifti_file,index=False)
+    df.to_csv(NIFTI_FILE,index=False)
 
 def prepare_dataset():
-    if not os.path.exists(nifti_file):
+    if not os.path.exists(NIFTI_FILE):
         cache_file_paths()
-    df = pd.read_csv(nifti_file)
+    df = pd.read_csv(NIFTI_FILE)
     path_list = df.image_path.tolist()
 
     norm_filenames = tf.constant(path_list[:100])
