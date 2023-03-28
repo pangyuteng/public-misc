@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 """
 https://keras.io/examples/generative/ddim/
 https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
