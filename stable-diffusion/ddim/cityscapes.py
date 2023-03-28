@@ -218,21 +218,19 @@ def ResidualBlock(width):
 
 def DownBlock(width, block_depth):
     def apply(x):
-        x, l, skips = x
+        x, skips = x
         for _ in range(block_depth):
-            x = layers.Concatenate()([x,l])
             x = ResidualBlock(width)(x)
             skips.append(x)
         x = layers.AveragePooling2D(pool_size=2)(x)
-        l = layers.AveragePooling2D(pool_size=2)(l)
-        return x,l
+        return x
 
     return apply
 
 
 def UpBlock(width, block_depth):
     def apply(x):
-        x, l, skips = x
+        x, skips = x
         x = layers.UpSampling2D(size=2, interpolation="bilinear")(x)
         for _ in range(block_depth):
             x = layers.Concatenate()([x, skips.pop()])
@@ -245,7 +243,6 @@ def UpBlock(width, block_depth):
 def get_network(image_size, widths, block_depth):
     noisy_images = keras.Input(shape=(image_size, image_size, 3))
     noise_variances = keras.Input(shape=(1, 1, 1))
-    labels = keras.Input(shape=(image_size, image_size, 1))
 
     e = layers.Lambda(sinusoidal_embedding)(noise_variances)
     e = layers.UpSampling2D(size=image_size, interpolation="nearest")(e)
@@ -253,20 +250,20 @@ def get_network(image_size, widths, block_depth):
     x = layers.Conv2D(widths[0], kernel_size=1)(noisy_images)
     x = layers.Concatenate()([x, e])
 
-    l = layers.Conv2D(1, kernel_size=1)(labels)
     skips = []
     for width in widths[:-1]:
-        x,l = DownBlock(width, block_depth)([x, l, skips])
+        x = DownBlock(width, block_depth)([x, skips])
 
     for _ in range(block_depth):
         x = ResidualBlock(widths[-1])(x)
 
     for width in reversed(widths[:-1]):
-        x = UpBlock(width, block_depth)([x, l, skips])
+        x = UpBlock(width, block_depth)([x, skips])
 
     x = layers.Conv2D(3, kernel_size=1, kernel_initializer="zeros")(x)
 
-    return keras.Model([noisy_images, noise_variances, labels], x, name="residual_unet")
+    return keras.Model([noisy_images, noise_variances], x, name="residual_unet")
+
 
 
 class DiffusionModel(keras.Model):
@@ -307,7 +304,7 @@ class DiffusionModel(keras.Model):
 
         return noise_rates, signal_rates
 
-    def denoise(self, noisy_images, noise_rates, signal_rates, labels, training):
+    def denoise(self, noisy_images, noise_rates, signal_rates, training):
         # the exponential moving average weights are used at evaluation
         if training:
             network = self.network
@@ -315,12 +312,12 @@ class DiffusionModel(keras.Model):
             network = self.ema_network
 
         # predict noise component and calculate the image component using it
-        pred_noises = network([noisy_images, noise_rates**2, labels], training=training)
+        pred_noises = network([noisy_images, noise_rates**2], training=training)
         pred_images = (noisy_images - noise_rates * pred_noises) / signal_rates
 
         return pred_noises, pred_images
 
-    def reverse_diffusion(self, initial_noise, diffusion_steps, labels):
+    def reverse_diffusion(self, initial_noise, diffusion_steps):
         # reverse diffusion = sampling
         num_images = initial_noise.shape[0]
         step_size = 1.0 / diffusion_steps
@@ -336,7 +333,7 @@ class DiffusionModel(keras.Model):
             diffusion_times = tf.ones((num_images, 1, 1, 1)) - step * step_size
             noise_rates, signal_rates = self.diffusion_schedule(diffusion_times)
             pred_noises, pred_images = self.denoise(
-                noisy_images, noise_rates, signal_rates, labels, training=False
+                noisy_images, noise_rates, signal_rates, training=False
             )
             # network used in eval mode
 
@@ -352,10 +349,10 @@ class DiffusionModel(keras.Model):
 
         return pred_images
 
-    def generate(self, num_images, diffusion_steps, labels):
+    def generate(self, num_images, diffusion_steps):
         # noise -> images -> denormalized images
         initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 3))
-        generated_images = self.reverse_diffusion(initial_noise, diffusion_steps, labels)
+        generated_images = self.reverse_diffusion(initial_noise, diffusion_steps)
         generated_images = self.denormalize(generated_images)
         return generated_images
 
@@ -376,7 +373,7 @@ class DiffusionModel(keras.Model):
         with tf.GradientTape() as tape:
             # train the network to separate noisy images to their components
             pred_noises, pred_images = self.denoise(
-                noisy_images, noise_rates, signal_rates, labels, training=True
+                noisy_images, noise_rates, signal_rates, training=True
             )
 
             noise_loss = self.loss(noises, pred_noises)  # used for training
@@ -411,9 +408,9 @@ class DiffusionModel(keras.Model):
 
         # use the network to separate noisy images to their components
         pred_noises, pred_images = self.denoise(
-            noisy_images, noise_rates, signal_rates, labels, training=False
+            noisy_images, noise_rates, signal_rates, training=False
         )
-        
+
         noise_loss = self.loss(noises, pred_noises)
         image_loss = self.loss(images, pred_images)
 
@@ -424,20 +421,17 @@ class DiffusionModel(keras.Model):
         # this is computationally demanding, kid_diffusion_steps has to be small
         images = self.denormalize(images)
         generated_images = self.generate(
-            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
+            num_images=batch_size, diffusion_steps=kid_diffusion_steps
         )
-        self._labels = labels.numpy()
         self.kid.update_state(images, generated_images)
 
         return {m.name: m.result() for m in self.metrics}
 
-    def plot_images(self, epoch=None, logs=None, num_rows=num_rows, num_cols=num_cols):
+    def plot_images(self, epoch=None, logs=None, num_rows=3, num_cols=6):
         # plot random generated images for visual evaluation of generation quality
-        
         generated_images = self.generate(
             num_images=num_rows * num_cols,
             diffusion_steps=plot_diffusion_steps,
-            labels=self._labels
         )
 
         plt.figure(figsize=(num_cols * 2.0, num_rows * 2.0))
@@ -445,11 +439,7 @@ class DiffusionModel(keras.Model):
             for col in range(num_cols):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
-                tmp_image = generated_images[index].numpy()
-                tmp_label = self._labels[index,:]
-                tmp_label = np.repeat(tmp_label,3, axis=2)
-                tmp = np.concatenate([tmp_image,tmp_label],axis=1)
-                plt.imshow(tmp)
+                plt.imshow(generated_images[index])
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
@@ -462,7 +452,7 @@ class DiffusionModel(keras.Model):
 ## Training
 """
 
-
+# create and compile the model
 model = DiffusionModel(image_size, widths, block_depth)
 model.network.summary()
 
