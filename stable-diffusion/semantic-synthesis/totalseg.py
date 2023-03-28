@@ -19,7 +19,7 @@ import SimpleITK as sitk
 from tensorflow import keras
 from keras import layers
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+THIS_DIR = "/mnt/hd1/aigonewrong/stable-diffusion/semantic-synthesis"
 TMP_DIR = os.path.join(THIS_DIR,'tmp')
 NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 
