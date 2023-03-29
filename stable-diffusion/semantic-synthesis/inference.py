@@ -52,6 +52,7 @@ if __name__ == "__main__":
         generated_images = model.denormalize(generated_images)
         xhat[x,:] = generated_images.numpy().squeeze()
 
+    xhat = resize(xhat,original_shape,order=1,preserve_range=True,anti_aliasing=True)
     xhat = ((xhat*2000)-1000).astype(np.int16)
     xhat_obj =  sitk.GetImageFromArray(xhat)
     xhat_obj.CopyInformation(label_obj)
@@ -59,6 +60,6 @@ if __name__ == "__main__":
 
 """
 
-CUDA_VISIBLE_DEVICES=1 python inference.py 120 /mnt/scratch/data/Totalsegmentator_dataset/s0933/segmentations.nii.gz out.nii.gz
+CUDA_VISIBLE_DEVICES=1 python inference.py 120 /mnt/scratch/data/Totalsegmentator_dataset/s1401/segmentations.nii.gz out.nii.gz
 
 """
