@@ -23,6 +23,8 @@ THIS_DIR = "/mnt/hd1/aigonewrong/stable-diffusion/semantic-synthesis"
 TMP_DIR = os.path.join(THIS_DIR,'tmp')
 NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 
+checkpoint_path = "checkpoints/diffusion_model"
+
 # data
 dataset_repetitions = 100000
 num_epochs = 500  # train for at least 50 epochs for good results
@@ -228,24 +230,6 @@ def prepare_dataset():
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
     return norm_ds, train_ds, val_ds
-
-norm_dataset, train_dataset , val_dataset = prepare_dataset()
-
-plt.figure(figsize=(10, 10))
-for images,labels in val_dataset.take(1):
-    print(images.shape,labels.shape)
-    for i in range(batch_size):
-        ax = plt.subplot(3, 3, i + 1)
-        tmp_image = images[i,:].numpy()
-        tmp_label = labels[i,:].numpy()
-        tmp = np.concatenate([tmp_image,tmp_label],axis=1)
-        plt.imshow(tmp,cmap='gray')
-        plt.axis("off")
-        if i > 7 :
-            break
-    os.makedirs(TMP_DIR,exist_ok=True)
-    plt.savefig(f"{TMP_DIR}/test.png")
-    plt.close()
 
 
 
@@ -593,58 +577,80 @@ class DiffusionModel(keras.Model):
         os.makedirs(TMP_DIR,exist_ok=True)
         plt.savefig(f"{TMP_DIR}/{epoch:05d}.png")
         plt.close()
+        if epoch % 20 == 0:
+            self.network.save_weights(f'{TMP_DIR}/network_{epoch}.h5')
+            self.ema_network.save_weights(f'{TMP_DIR}/ema_network_{epoch}.h5')
 
 
 """
 ## Training
 """
 
+if __name__ == "__main__":
 
-model = DiffusionModel(image_size, widths, block_depth)
-model.network.summary()
 
-model.compile(
-    optimizer=keras.optimizers.experimental.AdamW(
-        learning_rate=learning_rate, weight_decay=weight_decay
-    ),
-    loss=keras.losses.mean_absolute_error,
-    run_eagerly=True
-)
-# pixelwise mean absolute error is used as loss
+    norm_dataset, train_dataset , val_dataset = prepare_dataset()
 
-# save the best model based on the validation KID metric
-checkpoint_path = "checkpoints/diffusion_model"
-checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_path,
-    save_weights_only=True,
-    monitor="val_kid",
-    mode="min",
-    save_best_only=True,
-)
+    plt.figure(figsize=(10, 10))
+    for images,labels in val_dataset.take(1):
+        print(images.shape,labels.shape)
+        for i in range(batch_size):
+            ax = plt.subplot(3, 3, i + 1)
+            tmp_image = images[i,:].numpy()
+            tmp_label = labels[i,:].numpy()
+            tmp = np.concatenate([tmp_image,tmp_label],axis=1)
+            plt.imshow(tmp,cmap='gray')
+            plt.axis("off")
+            if i > 7 :
+                break
+        os.makedirs(TMP_DIR,exist_ok=True)
+        plt.savefig(f"{TMP_DIR}/test.png")
+        plt.close()
 
-# calculate mean and variance of training dataset for normalization
-model.normalizer.adapt(norm_dataset.map(lambda images, labels: images))
+    model = DiffusionModel(image_size, widths, block_depth)
+    model.network.summary()
 
-if os.path.exists(checkpoint_path):
+    model.compile(
+        optimizer=keras.optimizers.experimental.AdamW(
+            learning_rate=learning_rate, weight_decay=weight_decay
+        ),
+        loss=keras.losses.mean_absolute_error,
+        run_eagerly=True
+    )
+    # pixelwise mean absolute error is used as loss
+
+    # save the best model based on the validation KID metric
+    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=checkpoint_path,
+        save_weights_only=True,
+        monitor="val_kid",
+        mode="min",
+        save_best_only=True,
+    )
+
+    # calculate mean and variance of training dataset for normalization
+    model.normalizer.adapt(norm_dataset.map(lambda images, labels: images))
+
+    if os.path.exists(checkpoint_path):
+        model.load_weights(checkpoint_path)
+
+    # run training and plot generated images periodically
+    model.fit(
+        train_dataset,
+        epochs=num_epochs,
+        steps_per_epoch=50,
+        validation_steps=10,
+        validation_data=val_dataset,
+        callbacks=[
+            keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
+            checkpoint_callback,
+        ],
+    )
+
+    """
+    ## Inference
+    """
+
+    # load the best model and generate images
     model.load_weights(checkpoint_path)
-
-# run training and plot generated images periodically
-model.fit(
-    train_dataset,
-    epochs=num_epochs,
-    steps_per_epoch=50,
-    validation_steps=10,
-    validation_data=val_dataset,
-    callbacks=[
-        keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
-        checkpoint_callback,
-    ],
-)
-
-"""
-## Inference
-"""
-
-# load the best model and generate images
-model.load_weights(checkpoint_path)
-model.plot_images(epoch=999)
+    model.plot_images(epoch=999)
