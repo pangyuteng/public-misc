@@ -17,7 +17,7 @@ if __name__ == "__main__":
     label_file = sys.argv[2]
     output_file = sys.argv[3]
 
-    plot_diffusion_steps = 20
+    plot_diffusion_steps = 100
 
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
     # load the best model and generate images
