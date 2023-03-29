@@ -19,7 +19,7 @@ import SimpleITK as sitk
 from tensorflow import keras
 from keras import layers
 
-THIS_DIR = "/mnt/hd1/aigonewrong/stable-diffusion/semantic-synthesis/highres"
+THIS_DIR = "/mnt/hd1/aigonewrong/stable-diffusion/semantic-synthesis"
 TMP_DIR = os.path.join(THIS_DIR,'tmp')
 NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 
@@ -28,10 +28,10 @@ checkpoint_path = "checkpoints/diffusion_model"
 # data
 dataset_repetitions = 100000
 num_epochs = 500  # train for at least 50 epochs for good results
-image_size = 512
-batch_size = 4
-num_cols = 2
-num_rows = 2
+image_size = 128
+batch_size = 16
+num_cols = 4
+num_rows = 4
 widths = [32, 64, 96, 128]
 
 # image_size = 512
