@@ -59,4 +59,6 @@ if __name__ == "__main__":
 
 """
 
+CUDA_VISIBLE_DEVICES=1 python inference.py 120 /mnt/scratch/data/Totalsegmentator_dataset/s0933/segmentations.nii.gz out.nii.gz
+
 """
