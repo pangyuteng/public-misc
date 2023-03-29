@@ -28,17 +28,12 @@ checkpoint_path = "checkpoints/diffusion_model"
 # data
 dataset_repetitions = 100000
 num_epochs = 500  # train for at least 50 epochs for good results
-image_size = 128
-batch_size = 16
-num_cols = 4
-num_rows = 4
-widths = [32, 64, 96, 128]
 
-# image_size = 512
-# batch_size = 4
-# num_cols = 2
-# num_rows = 2
-# widths = [8, 16, 32, 64]
+image_size = 512
+batch_size = 4
+num_cols = 2
+num_rows = 2
+widths = [8, 16, 32, 64]
 
 # KID = Kernel Inception Distance, see related section
 kid_image_size = 75
