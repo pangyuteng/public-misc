@@ -46,11 +46,12 @@ if __name__ == "__main__":
     num_images = labels.shape[0]
     initial_noise = tf.random.normal(shape=(1, image_size, image_size, 1))
     for x in range(num_images):
+        print(f'{x} of {num_images}')
         tmp_label = np.expand_dims(np.expand_dims(labels[x,:],axis=-1),axis=0)
         generated_images = model.reverse_diffusion(initial_noise, plot_diffusion_steps, tmp_label)
         generated_images = model.denormalize(generated_images)
         xhat[x,:] = generated_images.numpy().squeeze()
-    
+
     xhat = ((xhat*2000)-1000).astype(np.int16)
     xhat_obj =  sitk.GetImageFromArray(xhat)
     xhat_obj.CopyInformation(label_obj)
