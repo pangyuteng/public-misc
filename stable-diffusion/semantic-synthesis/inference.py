@@ -14,7 +14,7 @@ from totalseg import (
 if __name__ == "__main__":
 
     epoch = sys.argv[1]
-    plot_diffusion_steps = 100
+    plot_diffusion_steps = 20
 
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
     # load the best model and generate images
@@ -34,6 +34,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         for images,labels in val_dataset.take(1):
             model._labels = labels.numpy()
+            model._images = images.numpy()
             model.plot_images(epoch=999,num_rows=num_rows, num_cols=num_cols)
 
     if len(sys.argv) == 4:

@@ -513,6 +513,9 @@ class DiffusionModel(keras.Model):
 
     def test_step(self, input_data):
         images,labels = input_data
+
+        self._images = images.numpy()
+        self._labels = labels.numpy()
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=False)
         noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
@@ -542,7 +545,6 @@ class DiffusionModel(keras.Model):
         generated_images = self.generate(
             num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
         )
-        self._labels = labels.numpy()
         self.kid.update_state(images, generated_images)
 
         return {m.name: m.result() for m in self.metrics}
@@ -561,9 +563,10 @@ class DiffusionModel(keras.Model):
             for col in range(num_cols):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
-                tmp_image = generated_images[index].numpy()
+                tmp_x = self._images[index,:]
                 tmp_label = self._labels[index,:]
-                tmp = np.concatenate([tmp_image,tmp_label],axis=1)
+                tmp_xhat = generated_images[index].numpy()
+                tmp = np.concatenate([tmp_x,tmp_label,tmp_xhat],axis=1)
                 plt.imshow(tmp,cmap='gray')
                 plt.axis("off")
         plt.tight_layout()
