@@ -19,13 +19,13 @@ NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 
 # data
 dataset_repetitions = 100000
-image_size = 128
+image_size = 512
 batch_size = 16
 
 label_count = 105
 min_val,max_val = -1000,1000
 axis = 2
-WH = 128
+WH = image_size
 THICKNESS = 1
 TARGET_SHAPE = (WH,WH,THICKNESS)
 IMG_SIZE = (WH,WH,THICKNESS,1)
@@ -120,7 +120,28 @@ def parse_fn(file_path):
 
     image = (image-min_val)/(max_val-min_val)
     mask = mask / label_count
-    return tf.clip_by_value(image, 0.0, 1.0), tf.clip_by_value(mask, 0.0, 1.0)
+    return tf.clip_by_value(image, 0.0, 1.0)-0.5, tf.clip_by_value(mask, 0.0, 1.0)
+
+def parse_fn_one(file_path):
+    image, mask = tf.numpy_function(
+        func=nifti_read, 
+        inp=[file_path],
+        Tout=[tf.float32, tf.float32],
+    )
+    image = tf.cast(image, tf.float32)
+    image = tf.tile(image, [1,1,1]) # trick tf so image is of the proper type.
+    image = tf.image.resize(image, [image_size,image_size],antialias=True)
+    image = tf.reshape(image,[image_size,image_size,1]) # so tf won't complain about unknown image size
+
+    mask = tf.cast(mask, tf.float32)
+    mask = tf.tile(mask, [1,1,1])
+    mask = tf.image.resize(mask, [image_size,image_size], antialias=False,method='nearest')
+    mask = tf.reshape(mask,[image_size,image_size,1]) # so tf won't complain about unknown image size
+
+    image = (image-min_val)/(max_val-min_val)
+    mask = mask / label_count
+    return tf.clip_by_value(image, 0.0, 1.0)-0.5
+
 
 def cache_file_paths():
     directory = '/mnt/scratch/data/Totalsegmentator_dataset'
@@ -168,7 +189,7 @@ def cache_file_paths():
     df = pd.DataFrame(path_list)
     df.to_csv(NIFTI_FILE,index=False)
 
-def prepare_dataset():
+def prepare_dataset(func=parse_fn):
     if not os.path.exists(NIFTI_FILE):
         cache_file_paths()
     df = pd.read_csv(NIFTI_FILE)
@@ -176,19 +197,19 @@ def prepare_dataset():
 
     norm_filenames = tf.constant(path_list[:100])
     norm_ds = tf.data.Dataset.from_tensor_slices(norm_filenames).repeat(1).shuffle(10 * batch_size).map(
-        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+        func, num_parallel_calls=tf.data.AUTOTUNE
     )
     norm_ds = norm_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
     train_filenames = tf.constant(path_list[:-900])
     train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
-        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+        func, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
     
     val_filenames = tf.constant(path_list[-900:])
     val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
-        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+        func, num_parallel_calls=tf.data.AUTOTUNE
     )
     val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
