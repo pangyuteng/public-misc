@@ -14,7 +14,7 @@ from totalseg import (
 if __name__ == "__main__":
 
     epoch = sys.argv[1]
-    plot_diffusion_steps = 20
+    plot_diffusion_steps = 5
 
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
     # load the best model and generate images
