@@ -196,7 +196,8 @@ def show_subplot(original, reconstructed):
     plt.axis("off")
 
     plt.show()
-
+    plt.savefig(f"{TMP_DIR}/recon-{i}.png")
+    plt.close()
 
 trained_vqvae_model = vqvae_trainer.vqvae
 idx = np.random.choice(len(x_test_scaled), 10)
@@ -235,8 +236,8 @@ for i in range(len(test_images)):
     plt.title("Code")
     plt.axis("off")
     plt.show()
-
-sys.exit(0)
+    plt.savefig(f"{TMP_DIR}/code-{i}.png")
+    plt.close()
 """
 ## PixelCNN hyperparameters
 """
