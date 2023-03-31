@@ -183,7 +183,7 @@ vqvae_trainer.fit(x_train_scaled, epochs=30, batch_size=128)
 ## Reconstruction results on the test set
 """
 
-
+c=0
 def show_subplot(original, reconstructed):
     plt.subplot(1, 2, 1)
     plt.imshow(original.squeeze() + 0.5)
@@ -196,7 +196,8 @@ def show_subplot(original, reconstructed):
     plt.axis("off")
 
     plt.show()
-    plt.savefig(f"{TMP_DIR}/recon-{i}.png")
+    plt.savefig(f"{TMP_DIR}/recon-{c}.png")
+    c+=1
     plt.close()
 
 trained_vqvae_model = vqvae_trainer.vqvae
