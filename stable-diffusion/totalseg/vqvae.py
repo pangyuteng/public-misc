@@ -5,8 +5,12 @@ https://github.com/keras-team/keras-io/blob/master/examples/generative/vq_vae.py
 
 """
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
+
+TMP_DIR = 'tmp'
+os.makedirs(TMP_DIR,exist_ok=True)
 
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -398,3 +402,4 @@ for i in range(batch):
     plt.title("Generated Sample")
     plt.axis("off")
     plt.show()
+    plt.savefig(f"{TMP_DIR}/generated-{i}.png")
