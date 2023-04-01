@@ -169,7 +169,7 @@ class VQVAETrainer(keras.models.Model):
 # x_test_scaled = (x_test / 255.0) - 0.5
 # data_variance = np.var(x_train / 255.0)
 
-from datautils import prepare_dataset, parse_fn_one
+from datautils import prepare_dataset, parse_fn_one,batch_size
 norm_dataset, train_dataset , val_dataset = prepare_dataset(func=parse_fn_one)
 
 normalizer = layers.Normalization()
@@ -179,40 +179,42 @@ data_variance = normalizer.variance
 """
 ## Train the VQ-VAE model
 """
-
+vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 vqvae_trainer = VQVAETrainer(data_variance, latent_dim=16, num_embeddings=128)
 vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
-vqvae_trainer.fit(train_dataset, epochs=30, batch_size=128)
-vqvae_trainer.vqvae.save_weights(f'{TMP_DIR}/vqvae.h5')
-
+if not os.path.exists(vqvae_weights_file):
+    vqvae_trainer.fit(train_dataset, epochs=30, batch_size=128)
+    vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
+else:
+    vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
 """
 ## Reconstruction results on the test set
 """
 
-def show_subplot(original, reconstructed,c):
+def show_subplot(original, reconstructed,idx):
     plt.subplot(1, 2, 1)
-    plt.imshow(original.squeeze() + 0.5)
+    plt.imshow(original.squeeze() + 0.5 ,cmap='gray')
     plt.title("Original")
     plt.axis("off")
 
     plt.subplot(1, 2, 2)
-    plt.imshow(reconstructed.squeeze() + 0.5)
+    plt.imshow(reconstructed.squeeze() + 0.5 ,cmap='gray')
     plt.title("Reconstructed")
     plt.axis("off")
 
     plt.show()
-    plt.savefig(f"{TMP_DIR}/recon-{c}.png")
-    c+=1
+    plt.savefig(f"{TMP_DIR}/recon-{idx}.png")
     plt.close()
 
 trained_vqvae_model = vqvae_trainer.vqvae
 idx = np.random.choice(len(val_dataset), 10)
-test_images = val_dataset[idx]
+test_images = [x for x in val_dataset.take(1)][0]
 reconstructions_test = trained_vqvae_model.predict(test_images)
-c = 0
-for test_image, reconstructed_image in zip(test_images, reconstructions_test):
-    show_subplot(test_image, reconstructed_image,c)
-    c+=1
+
+for idx in range(batch_size):
+    test_image = test_images.numpy()[idx,:]
+    reconstructed_image = reconstructions_test[idx,:]
+    show_subplot(test_image, reconstructed_image,idx)
 
 """
 These results look decent. You are encouraged to play with different hyperparameters
@@ -234,12 +236,12 @@ codebook_indices = codebook_indices.numpy().reshape(encoded_outputs.shape[:-1])
 
 for i in range(len(test_images)):
     plt.subplot(1, 2, 1)
-    plt.imshow(test_images[i].squeeze() + 0.5)
+    plt.imshow(test_images.numpy()[i].squeeze() + 0.5,cmap='gray')
     plt.title("Original")
     plt.axis("off")
 
     plt.subplot(1, 2, 2)
-    plt.imshow(codebook_indices[i])
+    plt.imshow(codebook_indices[i],cmap='gray')
     plt.title("Code")
     plt.axis("off")
     plt.show()
@@ -307,16 +309,16 @@ class ResidualBlock(keras.layers.Layer):
 pixelcnn_inputs = keras.Input(shape=pixelcnn_input_shape, dtype=tf.int32)
 ohe = tf.one_hot(pixelcnn_inputs, vqvae_trainer.num_embeddings)
 x = PixelConvLayer(
-    mask_type="A", filters=128, kernel_size=7, activation="relu", padding="same"
+    mask_type="A", filters=64, kernel_size=7, activation="relu", padding="same"
 )(ohe)
 
 for _ in range(num_residual_blocks):
-    x = ResidualBlock(filters=128)(x)
+    x = ResidualBlock(filters=64)(x)
 
 for _ in range(num_pixelcnn_layers):
     x = PixelConvLayer(
         mask_type="B",
-        filters=128,
+        filters=64,
         kernel_size=1,
         strides=1,
         activation="relu",
@@ -329,9 +331,9 @@ out = keras.layers.Conv2D(
 
 pixel_cnn = keras.Model(pixelcnn_inputs, out, name="pixel_cnn")
 pixel_cnn.summary()
-pixel_cnn.save_weights(f'{TMP_DIR}/pixel_cnn.h5')
+
 # Generate the codebook indices.
-encoded_outputs = encoder.predict(x_train_scaled)
+encoded_outputs = encoder.predict(train_dataset)
 flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
 codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
 
@@ -347,14 +349,18 @@ pixel_cnn.compile(
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"],
 )
-pixel_cnn.fit(
-    x=codebook_indices,
-    y=codebook_indices,
-    batch_size=128,
-    epochs=30,
-    validation_split=0.1,
-)
-
+pixel_cnn_weight_file = f'{TMP_DIR}/pixel_cnn.h5'
+if not os.path.exists(pixel_cnn_weight_file):
+    pixel_cnn.fit(
+        x=codebook_indices,
+        y=codebook_indices,
+        batch_size=128,
+        epochs=30,
+        validation_split=0.1,
+    )
+    pixel_cnn.save_weights(pixel_cnn_weight_file)
+else:
+    pixel_cnn.load_weights(pixel_cnn_weight_file)
 
 # Create a mini sampler model.
 inputs = layers.Input(shape=pixel_cnn.input_shape[1:])
@@ -401,12 +407,12 @@ generated_samples = decoder.predict(quantized)
 
 for i in range(batch):
     plt.subplot(1, 2, 1)
-    plt.imshow(priors[i])
+    plt.imshow(priors[i],cmap='gray')
     plt.title("Code")
     plt.axis("off")
 
     plt.subplot(1, 2, 2)
-    plt.imshow(generated_samples[i].squeeze() + 0.5)
+    plt.imshow(generated_samples[i].squeeze() + 0.5,cmap='gray')
     plt.title("Generated Sample")
     plt.axis("off")
     plt.show()
