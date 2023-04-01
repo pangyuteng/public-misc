@@ -334,8 +334,6 @@ pixel_cnn.summary()
 
 # Generate the codebook indices.
 encoded_outputs = encoder.predict(train_dataset)
-print(encoded_outputs.shape)
-sys.exit(1)
 flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
 codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
 
