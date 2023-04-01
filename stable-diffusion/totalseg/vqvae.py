@@ -76,7 +76,7 @@ class VectorQuantizer(layers.Layer):
         return encoding_indices
 
 
-def get_encoder(latent_dim=16):
+def get_encoder(latent_dim):
     encoder_inputs = keras.Input(shape=(512, 512, 1))
     x = layers.Conv2D(32, 3, activation="relu", strides=2, padding="same")(
         encoder_inputs
@@ -86,7 +86,7 @@ def get_encoder(latent_dim=16):
     return keras.Model(encoder_inputs, encoder_outputs, name="encoder")
 
 
-def get_decoder(latent_dim=16):
+def get_decoder(latent_dim):
     latent_inputs = keras.Input(shape=get_encoder(latent_dim).output.shape[1:])
     x = layers.Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")(
         latent_inputs
@@ -96,8 +96,9 @@ def get_decoder(latent_dim=16):
     return keras.Model(latent_inputs, decoder_outputs, name="decoder")
 
 
-
-def get_vqvae(latent_dim=16, num_embeddings=64):
+LATENT_DIM = 32
+NUM_EMBEDDINGS = 128
+def get_vqvae(latent_dim,num_embeddings):
     vq_layer = VectorQuantizer(num_embeddings, latent_dim, name="vector_quantizer")
     encoder = get_encoder(latent_dim)
     decoder = get_decoder(latent_dim)
@@ -108,12 +109,12 @@ def get_vqvae(latent_dim=16, num_embeddings=64):
     return keras.Model(inputs, reconstructions, name="vq_vae")
 
 
-get_vqvae().summary()
+get_vqvae(LATENT_DIM,NUM_EMBEDDINGS).summary()
 
 
 
 class VQVAETrainer(keras.models.Model):
-    def __init__(self, train_variance, latent_dim=32, num_embeddings=128, **kwargs):
+    def __init__(self, train_variance, latent_dim, num_embeddings, **kwargs):
         super().__init__(**kwargs)
         self.train_variance = train_variance
         self.latent_dim = latent_dim
@@ -179,9 +180,10 @@ data_variance = normalizer.variance
 """
 ## Train the VQ-VAE model
 """
-vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
-vqvae_trainer = VQVAETrainer(data_variance, latent_dim=16, num_embeddings=128)
+vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
 vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
+
+vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 if not os.path.exists(vqvae_weights_file):
     vqvae_trainer.fit(train_dataset, epochs=30, batch_size=128)
     vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
