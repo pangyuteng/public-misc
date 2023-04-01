@@ -183,6 +183,7 @@ data_variance = normalizer.variance
 vqvae_trainer = VQVAETrainer(data_variance, latent_dim=16, num_embeddings=128)
 vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
 vqvae_trainer.fit(train_dataset, epochs=30, batch_size=128)
+vqvae_trainer.vqvae.save_weights(f'{TMP_DIR}/vqvae.h5')
 
 """
 ## Reconstruction results on the test set
@@ -205,8 +206,8 @@ def show_subplot(original, reconstructed,c):
     plt.close()
 
 trained_vqvae_model = vqvae_trainer.vqvae
-idx = np.random.choice(len(x_test_scaled), 10)
-test_images = x_test_scaled[idx]
+idx = np.random.choice(len(val_dataset), 10)
+test_images = val_dataset[idx]
 reconstructions_test = trained_vqvae_model.predict(test_images)
 c = 0
 for test_image, reconstructed_image in zip(test_images, reconstructions_test):
@@ -328,7 +329,7 @@ out = keras.layers.Conv2D(
 
 pixel_cnn = keras.Model(pixelcnn_inputs, out, name="pixel_cnn")
 pixel_cnn.summary()
-
+pixel_cnn.save_weights(f'{TMP_DIR}/pixel_cnn.h5')
 # Generate the codebook indices.
 encoded_outputs = encoder.predict(x_train_scaled)
 flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
