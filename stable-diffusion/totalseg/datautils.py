@@ -18,7 +18,7 @@ TMP_DIR = os.path.join(THIS_DIR,'tmp')
 NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 
 # data
-dataset_repetitions = 1000
+dataset_repetitions = 100
 image_size = 512
 batch_size = 16
 
