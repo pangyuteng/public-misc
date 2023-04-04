@@ -6,6 +6,7 @@ https://github.com/keras-team/keras-io/blob/master/examples/generative/vq_vae.py
 """
 
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -185,7 +186,7 @@ vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
 
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 if not os.path.exists(vqvae_weights_file):
-    vqvae_trainer.fit(train_dataset, epochs=30, batch_size=128)
+    vqvae_trainer.fit(train_dataset, epochs=30)#, batch_size=128)
     vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
 else:
     vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
@@ -334,13 +335,24 @@ out = keras.layers.Conv2D(
 pixel_cnn = keras.Model(pixelcnn_inputs, out, name="pixel_cnn")
 pixel_cnn.summary()
 
+
 # Generate the codebook indices.
-encoded_outputs = encoder.predict(train_dataset)
+encoded_outputs = encoder.predict(norm_dataset)
 flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
 codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
 
 codebook_indices = codebook_indices.numpy().reshape(encoded_outputs.shape[:-1])
 print(f"Shape of the training data for PixelCNN: {codebook_indices.shape}")
+
+#Shape of the training data for PixelCNN: (96, 128, 128)
+# def myfunc(x):
+#     encoded_outputs = encoder(x)
+#     #flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
+#     flattened = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
+#     codebook_indices = quantizer.get_code_indices(flattened)
+#     tf.print(tf.shape(codebook_indices), output_stream=sys.stderr)
+#     return codebook_indices
+# codebook_indices = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
 
 """
 ## PixelCNN training
@@ -356,7 +368,7 @@ if not os.path.exists(pixel_cnn_weight_file):
     pixel_cnn.fit(
         x=codebook_indices,
         y=codebook_indices,
-        batch_size=128,
+        batch_size=batch_size,
         epochs=30,
         validation_split=0.1,
     )
@@ -388,7 +400,7 @@ for row in range(rows):
         probs = sampler.predict(priors)
         # Use the probabilities to pick pixel values and append the values to the priors.
         priors[:, row, col] = probs[:, row, col]
-
+        print(f'{row} of {rows},{col} of {cols}')
 print(f"Prior shape: {priors.shape}")
 
 """
@@ -402,7 +414,6 @@ quantized = tf.matmul(
     priors_ohe.astype("float32"), pretrained_embeddings, transpose_b=True
 )
 quantized = tf.reshape(quantized, (-1, *(encoded_outputs.shape[1:])))
-
 # Generate novel images.
 decoder = vqvae_trainer.vqvae.get_layer("decoder")
 generated_samples = decoder.predict(quantized)
