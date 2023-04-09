@@ -90,7 +90,7 @@ if __name__ == "__main__":
         print(images.shape)
         for i in range(batch_size):
             ax = plt.subplot(3, 3, i + 1)
-            plt.imshow((images[i,:].numpy()*255).astype("uint8"),cmap='gray')
+            plt.imshow(images[i,:].numpy()+0.5,cmap='gray')
             plt.axis("off")
             if i > 7 :
                 break
