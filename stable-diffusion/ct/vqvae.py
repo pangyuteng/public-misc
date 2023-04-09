@@ -20,6 +20,17 @@ from tensorflow.keras import layers
 import tensorflow_probability as tfp
 import tensorflow as tf
 
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+  # Restrict TensorFlow to only use the first GPU
+  try:
+    tf.config.set_visible_devices(gpus[0], 'GPU')
+    logical_gpus = tf.config.list_logical_devices('GPU')
+    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
+  except RuntimeError as e:
+    # Visible devices must be set before GPUs have been initialized
+    print(e)
+
 class VectorQuantizer(layers.Layer):
     def __init__(self, num_embeddings, embedding_dim, beta=0.25, **kwargs):
         super().__init__(**kwargs)
