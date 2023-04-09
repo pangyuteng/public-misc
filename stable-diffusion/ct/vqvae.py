@@ -78,6 +78,13 @@ class VectorQuantizer(layers.Layer):
         encoding_indices = tf.argmin(distances, axis=1)
         return encoding_indices
 
+
+# from gen_totalseg import prepare_dataset, parse_fn_one, batch_size, image_size
+# norm_dataset, train_dataset , val_dataset = prepare_dataset(func=parse_fn_one)
+
+from gen_deeplesion import prepare_dataset, batch_size, image_size
+norm_dataset, train_dataset , val_dataset = prepare_dataset()
+
 def ResidualBlock(width):
     def apply(x):
         input_width = x.shape[3]
@@ -95,7 +102,6 @@ def ResidualBlock(width):
 
     return apply
 
-image_size = 64
 block_depth = 2
 def get_encoder(latent_dim):
     encoder_inputs = keras.Input(shape=(image_size, image_size, 1))
@@ -183,19 +189,6 @@ class VQVAETrainer(keras.models.Model):
             "reconstruction_loss": self.reconstruction_loss_tracker.result(),
             "vqvae_loss": self.vq_loss_tracker.result(),
         }
-
-# (x_train, _), (x_test, _) = keras.datasets.mnist.load_data()
-# x_train = np.expand_dims(x_train, -1)
-# x_test = np.expand_dims(x_test, -1)
-# x_train_scaled = (x_train / 255.0) - 0.5
-# x_test_scaled = (x_test / 255.0) - 0.5
-# data_variance = np.var(x_train / 255.0)
-
-# from gen_totalseg import prepare_dataset, parse_fn_one,batch_size
-# norm_dataset, train_dataset , val_dataset = prepare_dataset(func=parse_fn_one)
-
-from gen_deeplesion import prepare_dataset, batch_size
-norm_dataset, train_dataset , val_dataset = prepare_dataset()
 
 normalizer = layers.Normalization()
 normalizer.adapt(norm_dataset.map(lambda images: images))
