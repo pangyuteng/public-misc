@@ -370,12 +370,12 @@ def myfunc(x):
     flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
     codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
     codebook_indices = tf.reshape(codebook_indices, [-1, 16,16])
-    tf.print(tf.shape(codebook_indices), output_stream=sys.stderr) # None,16,16
-    return codebook_indices
+    #tf.print(tf.shape(codebook_indices), output_stream=sys.stderr) # None,16,16
+    return codebook_indices,codebook_indices
 
 codebook_indices = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
-for x in codebook_indices.take(1):
-    print(x.shape)
+for x,y in codebook_indices.take(1):
+    print(x.shape,y.shape)
 
 """
 ## PixelCNN training
