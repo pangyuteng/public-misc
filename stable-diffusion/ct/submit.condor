@@ -1,6 +1,6 @@
 
 universe = docker
-docker_image = pangyuteng/pangyuteng/keras-stable-diffusion:latest
+docker_image = pangyuteng/keras-stable-diffusion:latest
 docker_pull_policy = always
 
 executable = run.sh
