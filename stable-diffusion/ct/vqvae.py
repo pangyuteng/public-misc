@@ -83,6 +83,11 @@ class VectorQuantizer(layers.Layer):
 # norm_dataset, train_dataset , val_dataset = prepare_dataset(func=parse_fn_one)
 
 from gen_deeplesion import prepare_dataset, batch_size, image_size
+
+LATENT_DIM = 8
+NUM_EMBEDDINGS = 1024
+CODEBOOK_WH = image_size//4
+
 norm_dataset, train_dataset , val_dataset = prepare_dataset()
 
 def ResidualBlock(width):
@@ -126,8 +131,6 @@ def get_decoder(latent_dim):
     return keras.Model(latent_inputs, decoder_outputs, name="decoder")
 
 
-LATENT_DIM = 8
-NUM_EMBEDDINGS = 1024
 def get_vqvae(latent_dim,num_embeddings):
     vq_layer = VectorQuantizer(num_embeddings, latent_dim, name="vector_quantizer")
     encoder = get_encoder(latent_dim)
@@ -405,7 +408,7 @@ def myfunc(x):
     #tf.print(tf.shape(encoded_outputs), output_stream=sys.stderr) # None,16,16,8
     flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
     codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-    codebook_indices = tf.reshape(codebook_indices, [-1, 16,16])
+    codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH])
     #tf.print(tf.shape(codebook_indices), output_stream=sys.stderr) # None,16,16
     return codebook_indices,codebook_indices
 

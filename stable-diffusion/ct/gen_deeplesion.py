@@ -68,15 +68,13 @@ def prepare_dataset():
     )
 
     train_filenames = tf.constant(path_list[:10000])
-    train_filenames = tf.constant(path_list[:500])
-    #train_filenames = tf.constant(path_list[:-1000])
+    train_filenames = tf.constant(path_list[:-1000])
     train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
     val_filenames = tf.constant(path_list[-1000:])
-    val_filenames = tf.constant(path_list[-500:])
     val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
