@@ -3,6 +3,8 @@
 https://keras.io/examples/generative/vq_vae
 https://github.com/keras-team/keras-io/blob/master/examples/generative/vq_vae.py
 
+https://raw.githubusercontent.com/keras-team/keras-io/master/examples/generative/vq_vae.py
+
 """
 
 import os
@@ -281,6 +283,7 @@ num_residual_blocks = 2
 num_pixelcnn_layers = 2
 pixelcnn_input_shape = encoded_outputs.shape[1:-1]
 print(f"Input shape of the PixelCNN: {pixelcnn_input_shape}")
+# 16,16
 
 # The first layer is the PixelCNN layer. This layer simply
 # builds on the 2D convolutional layer, but includes masking.
@@ -358,25 +361,21 @@ out = keras.layers.Conv2D(
 pixel_cnn = keras.Model(pixelcnn_inputs, out, name="pixel_cnn")
 pixel_cnn.summary()
 
-sys.exit(1)
 # Generate the codebook indices.
-"""
-encoded_outputs = encoder.predict(norm_dataset)
-flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
-codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-codebook_indices = codebook_indices.numpy().reshape(encoded_outputs.shape[:-1])
-print(f"Shape of the training data for PixelCNN: {codebook_indices.shape}")
-"""
-#Shape of the training data for PixelCNN: (96, 128, 128)
+
 def myfunc(x):
+    #tf.print(tf.shape(x), output_stream=sys.stderr) # None,64,64,1
     encoded_outputs = encoder(x)
-    #flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
-    flattened = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
-    codebook_indices = quantizer.get_code_indices(flattened)
-    tf.print(tf.shape(codebook_indices), output_stream=sys.stderr)
+    #tf.print(tf.shape(encoded_outputs), output_stream=sys.stderr) # None,16,16,8
+    flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
+    codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
+    codebook_indices = tf.reshape(codebook_indices, [-1, 16,16])
+    tf.print(tf.shape(codebook_indices), output_stream=sys.stderr) # None,16,16
     return codebook_indices
 
 codebook_indices = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+for x in codebook_indices.take(1):
+    print(x.shape)
 
 """
 ## PixelCNN training
@@ -391,11 +390,12 @@ pixel_cnn.compile(
 pixel_cnn_weight_file = f'{TMP_DIR}/pixel_cnn.h5'
 if not os.path.exists(pixel_cnn_weight_file):
     pixel_cnn.fit(
-        x=codebook_indices,
-        y=codebook_indices,
+        codebook_indices,
+        #x=codebook_indices,
+        #y=codebook_indices,
         batch_size=batch_size,
         epochs=epochs,
-        validation_split=0.1,
+        #validation_split=0.1,
     )
     pixel_cnn.save_weights(pixel_cnn_weight_file)
 else:
