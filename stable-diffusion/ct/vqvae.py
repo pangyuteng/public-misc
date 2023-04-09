@@ -205,9 +205,11 @@ data_variance = normalizer.variance
 vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
 vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
 
+epochs = 30
+
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 if not os.path.exists(vqvae_weights_file):
-    vqvae_trainer.fit(train_dataset, epochs=30)#, batch_size=128)
+    vqvae_trainer.fit(train_dataset, epochs=epochs)#, batch_size=128)
     vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
 else:
     vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
@@ -379,6 +381,7 @@ codebook_indices = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE
 """
 ## PixelCNN training
 """
+epochs = 30
 
 pixel_cnn.compile(
     optimizer=keras.optimizers.Adam(3e-4),
@@ -391,7 +394,7 @@ if not os.path.exists(pixel_cnn_weight_file):
         x=codebook_indices,
         y=codebook_indices,
         batch_size=batch_size,
-        epochs=30,
+        epochs=epochs,
         validation_split=0.1,
     )
     pixel_cnn.save_weights(pixel_cnn_weight_file)

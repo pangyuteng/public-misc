@@ -33,7 +33,7 @@ def png_read(file_path):
     image = cv2.imread(file_path, -1)  # -1 is needed for 16-bit image
     image = (image.astype(np.int32) - 32768).astype(np.int16) # HU
     image = image.astype(np.float32)
-    image = ((image-min_val)/(max_val-min_val)).clip(0,1)
+    image = ((image-min_val)/(max_val-min_val)).clip(0,1)-0.5
     image = np.expand_dims(image,axis=-1)
     dummpy = np.array([0.0]).astype(np.float32)
     return image, dummpy
@@ -68,7 +68,7 @@ def prepare_dataset():
     )
 
     #train_filenames = tf.constant(path_list[:-1000])
-    train_filenames = tf.constant(path_list[:10000])
+    train_filenames = tf.constant(path_list[:1000])
     train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
