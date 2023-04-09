@@ -22,8 +22,10 @@ import matplotlib.pyplot as plt
 # data
 dataset_repetitions = 5
 num_epochs = 50  # train for at least 50 epochs for good results
-image_size = 512
-batch_size = 512
+#image_size = 512
+#batch_size = 16
+image_size = 64
+batch_size = 64
 
 min_val,max_val = -1000,1000
 def png_read(file_path):
@@ -65,12 +67,14 @@ def prepare_dataset():
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
 
-    train_filenames = tf.constant(path_list[:-1000])
+    #train_filenames = tf.constant(path_list[:-1000])
+    train_filenames = tf.constant(path_list[:10000])
     train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
     train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
     
+    #val_filenames = tf.constant(path_list[-1000:])
     val_filenames = tf.constant(path_list[-1000:])
     val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
