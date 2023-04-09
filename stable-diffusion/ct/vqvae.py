@@ -192,7 +192,7 @@ class VQVAETrainer(keras.models.Model):
 # from gen_totalseg import prepare_dataset, parse_fn_one,batch_size
 # norm_dataset, train_dataset , val_dataset = prepare_dataset(func=parse_fn_one)
 
-from gen_deeplesion import prepare_dataset
+from gen_deeplesion import prepare_dataset, batch_size
 norm_dataset, train_dataset , val_dataset = prepare_dataset()
 
 normalizer = layers.Normalization()
