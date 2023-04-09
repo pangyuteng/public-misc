@@ -1,9 +1,0 @@
-keras-cv>=0.4.2
-tensorflow_datasets>=4.8.2
-imageio>=2.25.1
-scipy>=1.10.1
-scikit-image>=0.19.3
-opencv-python>=4.7.0.68
-pandas>=1.5.3
-SimpleITK>=2.2.1
-tensorflow_probability>=0.19.0
