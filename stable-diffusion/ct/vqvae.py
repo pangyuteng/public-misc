@@ -370,6 +370,8 @@ codebook_indices = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE
 for x,y in codebook_indices.take(1):
     print(x.shape,y.shape)
 
+val_codebook_indices = val_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+
 """
 ## PixelCNN training
 """
@@ -384,11 +386,9 @@ pixel_cnn_weight_file = f'{TMP_DIR}/pixel_cnn.h5'
 if not os.path.exists(pixel_cnn_weight_file):
     pixel_cnn.fit(
         codebook_indices,
-        #x=codebook_indices,
-        #y=codebook_indices,
         batch_size=batch_size,
         epochs=epochs,
-        #validation_split=0.1,
+        validation_data=val_codebook_indices,
     )
     pixel_cnn.save_weights(pixel_cnn_weight_file)
 else:
