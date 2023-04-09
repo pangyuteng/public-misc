@@ -204,7 +204,7 @@ epochs = 30
 
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 if not os.path.exists(vqvae_weights_file):
-    vqvae_trainer.fit(train_dataset, epochs=epochs)#, batch_size=128)
+    vqvae_trainer.fit(train_dataset, epochs=epochs)
     vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
 else:
     vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
