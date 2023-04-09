@@ -155,6 +155,13 @@ class VQVAETrainer(keras.models.Model):
         )
         self.vq_loss_tracker = keras.metrics.Mean(name="vq_loss")
 
+        self.val_total_loss_tracker = keras.metrics.Mean(name="val_total_loss")
+        self.val_reconstruction_loss_tracker = keras.metrics.Mean(
+            name="val_reconstruction_loss"
+        )
+        self.val_vq_loss_tracker = keras.metrics.Mean(name="val_vq_loss")
+
+
     @property
     def metrics(self):
         return [
@@ -162,6 +169,27 @@ class VQVAETrainer(keras.models.Model):
             self.reconstruction_loss_tracker,
             self.vq_loss_tracker,
         ]
+
+    def test_step(self, x):
+        reconstructions = self.vqvae(x)
+
+        # Calculate the losses.
+        reconstruction_loss = (
+            tf.reduce_mean((x - reconstructions) ** 2) / self.train_variance
+        )
+        total_loss = reconstruction_loss + sum(self.vqvae.losses)
+
+        # Loss tracking.
+        self.val_total_loss_tracker.update_state(total_loss)
+        self.val_reconstruction_loss_tracker.update_state(reconstruction_loss)
+        self.val_vq_loss_tracker.update_state(sum(self.vqvae.losses))
+
+        # Log results.
+        return {
+            "loss": self.val_total_loss_tracker.result(),
+            "reconstruction_loss": self.val_reconstruction_loss_tracker.result(),
+            "vqvae_loss": self.val_vq_loss_tracker.result(),
+        }
 
     def train_step(self, x):
         with tf.GradientTape() as tape:
@@ -198,17 +226,20 @@ data_variance = normalizer.variance
 ## Train the VQ-VAE model
 """
 
-vqvae_checkpoint_path = "./checkpoint_vqvae"
-vqvae_model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-    vqvae_checkpoint_path,
-    monitor="val_loss"
-    )
+
+class MyModelCheckpoint(tf.keras.callbacks.Callback):
+    def __init__(self,):
+        super().__init__()
+    def on_epoch_begin(self, epoch, logs=None):
+        vqvae_weights_file = f'{TMP_DIR}/vqvae-{epoch}.h5'
+        self.model.vqvae.save_weights(vqvae_weights_file)
+
+vqvae_model_checkpoint_callback = MyModelCheckpoint()
 
 vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
 vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
 
-epochs = 30
-
+epochs = 5
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 if not os.path.exists(vqvae_weights_file):
     vqvae_trainer.fit(
@@ -393,9 +424,7 @@ pixelcnn_model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     monitor="val_loss"
     )
 
-
-epochs = 30
-
+epochs = 5
 pixel_cnn.compile(
     optimizer=keras.optimizers.Adam(3e-4),
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
