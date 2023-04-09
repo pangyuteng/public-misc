@@ -197,6 +197,13 @@ data_variance = normalizer.variance
 """
 ## Train the VQ-VAE model
 """
+
+vqvae_checkpoint_path = "./checkpoint_vqvae"
+vqvae_model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    vqvae_checkpoint_path,
+    monitor="val_loss"
+    )
+
 vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
 vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
 
@@ -204,7 +211,12 @@ epochs = 30
 
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 if not os.path.exists(vqvae_weights_file):
-    vqvae_trainer.fit(train_dataset, epochs=epochs)
+    vqvae_trainer.fit(
+        train_dataset,
+        epochs=epochs,
+        callbacks=[vqvae_model_checkpoint_callback],
+        validation_data=val_dataset,
+    )
     vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
 else:
     vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
@@ -375,6 +387,13 @@ val_codebook_indices = val_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTU
 """
 ## PixelCNN training
 """
+pixelcnn_checkpoint_path = "./checkpoint_pixelcnn"
+pixelcnn_model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    pixelcnn_checkpoint_path,
+    monitor="val_loss"
+    )
+
+
 epochs = 30
 
 pixel_cnn.compile(
@@ -386,8 +405,8 @@ pixel_cnn_weight_file = f'{TMP_DIR}/pixel_cnn.h5'
 if not os.path.exists(pixel_cnn_weight_file):
     pixel_cnn.fit(
         codebook_indices,
-        batch_size=batch_size,
         epochs=epochs,
+        callbacks=[pixelcnn_model_checkpoint_callback],
         validation_data=val_codebook_indices,
     )
     pixel_cnn.save_weights(pixel_cnn_weight_file)

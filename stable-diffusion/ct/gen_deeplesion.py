@@ -67,8 +67,8 @@ def prepare_dataset():
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
 
-    train_filenames = tf.constant(path_list[:10000])
-    #train_filenames = tf.constant(path_list[:-1000])
+    #train_filenames = tf.constant(path_list[:10000])
+    train_filenames = tf.constant(path_list[:-1000])
     train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
         parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
