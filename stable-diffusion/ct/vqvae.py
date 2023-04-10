@@ -95,8 +95,8 @@ class VectorQuantizer(layers.Layer):
 
 from gen_deeplesion import prepare_dataset, batch_size, image_size
 
-LATENT_DIM = 8
-NUM_EMBEDDINGS = 1024
+LATENT_DIM = 3
+NUM_EMBEDDINGS = 8192
 CODEBOOK_WH = image_size//4
 
 norm_dataset, train_dataset , val_dataset = prepare_dataset()
@@ -121,12 +121,12 @@ def ResidualBlock(width):
 block_depth = 2
 def get_encoder(latent_dim):
     encoder_inputs = keras.Input(shape=(image_size, image_size, 1))
-    x = layers.Conv2D(32, 3, activation="relu", strides=2, padding="same")(
+    x = layers.Conv2D(64, 3, activation="relu", strides=2, padding="same")(
         encoder_inputs
     )
-    x = layers.Conv2D(64, 3, activation="relu", strides=2, padding="same")(x)
+    x = layers.Conv2D(128, 3, activation="relu", strides=2, padding="same")(x)
     for _ in range(block_depth):
-        x = ResidualBlock(64)(x)
+        x = ResidualBlock(128)(x)
     encoder_outputs = layers.Conv2D(latent_dim, 1, padding="same")(x)
     return keras.Model(encoder_inputs, encoder_outputs, name="encoder")
 
@@ -135,9 +135,9 @@ def get_decoder(latent_dim):
     latent_inputs = keras.Input(shape=get_encoder(latent_dim).output.shape[1:])
     x = latent_inputs
     for _ in range(block_depth):
-        x = ResidualBlock(64)(x)
+        x = ResidualBlock(128)(x)
+    x = layers.Conv2DTranspose(128, 3, activation="relu", strides=2, padding="same")(x)
     x = layers.Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")(x)
-    x = layers.Conv2DTranspose(32, 3, activation="relu", strides=2, padding="same")(x)
     decoder_outputs = layers.Conv2DTranspose(1, 3, padding="same")(x)
     return keras.Model(latent_inputs, decoder_outputs, name="decoder")
 
