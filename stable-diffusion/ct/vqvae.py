@@ -96,7 +96,7 @@ class VectorQuantizer(layers.Layer):
 from gen_deeplesion import prepare_dataset, batch_size, image_size
 
 LATENT_DIM = 3
-NUM_EMBEDDINGS = 8192
+NUM_EMBEDDINGS = 2048
 CODEBOOK_WH = image_size//4
 
 norm_dataset, train_dataset , val_dataset = prepare_dataset()
