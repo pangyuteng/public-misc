@@ -249,9 +249,9 @@ class MyModelCheckpoint(tf.keras.callbacks.Callback):
         self.model.vqvae.save_weights(vqvae_weights_file)
 
 vqvae_model_checkpoint_callback = MyModelCheckpoint()
-
+learning_rate = 1e-4
 vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
-vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
+vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
 
 epochs = 5
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
