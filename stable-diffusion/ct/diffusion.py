@@ -413,7 +413,10 @@ class DiffusionModel(keras.Model):
 ## Training
 """
 
-from vqvae import VQVAETrainer, data_variance, LATENT_DIM, NUM_EMBEDDINGS
+from vqvae import (
+    VQVAETrainer, data_variance, 
+    LATENT_DIM, NUM_EMBEDDINGS, CODEBOOK_WH
+)
 
 if __name__ == "__main__":
 
@@ -426,18 +429,41 @@ if __name__ == "__main__":
     quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
 
 
-    def myfunc(x):
+    def myfunc(x,y):
+
         encoded_outputs = encoder(x)
         flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
         codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-        codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH])
-        return codebook_indices,codebook_indices
+        codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH,1])
+        codebook_indices = (codebook_indices/NUM_EMBEDDINGS)-0.5
+
+        y = tf.image.resize(y, [CODEBOOK_WH,CODEBOOK_WH],method='nearest',antialias=False)
+
+        return codebook_indices, y
 
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
 
     train_dataset = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
     norm_dataset = norm_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
     val_dataset = val_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+
+    plt.figure(figsize=(10, 10))
+    for images,labels in val_dataset.take(1):
+        print(images.shape,labels.shape)
+        for i in range(batch_size):
+            ax = plt.subplot(3, 3, i + 1)
+            tmp_image = images[i,:].numpy()+0.5
+            tmp_label = labels[i,:].numpy()
+            print('tmp_image',np.min(tmp_image),np.max(tmp_image))
+            print('tmp_label',np.min(tmp_label),np.max(tmp_label))
+            tmp = np.concatenate([tmp_image,tmp_label],axis=1)
+            plt.imshow(tmp,cmap='gray')
+            plt.axis("off")
+            if i > 7 :
+                break
+        os.makedirs(TMP_DIR,exist_ok=True)
+        plt.savefig(f"{TMP_DIR}/codebook-seg.png")
+        plt.close()
 
     model = DiffusionModel(image_size, widths, block_depth)
     model.network.summary()
