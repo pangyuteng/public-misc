@@ -19,5 +19,5 @@ request_gpus = 1
 request_memory = 15G
 #request_disk = 5GB
 
-arguments = "hello world"
+arguments = "vqvae"
 queue

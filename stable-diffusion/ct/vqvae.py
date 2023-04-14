@@ -232,9 +232,6 @@ class VQVAETrainer(keras.models.Model):
             "vqvae_loss": self.vq_loss_tracker.result(),
         }
 
-normalizer = layers.Normalization()
-normalizer.adapt(norm_dataset.map(lambda images: images))
-data_variance = normalizer.variance
 
 """
 ## Train the VQ-VAE model
@@ -248,265 +245,272 @@ class MyModelCheckpoint(tf.keras.callbacks.Callback):
         vqvae_weights_file = f'{TMP_DIR}/vqvae-{epoch}.h5'
         self.model.vqvae.save_weights(vqvae_weights_file)
 
-vqvae_model_checkpoint_callback = MyModelCheckpoint()
-learning_rate = 1e-4
-vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
-vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
+normalizer = layers.Normalization()
+normalizer.adapt(norm_dataset.map(lambda images: images))
+data_variance = normalizer.variance
 
-epochs = 5
-vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
-if not os.path.exists(vqvae_weights_file):
-    vqvae_trainer.fit(
-        train_dataset,
-        epochs=epochs,
-        callbacks=[vqvae_model_checkpoint_callback],
-        validation_data=val_dataset,
-    )
-    vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
-else:
-    vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
-"""
-## Reconstruction results on the test set
-"""
-
-def show_subplot(original, reconstructed,idx):
-    plt.subplot(1, 2, 1)
-    plt.imshow(original.squeeze() + 0.5 ,cmap='gray')
-    plt.title("Original")
-    plt.axis("off")
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(reconstructed.squeeze() + 0.5 ,cmap='gray')
-    plt.title("Reconstructed")
-    plt.axis("off")
-
-    plt.show()
-    plt.savefig(f"{TMP_DIR}/recon-{idx}.png")
-    plt.close()
-
-trained_vqvae_model = vqvae_trainer.vqvae
-idx = np.random.choice(len(val_dataset), 10)
-test_images = [x for x in val_dataset.take(1)][0]
-reconstructions_test = trained_vqvae_model.predict(test_images)
-
-for idx in range(batch_size):
-    test_image = test_images.numpy()[idx,:]
-    reconstructed_image = reconstructions_test[idx,:]
-    show_subplot(test_image, reconstructed_image,idx)
-
-"""
-These results look decent. You are encouraged to play with different hyperparameters
-(especially the number of embeddings and the dimensions of the embeddings) and observe how
-they affect the results.
-"""
-
-"""
-## Visualizing the discrete codes
-"""
-
-encoder = vqvae_trainer.vqvae.get_layer("encoder")
-quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
-
-encoded_outputs = encoder.predict(test_images)
-flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
-codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-codebook_indices = codebook_indices.numpy().reshape(encoded_outputs.shape[:-1])
-
-for i in range(len(test_images)):
-    plt.subplot(1, 2, 1)
-    plt.imshow(test_images.numpy()[i].squeeze() + 0.5,cmap='gray')
-    plt.title("Original")
-    plt.axis("off")
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(codebook_indices[i],cmap='gray')
-    plt.title("Code")
-    plt.axis("off")
-    plt.show()
-    plt.savefig(f"{TMP_DIR}/code-{i}.png")
-    plt.close()
-"""
-## PixelCNN hyperparameters
-"""
-
-num_residual_blocks = 2
-num_pixelcnn_layers = 2
-pixelcnn_input_shape = encoded_outputs.shape[1:-1]
-print(f"Input shape of the PixelCNN: {pixelcnn_input_shape}")
-# 16,16
-
-# The first layer is the PixelCNN layer. This layer simply
-# builds on the 2D convolutional layer, but includes masking.
-class PixelConvLayer(layers.Layer):
-    def __init__(self, mask_type, **kwargs):
-        super().__init__()
-        self.mask_type = mask_type
-        self.conv = layers.Conv2D(**kwargs)
-
-    def build(self, input_shape):
-        # Build the conv2d layer to initialize kernel variables
-        self.conv.build(input_shape)
-        # Use the initialized kernel to create the mask
-        kernel_shape = self.conv.kernel.get_shape()
-        self.mask = np.zeros(shape=kernel_shape)
-        self.mask[: kernel_shape[0] // 2, ...] = 1.0
-        self.mask[kernel_shape[0] // 2, : kernel_shape[1] // 2, ...] = 1.0
-        if self.mask_type == "B":
-            self.mask[kernel_shape[0] // 2, kernel_shape[1] // 2, ...] = 1.0
-
-    def call(self, inputs):
-        self.conv.kernel.assign(self.conv.kernel * self.mask)
-        return self.conv(inputs)
+if __name__ == "__main__":
 
 
-# Next, we build our residual block layer.
-# This is just a normal residual block, but based on the PixelConvLayer.
-class ResidualBlock(keras.layers.Layer):
-    def __init__(self, filters, **kwargs):
-        super().__init__(**kwargs)
-        self.conv1 = keras.layers.Conv2D(
-            filters=filters, kernel_size=1, activation="relu"
+    vqvae_model_checkpoint_callback = MyModelCheckpoint()
+    learning_rate = 1e-4
+    vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
+    vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
+
+    epochs = 5
+    vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
+    if not os.path.exists(vqvae_weights_file):
+        vqvae_trainer.fit(
+            train_dataset,
+            epochs=epochs,
+            callbacks=[vqvae_model_checkpoint_callback],
+            validation_data=val_dataset,
         )
-        self.pixel_conv = PixelConvLayer(
-            mask_type="B",
-            filters=filters // 2,
-            kernel_size=3,
-            activation="relu",
-            padding="same",
-        )
-        self.conv2 = keras.layers.Conv2D(
-            filters=filters, kernel_size=1, activation="relu"
-        )
+        vqvae_trainer.vqvae.save_weights(vqvae_weights_file)
+    else:
+        vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
+    """
+    ## Reconstruction results on the test set
+    """
 
-    def call(self, inputs):
-        x = self.conv1(inputs)
-        x = self.pixel_conv(x)
-        x = self.conv2(x)
-        return keras.layers.add([inputs, x])
+    def show_subplot(original, reconstructed,idx):
+        plt.subplot(1, 2, 1)
+        plt.imshow(original.squeeze() + 0.5 ,cmap='gray')
+        plt.title("Original")
+        plt.axis("off")
+
+        plt.subplot(1, 2, 2)
+        plt.imshow(reconstructed.squeeze() + 0.5 ,cmap='gray')
+        plt.title("Reconstructed")
+        plt.axis("off")
+
+        plt.show()
+        plt.savefig(f"{TMP_DIR}/recon-{idx}.png")
+        plt.close()
+
+    trained_vqvae_model = vqvae_trainer.vqvae
+    idx = np.random.choice(len(val_dataset), 10)
+    test_images = [x for x in val_dataset.take(1)][0]
+    reconstructions_test = trained_vqvae_model.predict(test_images)
+
+    for idx in range(batch_size):
+        test_image = test_images.numpy()[idx,:]
+        reconstructed_image = reconstructions_test[idx,:]
+        show_subplot(test_image, reconstructed_image,idx)
+
+    """
+    These results look decent. You are encouraged to play with different hyperparameters
+    (especially the number of embeddings and the dimensions of the embeddings) and observe how
+    they affect the results.
+    """
+
+    """
+    ## Visualizing the discrete codes
+    """
+
+    encoder = vqvae_trainer.vqvae.get_layer("encoder")
+    quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
+
+    encoded_outputs = encoder.predict(test_images)
+    flat_enc_outputs = encoded_outputs.reshape(-1, encoded_outputs.shape[-1])
+    codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
+    codebook_indices = codebook_indices.numpy().reshape(encoded_outputs.shape[:-1])
+
+    for i in range(len(test_images)):
+        plt.subplot(1, 2, 1)
+        plt.imshow(test_images.numpy()[i].squeeze() + 0.5,cmap='gray')
+        plt.title("Original")
+        plt.axis("off")
+
+        plt.subplot(1, 2, 2)
+        plt.imshow(codebook_indices[i],cmap='gray')
+        plt.title("Code")
+        plt.axis("off")
+        plt.show()
+        plt.savefig(f"{TMP_DIR}/code-{i}.png")
+        plt.close()
+    """
+    ## PixelCNN hyperparameters
+    """
+
+    num_residual_blocks = 2
+    num_pixelcnn_layers = 2
+    pixelcnn_input_shape = encoded_outputs.shape[1:-1]
+    print(f"Input shape of the PixelCNN: {pixelcnn_input_shape}")
+    # 16,16
+
+    # The first layer is the PixelCNN layer. This layer simply
+    # builds on the 2D convolutional layer, but includes masking.
+    class PixelConvLayer(layers.Layer):
+        def __init__(self, mask_type, **kwargs):
+            super().__init__()
+            self.mask_type = mask_type
+            self.conv = layers.Conv2D(**kwargs)
+
+        def build(self, input_shape):
+            # Build the conv2d layer to initialize kernel variables
+            self.conv.build(input_shape)
+            # Use the initialized kernel to create the mask
+            kernel_shape = self.conv.kernel.get_shape()
+            self.mask = np.zeros(shape=kernel_shape)
+            self.mask[: kernel_shape[0] // 2, ...] = 1.0
+            self.mask[kernel_shape[0] // 2, : kernel_shape[1] // 2, ...] = 1.0
+            if self.mask_type == "B":
+                self.mask[kernel_shape[0] // 2, kernel_shape[1] // 2, ...] = 1.0
+
+        def call(self, inputs):
+            self.conv.kernel.assign(self.conv.kernel * self.mask)
+            return self.conv(inputs)
 
 
-pixelcnn_inputs = keras.Input(shape=pixelcnn_input_shape, dtype=tf.int32)
-ohe = tf.one_hot(pixelcnn_inputs, vqvae_trainer.num_embeddings)
-x = PixelConvLayer(
-    mask_type="A", filters=64, kernel_size=7, activation="relu", padding="same"
-)(ohe)
+    # Next, we build our residual block layer.
+    # This is just a normal residual block, but based on the PixelConvLayer.
+    class ResidualBlock(keras.layers.Layer):
+        def __init__(self, filters, **kwargs):
+            super().__init__(**kwargs)
+            self.conv1 = keras.layers.Conv2D(
+                filters=filters, kernel_size=1, activation="relu"
+            )
+            self.pixel_conv = PixelConvLayer(
+                mask_type="B",
+                filters=filters // 2,
+                kernel_size=3,
+                activation="relu",
+                padding="same",
+            )
+            self.conv2 = keras.layers.Conv2D(
+                filters=filters, kernel_size=1, activation="relu"
+            )
 
-for _ in range(num_residual_blocks):
-    x = ResidualBlock(filters=64)(x)
+        def call(self, inputs):
+            x = self.conv1(inputs)
+            x = self.pixel_conv(x)
+            x = self.conv2(x)
+            return keras.layers.add([inputs, x])
 
-for _ in range(num_pixelcnn_layers):
+
+    pixelcnn_inputs = keras.Input(shape=pixelcnn_input_shape, dtype=tf.int32)
+    ohe = tf.one_hot(pixelcnn_inputs, vqvae_trainer.num_embeddings)
     x = PixelConvLayer(
-        mask_type="B",
-        filters=64,
-        kernel_size=1,
-        strides=1,
-        activation="relu",
-        padding="valid",
+        mask_type="A", filters=64, kernel_size=7, activation="relu", padding="same"
+    )(ohe)
+
+    for _ in range(num_residual_blocks):
+        x = ResidualBlock(filters=64)(x)
+
+    for _ in range(num_pixelcnn_layers):
+        x = PixelConvLayer(
+            mask_type="B",
+            filters=64,
+            kernel_size=1,
+            strides=1,
+            activation="relu",
+            padding="valid",
+        )(x)
+
+    out = keras.layers.Conv2D(
+        filters=vqvae_trainer.num_embeddings, kernel_size=1, strides=1, padding="valid"
     )(x)
 
-out = keras.layers.Conv2D(
-    filters=vqvae_trainer.num_embeddings, kernel_size=1, strides=1, padding="valid"
-)(x)
+    pixel_cnn = keras.Model(pixelcnn_inputs, out, name="pixel_cnn")
+    pixel_cnn.summary()
 
-pixel_cnn = keras.Model(pixelcnn_inputs, out, name="pixel_cnn")
-pixel_cnn.summary()
+    # Generate the codebook indices.
 
-# Generate the codebook indices.
+    def myfunc(x):
+        #tf.print(tf.shape(x), output_stream=sys.stderr) # None,64,64,1
+        encoded_outputs = encoder(x)
+        #tf.print(tf.shape(encoded_outputs), output_stream=sys.stderr) # None,16,16,8
+        flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
+        codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
+        codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH])
+        #tf.print(tf.shape(codebook_indices), output_stream=sys.stderr) # None,16,16
+        return codebook_indices,codebook_indices
 
-def myfunc(x):
-    #tf.print(tf.shape(x), output_stream=sys.stderr) # None,64,64,1
-    encoded_outputs = encoder(x)
-    #tf.print(tf.shape(encoded_outputs), output_stream=sys.stderr) # None,16,16,8
-    flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
-    codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-    codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH])
-    #tf.print(tf.shape(codebook_indices), output_stream=sys.stderr) # None,16,16
-    return codebook_indices,codebook_indices
+    codebook_indices = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+    for x,y in codebook_indices.take(1):
+        print(x.shape,y.shape)
 
-codebook_indices = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
-for x,y in codebook_indices.take(1):
-    print(x.shape,y.shape)
+    val_codebook_indices = val_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
 
-val_codebook_indices = val_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+    """
+    ## PixelCNN training
+    """
+    pixelcnn_checkpoint_path = "./checkpoint_pixelcnn"
+    pixelcnn_model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        pixelcnn_checkpoint_path,
+        monitor="val_loss"
+        )
 
-"""
-## PixelCNN training
-"""
-pixelcnn_checkpoint_path = "./checkpoint_pixelcnn"
-pixelcnn_model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-    pixelcnn_checkpoint_path,
-    monitor="val_loss"
+    epochs = 5
+    pixel_cnn.compile(
+        optimizer=keras.optimizers.Adam(3e-4),
+        loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=["accuracy"],
     )
+    pixel_cnn_weight_file = f'{TMP_DIR}/pixel_cnn.h5'
+    if not os.path.exists(pixel_cnn_weight_file):
+        pixel_cnn.fit(
+            codebook_indices,
+            epochs=epochs,
+            callbacks=[pixelcnn_model_checkpoint_callback],
+            validation_data=val_codebook_indices,
+        )
+        pixel_cnn.save_weights(pixel_cnn_weight_file)
+    else:
+        pixel_cnn.load_weights(pixel_cnn_weight_file)
 
-epochs = 5
-pixel_cnn.compile(
-    optimizer=keras.optimizers.Adam(3e-4),
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=["accuracy"],
-)
-pixel_cnn_weight_file = f'{TMP_DIR}/pixel_cnn.h5'
-if not os.path.exists(pixel_cnn_weight_file):
-    pixel_cnn.fit(
-        codebook_indices,
-        epochs=epochs,
-        callbacks=[pixelcnn_model_checkpoint_callback],
-        validation_data=val_codebook_indices,
+    # Create a mini sampler model.
+    inputs = layers.Input(shape=pixel_cnn.input_shape[1:])
+    outputs = pixel_cnn(inputs, training=False)
+    categorical_layer = tfp.layers.DistributionLambda(tfp.distributions.Categorical)
+    outputs = categorical_layer(outputs)
+    sampler = keras.Model(inputs, outputs)
+
+    """
+    We now construct a prior to generate images. Here, we will generate 10 images.
+    """
+
+    # Create an empty array of priors.
+    batch = 10
+    priors = np.zeros(shape=(batch,) + (pixel_cnn.input_shape)[1:])
+    batch, rows, cols = priors.shape
+
+    # Iterate over the priors because generation has to be done sequentially pixel by pixel.
+    for row in range(rows):
+        for col in range(cols):
+            # Feed the whole array and retrieving the pixel value probabilities for the next
+            # pixel.
+            probs = sampler.predict(priors)
+            # Use the probabilities to pick pixel values and append the values to the priors.
+            priors[:, row, col] = probs[:, row, col]
+            print(f'{row} of {rows},{col} of {cols}')
+    print(f"Prior shape: {priors.shape}")
+
+    """
+    We can now use our decoder to generate the images.
+    """
+
+    # Perform an embedding lookup.
+    pretrained_embeddings = quantizer.embeddings
+    priors_ohe = tf.one_hot(priors.astype("int32"), vqvae_trainer.num_embeddings).numpy()
+    quantized = tf.matmul(
+        priors_ohe.astype("float32"), pretrained_embeddings, transpose_b=True
     )
-    pixel_cnn.save_weights(pixel_cnn_weight_file)
-else:
-    pixel_cnn.load_weights(pixel_cnn_weight_file)
+    quantized = tf.reshape(quantized, (-1, *(encoded_outputs.shape[1:])))
+    # Generate novel images.
+    decoder = vqvae_trainer.vqvae.get_layer("decoder")
+    generated_samples = decoder.predict(quantized)
 
-# Create a mini sampler model.
-inputs = layers.Input(shape=pixel_cnn.input_shape[1:])
-outputs = pixel_cnn(inputs, training=False)
-categorical_layer = tfp.layers.DistributionLambda(tfp.distributions.Categorical)
-outputs = categorical_layer(outputs)
-sampler = keras.Model(inputs, outputs)
+    for i in range(batch):
+        plt.subplot(1, 2, 1)
+        plt.imshow(priors[i],cmap='gray')
+        plt.title("Code")
+        plt.axis("off")
 
-"""
-We now construct a prior to generate images. Here, we will generate 10 images.
-"""
-
-# Create an empty array of priors.
-batch = 10
-priors = np.zeros(shape=(batch,) + (pixel_cnn.input_shape)[1:])
-batch, rows, cols = priors.shape
-
-# Iterate over the priors because generation has to be done sequentially pixel by pixel.
-for row in range(rows):
-    for col in range(cols):
-        # Feed the whole array and retrieving the pixel value probabilities for the next
-        # pixel.
-        probs = sampler.predict(priors)
-        # Use the probabilities to pick pixel values and append the values to the priors.
-        priors[:, row, col] = probs[:, row, col]
-        print(f'{row} of {rows},{col} of {cols}')
-print(f"Prior shape: {priors.shape}")
-
-"""
-We can now use our decoder to generate the images.
-"""
-
-# Perform an embedding lookup.
-pretrained_embeddings = quantizer.embeddings
-priors_ohe = tf.one_hot(priors.astype("int32"), vqvae_trainer.num_embeddings).numpy()
-quantized = tf.matmul(
-    priors_ohe.astype("float32"), pretrained_embeddings, transpose_b=True
-)
-quantized = tf.reshape(quantized, (-1, *(encoded_outputs.shape[1:])))
-# Generate novel images.
-decoder = vqvae_trainer.vqvae.get_layer("decoder")
-generated_samples = decoder.predict(quantized)
-
-for i in range(batch):
-    plt.subplot(1, 2, 1)
-    plt.imshow(priors[i],cmap='gray')
-    plt.title("Code")
-    plt.axis("off")
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(generated_samples[i].squeeze() + 0.5,cmap='gray')
-    plt.title("Generated Sample")
-    plt.axis("off")
-    plt.show()
-    plt.savefig(f"{TMP_DIR}/generated-{i}.png")
+        plt.subplot(1, 2, 2)
+        plt.imshow(generated_samples[i].squeeze() + 0.5,cmap='gray')
+        plt.title("Generated Sample")
+        plt.axis("off")
+        plt.show()
+        plt.savefig(f"{TMP_DIR}/generated-{i}.png")

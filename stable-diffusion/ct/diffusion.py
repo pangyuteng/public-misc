@@ -19,8 +19,7 @@ import SimpleITK as sitk
 from tensorflow import keras
 from keras import layers
 
-from datautils import (
-    image_size,
+from gen_totalseg import (
     batch_size,
     prepare_dataset
 )
@@ -28,7 +27,10 @@ from datautils import (
 TMP_DIR = 'tmp'
 checkpoint_path = "checkpoints/diffusion_model"
 
+
 # data
+image_size = 128
+
 num_epochs = 500  # train for at least 50 epochs for good results
 
 num_cols = 4
@@ -411,9 +413,31 @@ class DiffusionModel(keras.Model):
 ## Training
 """
 
+from vqvae import VQVAETrainer, data_variance, LATENT_DIM, NUM_EMBEDDINGS
+
 if __name__ == "__main__":
 
+    vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
+    vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
+    vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
+    vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
+
+    encoder = vqvae_trainer.vqvae.get_layer("encoder")
+    quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
+
+
+    def myfunc(x):
+        encoded_outputs = encoder(x)
+        flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
+        codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
+        codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH])
+        return codebook_indices,codebook_indices
+
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
+
+    train_dataset = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+    norm_dataset = norm_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+    val_dataset = val_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
 
     model = DiffusionModel(image_size, widths, block_depth)
     model.network.summary()
