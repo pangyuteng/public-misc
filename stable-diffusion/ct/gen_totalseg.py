@@ -122,7 +122,7 @@ def parse_fn(file_path):
     mask = mask / label_count
     return tf.clip_by_value(image, 0.0, 1.0)-0.5, tf.clip_by_value(mask, 0.0, 1.0)
 
-def parse_fn_mask(file_path):
+def parse_fn_mask(file_path,sm_image_size=128):
     image, mask = tf.numpy_function(
         func=nifti_read, 
         inp=[file_path],
@@ -130,13 +130,13 @@ def parse_fn_mask(file_path):
     )
     image = tf.cast(image, tf.float32)
     image = tf.tile(image, [1,1,1]) # trick tf so image is of the proper type.
-    image = tf.image.resize(image, [image_size,image_size],antialias=True)
-    image = tf.reshape(image,[image_size,image_size,1]) # so tf won't complain about unknown image size
+    image = tf.image.resize(image, [sm_image_size,sm_image_size],antialias=True)
+    image = tf.reshape(image,[sm_image_size,sm_image_size,1]) # so tf won't complain about unknown image size
 
     mask = tf.cast(mask, tf.float32)
     mask = tf.tile(mask, [1,1,1])
-    mask = tf.image.resize(mask, [image_size,image_size], antialias=False,method='nearest')
-    mask = tf.reshape(mask,[image_size,image_size,1]) # so tf won't complain about unknown image size
+    mask = tf.image.resize(mask, [sm_image_size,sm_image_size], antialias=False,method='nearest')
+    mask = tf.reshape(mask,[sm_image_size,sm_image_size,1]) # so tf won't complain about unknown image size
 
     image = (image-min_val)/(max_val-min_val)
     mask = mask / label_count
