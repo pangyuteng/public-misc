@@ -166,7 +166,6 @@ def DownBlock(width, block_depth):
     def apply(x):
         x, skips = x
         for _ in range(block_depth):
-            x = layers.Concatenate()([x,l])
             x = ResidualBlock(width)(x)
             skips.append(x)
         x = layers.AveragePooling2D(pool_size=2)(x)
