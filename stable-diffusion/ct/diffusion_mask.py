@@ -21,11 +21,11 @@ from keras import layers
 
 from gen_totalseg import (
     batch_size,
-    prepare_dataset
+    prepare_maskdataset
 )
 
 TMP_DIR = 'tmp'
-checkpoint_path = "checkpoints/diffusion_model_image"
+checkpoint_path = "checkpoints/diffusion_model_mask"
 
 
 # data
@@ -164,21 +164,20 @@ def ResidualBlock(width):
 
 def DownBlock(width, block_depth):
     def apply(x):
-        x, l, skips = x
+        x, skips = x
         for _ in range(block_depth):
             x = layers.Concatenate()([x,l])
             x = ResidualBlock(width)(x)
             skips.append(x)
         x = layers.AveragePooling2D(pool_size=2)(x)
-        l = layers.AveragePooling2D(pool_size=2)(l)
-        return x,l
+        return x
 
     return apply
 
 
 def UpBlock(width, block_depth):
     def apply(x):
-        x, l, skips = x
+        x, skips = x
         x = layers.UpSampling2D(size=2, interpolation="bilinear")(x)
         for _ in range(block_depth):
             x = layers.Concatenate()([x, skips.pop()])
@@ -191,7 +190,6 @@ def UpBlock(width, block_depth):
 def get_network(image_size, widths, block_depth):
     noisy_images = keras.Input(shape=(image_size, image_size, 1))
     noise_variances = keras.Input(shape=(1, 1, 1))
-    labels = keras.Input(shape=(image_size, image_size, 1))
 
     e = layers.Lambda(sinusoidal_embedding)(noise_variances)
     e = layers.UpSampling2D(size=image_size, interpolation="nearest")(e)
@@ -199,20 +197,19 @@ def get_network(image_size, widths, block_depth):
     x = layers.Conv2D(widths[0], kernel_size=1)(noisy_images)
     x = layers.Concatenate()([x, e])
 
-    l = layers.Conv2D(1, kernel_size=1)(labels)
     skips = []
     for width in widths[:-1]:
-        x,l = DownBlock(width, block_depth)([x, l, skips])
+        x = DownBlock(width, block_depth)([x, skips])
 
     for _ in range(block_depth):
         x = ResidualBlock(widths[-1])(x)
 
     for width in reversed(widths[:-1]):
-        x = UpBlock(width, block_depth)([x, l, skips])
+        x = UpBlock(width, block_depth)([x, skips])
 
     x = layers.Conv2D(1, kernel_size=1, kernel_initializer="zeros")(x)
 
-    return keras.Model([noisy_images, noise_variances, labels], x, name="residual_unet")
+    return keras.Model([noisy_images, noise_variances], x, name="residual_unet")
 
 
 class DiffusionModel(keras.Model):
@@ -253,7 +250,7 @@ class DiffusionModel(keras.Model):
 
         return noise_rates, signal_rates
 
-    def denoise(self, noisy_images, noise_rates, signal_rates, labels, training):
+    def denoise(self, noisy_images, noise_rates, signal_rates, training):
         # the exponential moving average weights are used at evaluation
         if training:
             network = self.network
@@ -261,12 +258,12 @@ class DiffusionModel(keras.Model):
             network = self.ema_network
 
         # predict noise component and calculate the image component using it
-        pred_noises = network([noisy_images, noise_rates**2, labels], training=training)
+        pred_noises = network([noisy_images, noise_rates**2], training=training)
         pred_images = (noisy_images - noise_rates * pred_noises) / signal_rates
 
         return pred_noises, pred_images
 
-    def reverse_diffusion(self, initial_noise, diffusion_steps, labels):
+    def reverse_diffusion(self, initial_noise, diffusion_steps):
         # reverse diffusion = sampling
         num_images = initial_noise.shape[0]
         step_size = 1.0 / diffusion_steps
@@ -282,7 +279,7 @@ class DiffusionModel(keras.Model):
             diffusion_times = tf.ones((num_images, 1, 1, 1)) - step * step_size
             noise_rates, signal_rates = self.diffusion_schedule(diffusion_times)
             pred_noises, pred_images = self.denoise(
-                noisy_images, noise_rates, signal_rates, labels, training=False
+                noisy_images, noise_rates, signal_rates, training=False
             )
             # network used in eval mode
 
@@ -298,15 +295,15 @@ class DiffusionModel(keras.Model):
 
         return pred_images
 
-    def generate(self, num_images, diffusion_steps, labels):
+    def generate(self, num_images, diffusion_steps):
         # noise -> images -> denormalized images
         initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 1))
-        generated_images = self.reverse_diffusion(initial_noise, diffusion_steps, labels)
+        generated_images = self.reverse_diffusion(initial_noise, diffusion_steps)
         generated_images = self.denormalize(generated_images)
         return generated_images
 
     def train_step(self, input_data):
-        images,labels = input_data
+        images = input_data
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=True)
         noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
@@ -322,7 +319,7 @@ class DiffusionModel(keras.Model):
         with tf.GradientTape() as tape:
             # train the network to separate noisy images to their components
             pred_noises, pred_images = self.denoise(
-                noisy_images, noise_rates, signal_rates, labels, training=True
+                noisy_images, noise_rates, signal_rates, training=True
             )
 
             noise_loss = self.loss(noises, pred_noises)  # used for training
@@ -342,10 +339,10 @@ class DiffusionModel(keras.Model):
         return {m.name: m.result() for m in self.metrics[:-1]}
 
     def test_step(self, input_data):
-        images,labels = input_data
+        images = input_data
 
         self._images = images.numpy()
-        self._labels = labels.numpy()
+
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=False)
         noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
@@ -360,7 +357,7 @@ class DiffusionModel(keras.Model):
         
         # use the network to separate noisy images to their components
         pred_noises, pred_images = self.denoise(
-            noisy_images, noise_rates, signal_rates, labels, training=False
+            noisy_images, noise_rates, signal_rates, training=False
         )
         
         noise_loss = self.loss(noises, pred_noises)
@@ -373,7 +370,7 @@ class DiffusionModel(keras.Model):
         # this is computationally demanding, kid_diffusion_steps has to be small
         images = self.denormalize(images)
         generated_images = self.generate(
-            num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
+            num_images=batch_size, diffusion_steps=kid_diffusion_steps
         )
         self.kid.update_state(images, generated_images)
 
@@ -385,7 +382,6 @@ class DiffusionModel(keras.Model):
         generated_images = self.generate(
             num_images=num_rows * num_cols,
             diffusion_steps=plot_diffusion_steps,
-            labels=self._labels
         )
 
         plt.figure(figsize=(num_cols * 2.0, num_rows * 2.0))
@@ -394,19 +390,18 @@ class DiffusionModel(keras.Model):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
                 tmp_x = self._images[index,:]
-                tmp_label = self._labels[index,:]
                 tmp_xhat = generated_images[index].numpy()
-                tmp = np.concatenate([tmp_x,tmp_label,tmp_xhat],axis=1)
+                tmp = np.concatenate([tmp_x,tmp_xhat],axis=1)
                 plt.imshow(tmp,cmap='gray')
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
         os.makedirs(TMP_DIR,exist_ok=True)
-        plt.savefig(f"{TMP_DIR}/{epoch:05d}.png")
+        plt.savefig(f"{TMP_DIR}/mask-{epoch:05d}.png")
         plt.close()
         if epoch % 20 == 0:
-            self.network.save_weights(f'{TMP_DIR}/network_{epoch}.h5')
-            self.ema_network.save_weights(f'{TMP_DIR}/ema_network_{epoch}.h5')
+            self.network.save_weights(f'{TMP_DIR}/network_mask{epoch}.h5')
+            self.ema_network.save_weights(f'{TMP_DIR}/ema_network_mask{epoch}.h5')
 
 
 """
@@ -420,49 +415,21 @@ from vqvae import (
 
 if __name__ == "__main__":
 
-    vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
-    vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
-    vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
-    vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
-
-    encoder = vqvae_trainer.vqvae.get_layer("encoder")
-    quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
-
-
-    def myfunc(x,y):
-
-        encoded_outputs = encoder(x)
-        flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
-        codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-        codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH,1])
-        codebook_indices = (codebook_indices/NUM_EMBEDDINGS)-0.5
-
-        y = tf.image.resize(y, [CODEBOOK_WH,CODEBOOK_WH],method='nearest',antialias=False)
-
-        return codebook_indices, y
-
-    norm_dataset, train_dataset , val_dataset = prepare_dataset()
-
-    train_dataset = train_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
-    norm_dataset = norm_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
-    val_dataset = val_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+    norm_dataset, train_dataset , val_dataset = prepare_maskdataset()
 
     plt.figure(figsize=(10, 10))
-    for images,labels in val_dataset.take(1):
-        print(images.shape,labels.shape)
+    for images in val_dataset.take(1):
+        print(images.shape)
         for i in range(batch_size):
             ax = plt.subplot(3, 3, i + 1)
             tmp_image = images[i,:].numpy()+0.5
-            tmp_label = labels[i,:].numpy()
             print('tmp_image',np.min(tmp_image),np.max(tmp_image))
-            print('tmp_label',np.min(tmp_label),np.max(tmp_label))
-            tmp = np.concatenate([tmp_image,tmp_label],axis=1)
-            plt.imshow(tmp,cmap='gray')
+            plt.imshow(tmp_image,cmap='gray')
             plt.axis("off")
             if i > 7 :
                 break
         os.makedirs(TMP_DIR,exist_ok=True)
-        plt.savefig(f"{TMP_DIR}/codebook-seg.png")
+        plt.savefig(f"{TMP_DIR}/mask.png")
         plt.close()
 
     model = DiffusionModel(image_size, widths, block_depth)
@@ -487,7 +454,7 @@ if __name__ == "__main__":
     )
 
     # calculate mean and variance of training dataset for normalization
-    model.normalizer.adapt(norm_dataset.map(lambda images, labels: images))
+    model.normalizer.adapt(norm_dataset)
 
     if os.path.exists(checkpoint_path):
         model.load_weights(checkpoint_path)

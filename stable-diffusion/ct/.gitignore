@@ -1,5 +1,6 @@
 checkpoints
 checkpoint_vqvae
 checkpoint_pixelcnn
+checkpoints_diffusion_mask
 tmp
 log

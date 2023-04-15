@@ -122,7 +122,7 @@ def parse_fn(file_path):
     mask = mask / label_count
     return tf.clip_by_value(image, 0.0, 1.0)-0.5, tf.clip_by_value(mask, 0.0, 1.0)
 
-def parse_fn_one(file_path):
+def parse_fn_mask(file_path):
     image, mask = tf.numpy_function(
         func=nifti_read, 
         inp=[file_path],
@@ -140,7 +140,8 @@ def parse_fn_one(file_path):
 
     image = (image-min_val)/(max_val-min_val)
     mask = mask / label_count
-    return tf.clip_by_value(image, 0.0, 1.0)-0.5
+
+    return tf.clip_by_value(mask, 0.0, 1.0)-0.5
 
 
 def cache_file_paths():
@@ -190,6 +191,32 @@ def cache_file_paths():
     df.to_csv(NIFTI_FILE,index=False)
 
 def prepare_dataset(func=parse_fn):
+    if not os.path.exists(NIFTI_FILE):
+        cache_file_paths()
+    df = pd.read_csv(NIFTI_FILE)
+    path_list = df.image_path.tolist()
+
+    norm_filenames = tf.constant(path_list[:100])
+    norm_ds = tf.data.Dataset.from_tensor_slices(norm_filenames).repeat(1).shuffle(10 * batch_size).map(
+        func, num_parallel_calls=tf.data.AUTOTUNE
+    )
+    norm_ds = norm_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+
+    train_filenames = tf.constant(path_list[:-900])
+    train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+        func, num_parallel_calls=tf.data.AUTOTUNE
+    )
+    train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    
+    val_filenames = tf.constant(path_list[-900:])
+    val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+        func, num_parallel_calls=tf.data.AUTOTUNE
+    )
+    val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+
+    return norm_ds, train_ds, val_ds
+
+def prepare_maskdataset(func=parse_fn_mask):
     if not os.path.exists(NIFTI_FILE):
         cache_file_paths()
     df = pd.read_csv(NIFTI_FILE)

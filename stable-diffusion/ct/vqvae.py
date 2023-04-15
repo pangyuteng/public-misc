@@ -89,10 +89,6 @@ class VectorQuantizer(layers.Layer):
         encoding_indices = tf.argmin(distances, axis=1)
         return encoding_indices
 
-
-# from gen_totalseg import prepare_dataset, parse_fn_one, batch_size, image_size
-# norm_dataset, train_dataset , val_dataset = prepare_dataset(func=parse_fn_one)
-
 from gen_deeplesion import prepare_dataset, batch_size, image_size
 
 LATENT_DIM = 3
