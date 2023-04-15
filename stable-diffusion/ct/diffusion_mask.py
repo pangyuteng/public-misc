@@ -389,7 +389,7 @@ class DiffusionModel(keras.Model):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
                 tmp_x = self._images[index,:]
-                tmp_xhat = generated_images[index].numpy()
+                tmp_xhat = generated_images[index].numpy()-0.5
                 tmp = np.concatenate([tmp_x,tmp_xhat],axis=1)
                 plt.imshow(tmp,cmap='gray')
                 plt.axis("off")
