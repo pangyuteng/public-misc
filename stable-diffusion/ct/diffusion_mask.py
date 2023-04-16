@@ -206,7 +206,7 @@ def get_network(image_size, widths, block_depth):
     for width in reversed(widths[:-1]):
         x = UpBlock(width, block_depth)([x, skips])
 
-    x = layers.Conv2D(1, kernel_size=1, kernel_initializer="zeros")(x)
+    x = layers.Conv2D(1, kernel_size=1, kernel_initializer="zeros",activation="tanh")(x)
 
     return keras.Model([noisy_images, noise_variances], x, name="residual_unet")
 
@@ -389,7 +389,7 @@ class DiffusionModel(keras.Model):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
                 tmp_x = self._images[index,:]
-                tmp_xhat = generated_images[index].numpy()-0.5
+                tmp_xhat = generated_images[index].numpy()+0.5
                 tmp = np.concatenate([tmp_x,tmp_xhat],axis=1)
                 plt.imshow(tmp,cmap='gray')
                 plt.axis("off")
