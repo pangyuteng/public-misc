@@ -401,7 +401,7 @@ class DiffusionModel(keras.Model):
         plt.tight_layout()
         plt.show()
         os.makedirs(TMP_DIR,exist_ok=True)
-        plt.savefig(f"{TMP_DIR}/{epoch:05d}.png")
+        plt.savefig(f"{TMP_DIR}/image-{epoch:05d}.png")
         plt.close()
         if epoch % 20 == 0:
             self.network.save_weights(f'{TMP_DIR}/network_image_{epoch}.h5')
