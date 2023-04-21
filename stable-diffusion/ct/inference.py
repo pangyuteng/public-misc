@@ -26,50 +26,25 @@ quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
 decoder = vqvae_trainer.vqvae.get_layer("decoder")
 
 
-_, _ , deeplesion_val_dataset = prepare_deeplesion_dataset()
-for images in deeplesion_val_dataset.take(1):
-    encoded_outputs = encoder.predict(images)
-print('encoded_outputs',encoded_outputs.shape)
-# 16, 128, 128, 3
-
-
 for images,labels in val_dataset.take(1):
     print(images.shape,labels.shape)
 
-    generated_latent = diffusion_model.generate(
+    encoded_outputs = diffusion_model.generate(
         num_images=batch_size,
         diffusion_steps=plot_diffusion_steps,
         labels=labels
     )
 
-    print(generated_latent.shape)
-
-    # latent to image
-    priors  = generated_latent.numpy() * NUM_EMBEDDINGS
-    priors = priors.astype(np.int32)
-
-    # Perform an embedding lookup.
-    pretrained_embeddings = quantizer.embeddings
-    priors_ohe = tf.one_hot(priors.astype("int32"), vqvae_trainer.num_embeddings).numpy()
-    quantized = tf.matmul(
-        priors_ohe.astype("float32"), pretrained_embeddings, transpose_b=True
-    )
-
-    quantized = tf.reshape(quantized, (-1, 128, 128, 3 ))
-    # Generate novel images.
-    decoder = vqvae_trainer.vqvae.get_layer("decoder")
-    print('quantized.shape',quantized.shape)
-    generated_samples = decoder.predict(quantized)
+    generated_samples = decoder.predict(encoded_outputs)
     print('generated_samples',generated_samples.shape)
 
-    plt.figure(figsize=(4,4))
+    plt.figure(figsize=(4, 4))
     for i in range(batch_size):
-        ax = plt.subplot(4,4, i + 1)
+        ax = plt.subplot(4, 4, i + 1)
         tmp_image = generated_samples[i,:]
         plt.imshow(tmp_image,cmap='gray')
         plt.axis("off")
-        if i > 7 :
-            break
+        print(tmp_image.shape,np.min(tmp_image),np.max(tmp_image))
     os.makedirs(TMP_DIR,exist_ok=True)
     plt.savefig(f"{TMP_DIR}/z.png")
     plt.close()
