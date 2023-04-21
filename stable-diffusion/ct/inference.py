@@ -1,3 +1,5 @@
+import os
+import sys
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -56,15 +58,14 @@ for images,labels in val_dataset.take(1):
     quantized = tf.reshape(quantized, (-1, 128, 128, 3 ))
     # Generate novel images.
     decoder = vqvae_trainer.vqvae.get_layer("decoder")
+    print('quantized.shape',quantized.shape)
     generated_samples = decoder.predict(quantized)
-    reconstructions_images = decoder.predict(generated_samples)
-
-    print('reconstructions_images',reconstructions_images.shape)
+    print('generated_samples',generated_samples.shape)
 
     plt.figure(figsize=(4,4))
     for i in range(batch_size):
         ax = plt.subplot(4,4, i + 1)
-        tmp_image = reconstructions_images[i,:]
+        tmp_image = generated_samples[i,:]
         plt.imshow(tmp_image,cmap='gray')
         plt.axis("off")
         if i > 7 :
