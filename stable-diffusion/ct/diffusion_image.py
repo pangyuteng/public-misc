@@ -95,8 +95,6 @@ class KID(keras.metrics.Metric):
 
     def update_state(self, real_images, generated_images, sample_weight=None):
         batch_size = tf.shape(real_images)[0]
-        real_images = tf.tile(real_images, [batch_size,1,1,3])
-        generated_images = tf.tile(generated_images, [batch_size,1,1,3])
         real_features = self.encoder(real_images, training=False)
         generated_features = self.encoder(generated_images, training=False)
 
@@ -189,7 +187,7 @@ def UpBlock(width, block_depth):
 
 
 def get_network(image_size, widths, block_depth):
-    noisy_images = keras.Input(shape=(image_size, image_size, 1))
+    noisy_images = keras.Input(shape=(image_size, image_size, 3))
     noise_variances = keras.Input(shape=(1, 1, 1))
     labels = keras.Input(shape=(image_size, image_size, 1))
 
@@ -210,7 +208,7 @@ def get_network(image_size, widths, block_depth):
     for width in reversed(widths[:-1]):
         x = UpBlock(width, block_depth)([x, l, skips])
 
-    x = layers.Conv2D(1, kernel_size=1, kernel_initializer="zeros")(x)
+    x = layers.Conv2D(3, kernel_size=1, kernel_initializer="zeros")(x)
 
     return keras.Model([noisy_images, noise_variances, labels], x, name="residual_unet")
 
@@ -300,7 +298,7 @@ class DiffusionModel(keras.Model):
 
     def generate(self, num_images, diffusion_steps, labels):
         # noise -> images -> denormalized images
-        initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 1))
+        initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 3))
         generated_images = self.reverse_diffusion(initial_noise, diffusion_steps, labels)
         generated_images = self.denormalize(generated_images)
         return generated_images
@@ -309,7 +307,7 @@ class DiffusionModel(keras.Model):
         images,labels = input_data
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=True)
-        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
+        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 3))
 
         # sample uniform random diffusion times
         diffusion_times = tf.random.uniform(
@@ -348,7 +346,7 @@ class DiffusionModel(keras.Model):
         self._labels = labels.numpy()
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=False)
-        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
+        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 3))
 
         # sample uniform random diffusion times
         diffusion_times = tf.random.uniform(
@@ -395,6 +393,7 @@ class DiffusionModel(keras.Model):
                 plt.subplot(num_rows, num_cols, index + 1)
                 tmp_x = self._images[index,:]
                 tmp_label = self._labels[index,:]
+                tmp_label = np.tile(tmp_label, [1,1,3])
                 tmp_xhat = generated_images[index].numpy()
                 tmp = np.concatenate([tmp_x,tmp_label,tmp_xhat],axis=1)
                 plt.imshow(tmp,cmap='gray')
@@ -405,8 +404,8 @@ class DiffusionModel(keras.Model):
         plt.savefig(f"{TMP_DIR}/{epoch:05d}.png")
         plt.close()
         if epoch % 20 == 0:
-            self.network.save_weights(f'{TMP_DIR}/network_{epoch}.h5')
-            self.ema_network.save_weights(f'{TMP_DIR}/ema_network_{epoch}.h5')
+            self.network.save_weights(f'{TMP_DIR}/network_image_{epoch}.h5')
+            self.ema_network.save_weights(f'{TMP_DIR}/ema_network_image_{epoch}.h5')
 
 
 """
@@ -426,16 +425,9 @@ encoder = vqvae_trainer.vqvae.get_layer("encoder")
 quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
 
 def myfunc(x,y):
-
     encoded_outputs = encoder(x)
-    flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
-    codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-    codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH,1])
-    codebook_indices = (codebook_indices/NUM_EMBEDDINGS)-0.5
-
     y = tf.image.resize(y, [CODEBOOK_WH,CODEBOOK_WH],method='nearest',antialias=False)
-
-    return codebook_indices, y
+    return encoded_outputs, y
 
 
 def get_diffusion_model():
@@ -469,6 +461,8 @@ if __name__ == "__main__":
             ax = plt.subplot(3, 3, i + 1)
             tmp_image = images[i,:].numpy()+0.5
             tmp_label = labels[i,:].numpy()
+            tmp_label= np.tile(tmp_label,(1,1,3))
+            print(tmp_image.shape,tmp_label.shape)
             print('tmp_image',np.min(tmp_image),np.max(tmp_image))
             print('tmp_label',np.min(tmp_label),np.max(tmp_label))
             tmp = np.concatenate([tmp_image,tmp_label],axis=1)

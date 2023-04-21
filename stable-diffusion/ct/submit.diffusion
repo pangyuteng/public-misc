@@ -19,7 +19,7 @@ request_gpus = 1
 request_memory = 15G
 #request_disk = 5GB
 
-arguments = "python diffusion_mask.py"
-queue
-#arguments = "python diffusion_image.py"
+#arguments = "python diffusion_mask.py"
 #queue
+arguments = "python diffusion_image.py"
+queue
