@@ -426,9 +426,13 @@ quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
 
 def myfunc(x,y):
     encoded_outputs = encoder(x)
-    y = tf.image.resize(y, [CODEBOOK_WH,CODEBOOK_WH],method='nearest',antialias=False)
+    y = tf.image.resize(y, [image_size,image_size],method='nearest',antialias=False)
     return encoded_outputs, y
 
+def my_inference_func(x,y):
+    encoded_outputs = encoder(x)
+    sy = tf.image.resize(y, [image_size,image_size],method='nearest',antialias=False)
+    return x,y, encoded_outputs, sy
 
 def get_diffusion_model():
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
