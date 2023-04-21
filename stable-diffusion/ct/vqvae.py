@@ -249,11 +249,9 @@ data_variance = normalizer.variance
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 
 def get_vqvae_model():
-
     vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
     vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
-    trained_vqvae_model = vqvae_trainer.vqvae
-    return trained_vqvae_model
+    return vqvae_trainer
 
 if __name__ == "__main__":
 
