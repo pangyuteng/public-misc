@@ -417,29 +417,44 @@ from vqvae import (
     VQVAETrainer, data_variance, 
     LATENT_DIM, NUM_EMBEDDINGS, CODEBOOK_WH
 )
+vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
+vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
+vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
+vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
+
+encoder = vqvae_trainer.vqvae.get_layer("encoder")
+quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
+
+def myfunc(x,y):
+
+    encoded_outputs = encoder(x)
+    flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
+    codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
+    codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH,1])
+    codebook_indices = (codebook_indices/NUM_EMBEDDINGS)-0.5
+
+    y = tf.image.resize(y, [CODEBOOK_WH,CODEBOOK_WH],method='nearest',antialias=False)
+
+    return codebook_indices, y
+
+
+def get_diffusion_model():
+    norm_dataset, train_dataset , val_dataset = prepare_dataset()
+    norm_dataset = norm_dataset.map(myfunc, num_parallel_calls=tf.data.AUTOTUNE)
+
+    model = DiffusionModel(image_size, widths, block_depth)
+    model.compile(
+        optimizer=keras.optimizers.experimental.AdamW(
+            learning_rate=learning_rate, weight_decay=weight_decay
+        ),
+        loss=keras.losses.mean_absolute_error,
+        run_eagerly=True
+    )
+    model.normalizer.adapt(norm_dataset.map(lambda images, labels: images))
+    model.load_weights(checkpoint_path)
+    return model
 
 if __name__ == "__main__":
-
-    vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
-    vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
-    vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
-    vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
-
-    encoder = vqvae_trainer.vqvae.get_layer("encoder")
-    quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
-
-
-    def myfunc(x,y):
-
-        encoded_outputs = encoder(x)
-        flat_enc_outputs = tf.reshape(encoded_outputs, [-1, LATENT_DIM])
-        codebook_indices = quantizer.get_code_indices(flat_enc_outputs)
-        codebook_indices = tf.reshape(codebook_indices, [-1, CODEBOOK_WH,CODEBOOK_WH,1])
-        codebook_indices = (codebook_indices/NUM_EMBEDDINGS)-0.5
-
-        y = tf.image.resize(y, [CODEBOOK_WH,CODEBOOK_WH],method='nearest',antialias=False)
-
-        return codebook_indices, y
 
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
 

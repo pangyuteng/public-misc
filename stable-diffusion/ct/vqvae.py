@@ -245,6 +245,16 @@ normalizer = layers.Normalization()
 normalizer.adapt(norm_dataset.map(lambda images: images))
 data_variance = normalizer.variance
 
+
+vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
+
+def get_vqvae_model():
+
+    vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
+    vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
+    trained_vqvae_model = vqvae_trainer.vqvae
+    return trained_vqvae_model
+
 if __name__ == "__main__":
 
 
@@ -254,7 +264,6 @@ if __name__ == "__main__":
     vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
 
     epochs = 5
-    vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
     if not os.path.exists(vqvae_weights_file):
         vqvae_trainer.fit(
             train_dataset,
