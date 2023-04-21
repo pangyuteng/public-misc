@@ -1,5 +1,6 @@
 import os
 import sys
+import imageio
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -45,6 +46,9 @@ for images,labels in val_dataset.take(1):
         plt.imshow(tmp_image,cmap='gray')
         plt.axis("off")
         print(tmp_image.shape,np.min(tmp_image),np.max(tmp_image))
+        tmp_image = (tmp_image-np.min(tmp_image))/(np.max(tmp_image)-np.min(tmp_image))
+        tmp_image = (tmp_image*255).clip(0,255)
+        imageio.imwrite(f"{TMP_DIR}/z-{i}.png",tmp_image)
     os.makedirs(TMP_DIR,exist_ok=True)
     plt.savefig(f"{TMP_DIR}/z.png")
     plt.close()
