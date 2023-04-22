@@ -257,15 +257,15 @@ def get_vqvae_model():
 
 if __name__ == "__main__":
 
-    # Create a MirroredStrategy.
-    strategy = tf.distribute.MirroredStrategy()
-    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
-
     norm_dataset, train_dataset , val_dataset = prepare_dataset()
 
     normalizer = layers.Normalization()
     normalizer.adapt(norm_dataset.map(lambda images: images))
     data_variance = normalizer.variance
+    
+    # Create a MirroredStrategy.
+    strategy = tf.distribute.MirroredStrategy()
+    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
     with strategy.scope():
         vqvae_model_checkpoint_callback = MyModelCheckpoint()
