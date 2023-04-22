@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 dataset_repetitions = 5
 num_epochs = 50  # train for at least 50 epochs for good results
 image_size = 512
-batch_size = 16
+batch_size = 8
 
 min_val,max_val = -1000,1000
 def png_read(file_path):

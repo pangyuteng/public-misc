@@ -20,16 +20,16 @@ from tensorflow.keras import layers
 import tensorflow_probability as tfp
 import tensorflow as tf
 
-gpus = tf.config.list_physical_devices('GPU')
-if gpus:
-  # Restrict TensorFlow to only use the first GPU
-  try:
-    tf.config.set_visible_devices(gpus[0], 'GPU')
-    logical_gpus = tf.config.list_logical_devices('GPU')
-    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
-  except RuntimeError as e:
-    # Visible devices must be set before GPUs have been initialized
-    print(e)
+# gpus = tf.config.list_physical_devices('GPU')
+# if gpus:
+#   # Restrict TensorFlow to only use the first GPU
+#   try:
+#     tf.config.set_visible_devices(gpus[0], 'GPU')
+#     logical_gpus = tf.config.list_logical_devices('GPU')
+#     print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
+#   except RuntimeError as e:
+#     # Visible devices must be set before GPUs have been initialized
+#     print(e)
 
 class VectorQuantizer(layers.Layer):
     def __init__(self, num_embeddings, embedding_dim, beta=0.25, **kwargs):
@@ -95,8 +95,6 @@ LATENT_DIM = 3
 NUM_EMBEDDINGS = 2048
 CODEBOOK_WH = image_size//4
 
-norm_dataset, train_dataset , val_dataset = prepare_dataset()
-
 def ResidualBlock(width):
     def apply(x):
         input_width = x.shape[3]
@@ -151,8 +149,6 @@ def get_vqvae(latent_dim,num_embeddings):
     quantized_latents = vq_layer(encoder_outputs)
     reconstructions = decoder(quantized_latents)
     return keras.Model(inputs, reconstructions, name="vq_vae")
-
-get_vqvae(LATENT_DIM,NUM_EMBEDDINGS).summary()
 
 class VQVAETrainer(keras.models.Model):
     def __init__(self, train_variance, latent_dim, num_embeddings, **kwargs):
@@ -245,25 +241,37 @@ class MyModelCheckpoint(tf.keras.callbacks.Callback):
         vqvae_weights_file = f'{TMP_DIR}/vqvae-{epoch}.h5'
         self.model.vqvae.save_weights(vqvae_weights_file)
 
-normalizer = layers.Normalization()
-normalizer.adapt(norm_dataset.map(lambda images: images))
-data_variance = normalizer.variance
-
-
 vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
 
 def get_vqvae_model():
+
+    norm_dataset, train_dataset , val_dataset = prepare_dataset()
+
+    normalizer = layers.Normalization()
+    normalizer.adapt(norm_dataset.map(lambda images: images))
+    data_variance = normalizer.variance
+
     vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
     vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
     return vqvae_trainer
 
 if __name__ == "__main__":
 
+    # Create a MirroredStrategy.
+    strategy = tf.distribute.MirroredStrategy()
+    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
-    vqvae_model_checkpoint_callback = MyModelCheckpoint()
-    learning_rate = 1e-4
-    vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
-    vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
+    norm_dataset, train_dataset , val_dataset = prepare_dataset()
+
+    normalizer = layers.Normalization()
+    normalizer.adapt(norm_dataset.map(lambda images: images))
+    data_variance = normalizer.variance
+
+    with strategy.scope():
+        vqvae_model_checkpoint_callback = MyModelCheckpoint()
+        learning_rate = 1e-4
+        vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
+        vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
 
     epochs = 200
     if not os.path.exists(vqvae_weights_file):
