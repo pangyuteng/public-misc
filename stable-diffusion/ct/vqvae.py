@@ -262,16 +262,16 @@ if __name__ == "__main__":
     normalizer = layers.Normalization()
     normalizer.adapt(norm_dataset.map(lambda images: images))
     data_variance = normalizer.variance
-    
-    # Create a MirroredStrategy.
-    strategy = tf.distribute.MirroredStrategy()
-    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
-    with strategy.scope():
-        vqvae_model_checkpoint_callback = MyModelCheckpoint()
-        learning_rate = 1e-4
-        vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
-        vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
+    # # Create a MirroredStrategy.
+    # strategy = tf.distribute.MirroredStrategy()
+    # print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
+
+    # with strategy.scope():
+    vqvae_model_checkpoint_callback = MyModelCheckpoint()
+    learning_rate = 1e-4
+    vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
+    vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
 
     epochs = 200
     if not os.path.exists(vqvae_weights_file):
