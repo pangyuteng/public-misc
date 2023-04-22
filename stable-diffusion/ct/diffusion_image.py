@@ -29,7 +29,7 @@ checkpoint_path = "checkpoints/diffusion_model_image"
 
 
 # data
-image_size = 128
+image_size = 64
 
 num_epochs = 500  # train for at least 50 epochs for good results
 
@@ -412,15 +412,9 @@ class DiffusionModel(keras.Model):
 ## Training
 """
 
-from vqvae import (
-    VQVAETrainer, data_variance, 
-    LATENT_DIM, NUM_EMBEDDINGS, CODEBOOK_WH
-)
-vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
-vqvae_trainer.compile(optimizer=keras.optimizers.Adam())
-vqvae_weights_file = f'{TMP_DIR}/vqvae.h5'
-vqvae_trainer.vqvae.load_weights(vqvae_weights_file)
+from vqvae import get_vqvae_model
 
+vqvae_trainer = get_vqvae_model()
 encoder = vqvae_trainer.vqvae.get_layer("encoder")
 quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
 
