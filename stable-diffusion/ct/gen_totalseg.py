@@ -20,7 +20,7 @@ NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 # data
 dataset_repetitions = 1000
 image_size = 512
-batch_size = 16
+batch_size = 8
 
 label_count = 105
 min_val,max_val = -1000,1000

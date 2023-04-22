@@ -33,8 +33,9 @@ image_size = 64
 
 num_epochs = 500  # train for at least 50 epochs for good results
 
-num_cols = 4
+num_cols = 2
 num_rows = 4
+assert(batch_size==num_cols*num_rows)
 widths = [32, 64, 96, 128]
 
 # KID = Kernel Inception Distance, see related section
