@@ -15,7 +15,7 @@ error = log/$(cluster).$(process).err
 log = log/$(cluster).$(process).log
 
 request_cpus = 2
-request_gpus = 2
+request_gpus = 1
 request_memory = 15G
 #request_disk = 5GB
 
