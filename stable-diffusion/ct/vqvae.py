@@ -121,6 +121,8 @@ def get_encoder(latent_dim):
         encoder_inputs
     )
     x = layers.Conv2D(128, 3, activation="relu", strides=2, padding="same")(x)
+    x = layers.Conv2D(128, 3, activation="relu", strides=2, padding="same")(x)
+    x = layers.MultiHeadAttention(num_heads=2, key_dim=2,attention_axes=(1,2))(x,x)
     for _ in range(block_depth):
         x = ResidualBlock(128)(x)
     encoder_outputs = layers.Conv2D(latent_dim, 1, padding="same")(x)
@@ -132,6 +134,8 @@ def get_decoder(latent_dim):
     x = latent_inputs
     for _ in range(block_depth):
         x = ResidualBlock(128)(x)
+    x = layers.MultiHeadAttention(num_heads=2, key_dim=2,attention_axes=(1,2))(x,x)
+    x = layers.Conv2DTranspose(128, 3, activation="relu", strides=2, padding="same")(x)
     x = layers.Conv2DTranspose(128, 3, activation="relu", strides=2, padding="same")(x)
     x = layers.Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")(x)
     decoder_outputs = layers.Conv2DTranspose(1, 3, padding="same")(x)
@@ -261,7 +265,7 @@ if __name__ == "__main__":
     vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
     vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
 
-    epochs = 5
+    epochs = 200
     if not os.path.exists(vqvae_weights_file):
         vqvae_trainer.fit(
             train_dataset,
@@ -310,7 +314,8 @@ if __name__ == "__main__":
     """
     ## Visualizing the discrete codes
     """
-
+    print('done with vae training')
+    sys.exit(0)
     encoder = vqvae_trainer.vqvae.get_layer("encoder")
     quantizer = vqvae_trainer.vqvae.get_layer("vector_quantizer")
 
