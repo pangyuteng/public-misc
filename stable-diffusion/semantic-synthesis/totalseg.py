@@ -28,10 +28,10 @@ checkpoint_path = "checkpoints/diffusion_model"
 # data
 dataset_repetitions = 100000
 num_epochs = 500  # train for at least 50 epochs for good results
-image_size = 512
-batch_size = 16
-num_cols = 4
-num_rows = 4
+image_size = 128
+batch_size = 4
+num_cols = 2
+num_rows = 2
 widths = [32, 64, 96, 128]
 
 # KID = Kernel Inception Distance, see related section
@@ -55,11 +55,8 @@ weight_decay = 1e-4
 
 label_count = 105
 min_val,max_val = -1000,1000
-axis = 2
-WH = 128
+AXIS = 2
 THICKNESS = 1
-TARGET_SHAPE = (WH,WH,THICKNESS)
-IMG_SIZE = (WH,WH,THICKNESS,1)
 
 def preprocess_image(data):
     # center crop image
@@ -107,10 +104,10 @@ def nifti_read(folder_path):
     extract_size = list(file_reader.GetSize())
     current_index = [0] * file_reader.GetDimension()
 
-    mylist = np.arange(0,image_size[axis]-THICKNESS,1)
+    mylist = np.arange(0,image_size[AXIS]-THICKNESS,1)
     idx = int(np.random.choice(mylist))
-    current_index[axis] = idx
-    extract_size[axis] = THICKNESS
+    current_index[AXIS] = idx
+    extract_size[AXIS] = THICKNESS
 
     file_reader = sitk.ImageFileReader()
     file_reader.SetFileName(image_path)
