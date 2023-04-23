@@ -29,9 +29,9 @@ checkpoint_path = "checkpoints/diffusion_model"
 dataset_repetitions = 100000
 num_epochs = 500  # train for at least 50 epochs for good results
 image_size = 128
-batch_size = 4
-num_cols = 2
-num_rows = 2
+batch_size = 16
+num_cols = 4
+num_rows = 4
 widths = [32, 64, 96, 128]
 
 # KID = Kernel Inception Distance, see related section
@@ -370,10 +370,10 @@ def get_network(image_size, widths, block_depth):
     skips = []
     for width in widths[:-1]:
         x,l = DownBlock(width, block_depth)([x, l, skips])
-    x = layers.MultiHeadAttention(num_heads=2, key_dim=2,attention_axes=(1,2))(x,x)
+    #x = layers.MultiHeadAttention(num_heads=2, key_dim=2,attention_axes=(1,2))(x,x)
     for _ in range(block_depth):
         x = ResidualBlock(widths[-1])(x)
-    x = layers.MultiHeadAttention(num_heads=2, key_dim=2,attention_axes=(1,2))(x,x)
+    #x = layers.MultiHeadAttention(num_heads=2, key_dim=2,attention_axes=(1,2))(x,x)
     for width in reversed(widths[:-1]):
         x = UpBlock(width, block_depth)([x, l, skips])
 
