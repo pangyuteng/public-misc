@@ -273,7 +273,7 @@ if __name__ == "__main__":
     vqvae_trainer = VQVAETrainer(data_variance, LATENT_DIM, NUM_EMBEDDINGS)
     vqvae_trainer.compile(optimizer=keras.optimizers.Adam(learning_rate))
 
-    epochs = 200
+    epochs = 6
     if not os.path.exists(vqvae_weights_file):
         vqvae_trainer.fit(
             train_dataset,

@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 
 # noise+mask to latent
 from diffusion_image import (
-    get_diffusion_model, my_inference_func, prepare_dataset, batch_size,
-    NUM_EMBEDDINGS
+    get_diffusion_model, my_inference_func, prepare_dataset, batch_size
 )
 plot_diffusion_steps = 20
 
