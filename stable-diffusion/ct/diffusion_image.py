@@ -116,7 +116,8 @@ class KID(keras.metrics.Metric):
             kernel_generated * (1.0 - tf.eye(batch_size))
         ) / (batch_size_f * (batch_size_f - 1.0))
         mean_kernel_cross = tf.reduce_mean(kernel_cross)
-        kid = mean_kernel_real + mean_kernel_generated - 2.0 * mean_kernel_cross
+        mse = tf.keras.metrics.mean_squared_error(real_images,generated_images)
+        kid = mse + mean_kernel_real + mean_kernel_generated - 2.0 * mean_kernel_cross
 
         # update the average KID estimate
         self.kid_tracker.update_state(kid)
