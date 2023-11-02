@@ -1,0 +1,13 @@
+version: "2.3"
+services:
+  hello-tasty:
+    image: hello-tasty
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    working_dir: /opt
+    command: python app.py --debug
+    volumes:
+      - ${PWD}:/opt
