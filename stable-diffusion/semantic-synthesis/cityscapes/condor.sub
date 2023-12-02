@@ -1,0 +1,23 @@
+
+universe = docker
+docker_image = pangyuteng/keras-stable-diffusion:latest
+docker_pull_policy = always
+
+executable = run.sh
+should_transfer_files = YES
+transfer_input_files = run.sh,cityscapes.py
+
+requirements = (OpSys == "LINUX" && Arch == "X86_64" && GPUMEM > 30000)
+
+when_to_transfer_output = ON_EXIT
+output = log/$(cluster).$(process).out
+error = log/$(cluster).$(process).err
+log = log/$(cluster).$(process).log
+
+request_cpus = 2
+request_gpus = 1
+request_memory = 15G
+request_disk = 5GB
+
+arguments = ""
+queue
