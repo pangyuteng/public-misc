@@ -5,7 +5,7 @@ docker_pull_policy = always
 
 executable = run.sh
 should_transfer_files = YES
-transfer_input_files = run.sh,cityscapes.py
+transfer_input_files = run.sh,cityscapes.py,ddim.py
 
 requirements = (OpSys == "LINUX" && Arch == "X86_64" && GPUMEM > 30000)
 
