@@ -18,6 +18,9 @@ from keras import layers
 ## Hyperparameters
 """
 
+tmp_folder = "tmp"
+checkpoint_path = "checkpoint"
+
 # data
 dataset_repetitions = 1000
 num_epochs = 500  # train for at least 50 epochs for good results
@@ -476,8 +479,6 @@ model.compile(
 # pixelwise mean absolute error is used as loss
 
 # save the best model based on the validation KID metric
-tmp_folder = os.environ.get("TEMP_PATH")
-checkpoint_path = os.environ.get("CHECKPOINT_PATH")
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=True,
