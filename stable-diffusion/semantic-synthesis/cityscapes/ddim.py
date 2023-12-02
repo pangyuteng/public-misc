@@ -19,7 +19,8 @@ from keras import layers
 """
 
 tmp_folder = "tmp"
-checkpoint_path = "checkpoint"
+os.makedirs(tmp_folder,exist_ok=tmp_folder)
+checkpoint_path = "tmp/checkpoint"
 
 # data
 dataset_repetitions = 1000
