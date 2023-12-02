@@ -111,7 +111,7 @@ for images,labels in val_dataset.take(1):
         if i > 7 :
             break
     os.makedirs('tmp',exist_ok=True)
-    plt.savefig(f"tmp/test.png")
+    plt.savefig(f"{tmp_folder}/test.png")
     plt.close()
 
 """
@@ -454,7 +454,7 @@ class DiffusionModel(keras.Model):
         plt.tight_layout()
         plt.show()
         os.makedirs('tmp',exist_ok=True)
-        plt.savefig(f"tmp/{epoch:05d}.png")
+        plt.savefig(f"{tmp_folder}/{epoch:05d}.png")
         plt.close()
 
 
@@ -476,7 +476,8 @@ model.compile(
 # pixelwise mean absolute error is used as loss
 
 # save the best model based on the validation KID metric
-checkpoint_path = "checkpoints/diffusion_model"
+tmp_folder = os.environ.get("TEMP_PATH")
+checkpoint_path = os.environ.get("CHECKPOINT_PATH")
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=True,
