@@ -1,8 +1,9 @@
 #!/bin/bash
 
-export TFDS_DATA_DIR=/radraid/pteng-public/tmp/tensorflow_datasets
+export CODE_FOLDER=$1
+export TFDS_DATA_DIR=$2
 
-cd /cvibraid/cvib2/apps/personal/pteng/github/aigonewrong/stable-diffusion/semantic-synthesis/cityscapes
+cd $CODE_FOLDER
 
 python3 cityscapes.py
 python3 ddim.py

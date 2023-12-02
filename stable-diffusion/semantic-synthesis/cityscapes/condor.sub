@@ -19,5 +19,5 @@ request_gpus = 1
 request_memory = 15G
 request_disk = 5GB
 
-arguments = ""
+arguments = "/mnt/hd1/aigonewrong/stable-diffusion/semantic-synthesis/cityscapes /mnt/scratch/tmp/tensorflow_datasets"
 queue

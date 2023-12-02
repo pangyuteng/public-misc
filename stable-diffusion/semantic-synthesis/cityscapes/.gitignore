@@ -1,3 +1,4 @@
 log
 *.png
 docker_stderror
+condor.sub.hide
