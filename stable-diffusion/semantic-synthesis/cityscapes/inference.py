@@ -5,7 +5,6 @@ from ddim import (
     weight_decay,learning_rate,
     network_weight_file,
     network_ema_weight_file,
-    normalizer_weight_file,
     val_dataset,
     num_rows,num_cols,
     plot_diffusion_steps,
@@ -13,6 +12,7 @@ from ddim import (
 )
 
 model = DiffusionModel(image_size, widths, block_depth)
+model.normalizer.adapt(val_dataset.map(lambda images, labels: images))
 
 #model.network.summary()
 # model.compile(
@@ -26,7 +26,6 @@ model = DiffusionModel(image_size, widths, block_depth)
 #model.load_weights(checkpoint_path)
 
 model.network.load_weights(network_weight_file)
-model.normalizer.load_weights(normalizer_weight_file)
 model.ema_network.load_weights(network_ema_weight_file)
 
 for images,labels in val_dataset.take(1):
