@@ -20,12 +20,12 @@ from keras import layers
 
 tmp_folder = "tmp"
 os.makedirs(tmp_folder,exist_ok=tmp_folder)
-checkpoint_path = "tmp/checkpoint"
+checkpoint_path = "checkpoints/diffusion_model"
 
 # data
 dataset_repetitions = 1000
-num_epochs = 500  # train for at least 50 epochs for good results
-image_size = 128
+num_epochs = 1000  # train for at least 50 epochs for good results
+image_size = 256
 batch_size = 16
 num_cols = 4
 num_rows = 4
@@ -109,6 +109,7 @@ for images,labels in val_dataset.take(1):
         tmp_image = images[i,:].numpy()
         tmp_label = labels[i,:].numpy()
         tmp_label = np.repeat(tmp_label,3, axis=2)
+
         tmp = np.concatenate([tmp_image,tmp_label],axis=1)
         plt.imshow(tmp)
         plt.axis("off")
