@@ -23,7 +23,7 @@ os.makedirs(tmp_folder,exist_ok=tmp_folder)
 checkpoint_path = "checkpoints/diffusion_model"
 network_weight_file = "weights/diffusion_model/network.h5"
 network_ema_weight_file = "weights/diffusion_model/network_ema.h5"
-
+normalizer_weight_file = "weights/diffusion_model/normalizer.h5"
 # data
 dataset_repetitions = 1000
 #num_epochs = 1000  # train for at least 50 epochs for good results
@@ -444,6 +444,7 @@ class DiffusionModel(keras.Model):
         os.makedirs(os.path.dirname(network_weight_file),exist_ok=True)
         self.network.save_weights(network_weight_file)
         self.ema_network.save_weights(network_ema_weight_file)
+        self.normalizer.save_weights(normalizer_weight_file)
 
         # plot random generated images for visual evaluation of generation quality
 

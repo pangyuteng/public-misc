@@ -1,4 +1,5 @@
 checkpoints
+weights
 log
 *.png
 docker_stderror
