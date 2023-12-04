@@ -466,49 +466,49 @@ class DiffusionModel(keras.Model):
 """
 ## Training
 """
+if __name__ == "__main__":
 
+    model = DiffusionModel(image_size, widths, block_depth)
+    model.network.summary()
 
-model = DiffusionModel(image_size, widths, block_depth)
-model.network.summary()
+    model.compile(
+        optimizer=keras.optimizers.experimental.AdamW(
+            learning_rate=learning_rate, weight_decay=weight_decay
+        ),
+        loss=keras.losses.mean_absolute_error,
+        run_eagerly=True
+    )
+    # pixelwise mean absolute error is used as loss
 
-model.compile(
-    optimizer=keras.optimizers.experimental.AdamW(
-        learning_rate=learning_rate, weight_decay=weight_decay
-    ),
-    loss=keras.losses.mean_absolute_error,
-    run_eagerly=True
-)
-# pixelwise mean absolute error is used as loss
+    # save the best model based on the validation KID metric
+    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=checkpoint_path,
+        save_weights_only=True,
+        monitor="val_kid",
+        mode="min",
+        save_best_only=True,
+    )
 
-# save the best model based on the validation KID metric
-checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_path,
-    save_weights_only=True,
-    monitor="val_kid",
-    mode="min",
-    save_best_only=True,
-)
+    # calculate mean and variance of training dataset for normalization
+    model.normalizer.adapt(train_dataset.map(lambda images, labels: images))
 
-# calculate mean and variance of training dataset for normalization
-model.normalizer.adapt(train_dataset.map(lambda images, labels: images))
+    # run training and plot generated images periodically
+    model.fit(
+        train_dataset,
+        epochs=num_epochs,
+        steps_per_epoch=50,
+        validation_steps=10,
+        validation_data=val_dataset,
+        callbacks=[
+            keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
+            checkpoint_callback,
+        ],
+    )
 
-# run training and plot generated images periodically
-model.fit(
-    train_dataset,
-    epochs=num_epochs,
-    steps_per_epoch=50,
-    validation_steps=10,
-    validation_data=val_dataset,
-    callbacks=[
-        keras.callbacks.LambdaCallback(on_epoch_end=model.plot_images),
-        checkpoint_callback,
-    ],
-)
+    """
+    ## Inference
+    """
 
-"""
-## Inference
-"""
-
-# load the best model and generate images
-model.load_weights(checkpoint_path)
-model.plot_images(epoch=999)
+    # load the best model and generate images
+    model.load_weights(checkpoint_path)
+    model.plot_images(epoch=999)
