@@ -1,5 +1,5 @@
 import keras
-from ddm import DiffusionModel,checkpoint_path
+from ddim import DiffusionModel,checkpoint_path
 
 model = DiffusionModel(image_size, widths, block_depth)
 model.network.summary()
@@ -13,4 +13,4 @@ model.compile(
 )
 # load the best model and generate images
 model.load_weights(checkpoint_path)
-model.plot_images(epoch=999)
+model.plot_images(epoch=1000)
