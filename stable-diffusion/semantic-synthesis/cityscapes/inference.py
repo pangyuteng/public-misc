@@ -1,4 +1,4 @@
-import keras
+from tensorflow import keras
 from ddim import (
     DiffusionModel,checkpoint_path,
     image_size, widths, block_depth
