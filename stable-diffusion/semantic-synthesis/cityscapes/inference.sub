@@ -3,9 +3,9 @@ universe = docker
 docker_image = pangyuteng/keras-stable-diffusion:latest
 docker_pull_policy = always
 
-executable = run.sh
+executable = inference.sh
 should_transfer_files = YES
-transfer_input_files = run.sh
+transfer_input_files = inference.sh
 
 requirements = (OpSys == "LINUX" && Arch == "X86_64" && GPUMEM > 30000)
 
