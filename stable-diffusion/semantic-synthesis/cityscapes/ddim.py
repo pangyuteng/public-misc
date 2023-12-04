@@ -27,7 +27,7 @@ network_ema_weight_file = "weights/diffusion_model/network_ema.h5"
 # data
 dataset_repetitions = 1000
 #num_epochs = 1000  # train for at least 50 epochs for good results
-num_epochs = 5
+num_epochs = 100
 image_size = 256
 batch_size = 16
 num_cols = 4
@@ -440,10 +440,6 @@ class DiffusionModel(keras.Model):
         return {m.name: m.result() for m in self.metrics}
 
     def plot_images(self, epoch=None, logs=None, num_rows=num_rows, num_cols=num_cols):
-        
-        os.makedirs(os.path.dirname(network_weight_file),exist_ok=True)
-        self.network.save_weights(network_weight_file)
-        self.ema_network.save_weights(network_ema_weight_file)
 
         # plot random generated images for visual evaluation of generation quality
 
@@ -469,6 +465,10 @@ class DiffusionModel(keras.Model):
         os.makedirs('tmp',exist_ok=True)
         plt.savefig(f"{tmp_folder}/{epoch:05d}.png")
         plt.close()
+
+        os.makedirs(os.path.dirname(network_weight_file),exist_ok=True)
+        self.network.save_weights(network_weight_file)
+        self.ema_network.save_weights(network_ema_weight_file)
 
 
 """

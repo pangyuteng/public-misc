@@ -14,7 +14,7 @@ from ddim import (
 model = DiffusionModel(image_size, widths, block_depth)
 model.normalizer.adapt(val_dataset.map(lambda images, labels: images))
 
-#model.network.summary()
+# model.network.summary()
 # model.compile(
 #     optimizer=keras.optimizers.experimental.AdamW(
 #         learning_rate=learning_rate, weight_decay=weight_decay
@@ -22,8 +22,8 @@ model.normalizer.adapt(val_dataset.map(lambda images, labels: images))
 #     loss=keras.losses.mean_absolute_error,
 #     run_eagerly=True
 # )
-# load the best model and generate images
-#model.load_weights(checkpoint_path)
+# #load the best model and generate images
+# model.load_weights(checkpoint_path)
 
 model.network.load_weights(network_weight_file)
 model.ema_network.load_weights(network_ema_weight_file)
@@ -52,5 +52,5 @@ for images,labels in val_dataset.take(1):
     plt.tight_layout()
     plt.show()
     os.makedirs('tmp',exist_ok=True)
-    plt.savefig(f"{tmp_folder}/{epoch:05d}.png")
+    plt.savefig(f"{tmp_folder}/inference.png")
     plt.close()
