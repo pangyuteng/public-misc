@@ -1,7 +1,8 @@
 from tensorflow import keras
 from ddim import (
     DiffusionModel,checkpoint_path,
-    image_size, widths, block_depth
+    image_size, widths, block_depth,
+    weight_decay,learning_rate
 )
 
 model = DiffusionModel(image_size, widths, block_depth)
