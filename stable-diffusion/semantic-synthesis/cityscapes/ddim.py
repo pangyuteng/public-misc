@@ -21,10 +21,13 @@ from keras import layers
 tmp_folder = "tmp"
 os.makedirs(tmp_folder,exist_ok=tmp_folder)
 checkpoint_path = "checkpoints/diffusion_model"
+network_weight_file = "weights/diffusion_model/network.h5"
+network_ema_weight_file = "weights/diffusion_model/network_ema.h5"
 
 # data
 dataset_repetitions = 1000
-num_epochs = 1000  # train for at least 50 epochs for good results
+#num_epochs = 1000  # train for at least 50 epochs for good results
+num_epochs = 5
 image_size = 256
 batch_size = 16
 num_cols = 4
@@ -437,8 +440,13 @@ class DiffusionModel(keras.Model):
         return {m.name: m.result() for m in self.metrics}
 
     def plot_images(self, epoch=None, logs=None, num_rows=num_rows, num_cols=num_cols):
-        # plot random generated images for visual evaluation of generation quality
         
+        os.makedirs(os.path.dirname(network_weight_file),exist_ok=True)
+        self.network.save_weights(network_weight_file)
+        self.ema_network.save_weights(network_ema_weight_file)
+
+        # plot random generated images for visual evaluation of generation quality
+
         generated_images = self.generate(
             num_images=num_rows * num_cols,
             diffusion_steps=plot_diffusion_steps,
