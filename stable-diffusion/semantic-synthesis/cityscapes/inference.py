@@ -1,5 +1,8 @@
 import keras
-from ddim import DiffusionModel,checkpoint_path
+from ddim import (
+    DiffusionModel,checkpoint_path,
+    image_size, widths, block_depth
+)
 
 model = DiffusionModel(image_size, widths, block_depth)
 model.network.summary()
