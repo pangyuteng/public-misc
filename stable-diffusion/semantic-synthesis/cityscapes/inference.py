@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from tensorflow import keras
 from ddim import (
     DiffusionModel,checkpoint_path,
