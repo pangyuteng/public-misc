@@ -1,4 +1,5 @@
 #!/bin/bash
+echo $1 $2
 
 export CODE_FOLDER=$1
 export TFDS_DATA_DIR=$2
