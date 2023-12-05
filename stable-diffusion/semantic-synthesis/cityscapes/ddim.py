@@ -27,7 +27,7 @@ network_ema_weight_file = "weights/diffusion_model/network_ema.h5"
 # data
 dataset_repetitions = 1000
 #num_epochs = 100 # train for at least 50 epochs for good results
-num_epochs = 1000  
+num_epochs = 1000
 image_size = 256
 batch_size = 16
 num_cols = 4
