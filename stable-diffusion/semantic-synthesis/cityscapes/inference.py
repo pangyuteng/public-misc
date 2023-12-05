@@ -36,7 +36,6 @@ for images,labels in val_dataset.take(1):
         labels=labels
     )
     print(generated_images.shape)
-    break
         
     plt.figure(figsize=(num_cols * 2.0, num_rows * 2.0))
     for row in range(num_rows):
@@ -54,3 +53,4 @@ for images,labels in val_dataset.take(1):
     os.makedirs('tmp',exist_ok=True)
     plt.savefig(f"{tmp_folder}/inference.png")
     plt.close()
+    break
