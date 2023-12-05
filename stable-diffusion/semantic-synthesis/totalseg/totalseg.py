@@ -19,11 +19,10 @@ import SimpleITK as sitk
 from tensorflow import keras
 from keras import layers
 
-THIS_DIR = "/mnt/hd1/aigonewrong/stable-diffusion/semantic-synthesis"
-TMP_DIR = os.path.join(THIS_DIR,'tmp')
-NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
-
 checkpoint_path = "checkpoints/diffusion_model"
+TMP_DIR = 'tmp'
+NIFTI_FILE = 'niftis.csv'
+TOTALSEG_FOLDER = os.environ.get("TOTALSEG_FOLDER")
 
 # data
 dataset_repetitions = 100000
@@ -201,6 +200,7 @@ def prepare_dataset():
         cache_file_paths()
     df = pd.read_csv(NIFTI_FILE)
     path_list = df.image_path.tolist()
+    path_list = [os.path.join(TOTALSEG_FOLDER,x) for x in path_list]
 
     norm_filenames = tf.constant(path_list[:100])
     norm_ds = tf.data.Dataset.from_tensor_slices(norm_filenames).repeat(1).shuffle(10 * batch_size).map(
