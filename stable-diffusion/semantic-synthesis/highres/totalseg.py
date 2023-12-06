@@ -8,32 +8,36 @@ https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
 import os
 import sys
 import math
-import traceback
-from pathlib import Path
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+import traceback
+from pathlib import Path
+import pandas as pd
 import SimpleITK as sitk
 
 from tensorflow import keras
 from keras import layers
 
-THIS_DIR = "/mnt/hd1/aigonewrong/stable-diffusion/semantic-synthesis/highres"
-TMP_DIR = os.path.join(THIS_DIR,'tmp')
-NIFTI_FILE = os.path.join(THIS_DIR,'niftis.csv')
 
+"""
+## Hyperparameters
+"""
+
+tmp_folder = "tmp"
+os.makedirs(tmp_folder,exist_ok=tmp_folder)
 checkpoint_path = "checkpoints/diffusion_model"
+NIFTI_CSV_FILE = 'niftis.csv'
+TOTALSEG_FOLDER = os.environ.get("TOTALSEG_FOLDER")
 
 # data
-dataset_repetitions = 100000
-num_epochs = 500  # train for at least 50 epochs for good results
-
+dataset_repetitions = 1000
+#num_epochs = 100 # train for at least 50 epochs for good results
+num_epochs = 1000
 image_size = 512
 batch_size = 4
 num_cols = 2
 num_rows = 2
-widths = [8, 16, 32, 64]
 
 # KID = Kernel Inception Distance, see related section
 kid_image_size = 75
@@ -47,6 +51,7 @@ max_signal_rate = 0.95
 # architecture
 embedding_dims = 32
 embedding_max_frequency = 1000.0
+widths = [8, 16, 32, 64]
 block_depth = 2
 
 # optimization
@@ -56,41 +61,8 @@ weight_decay = 1e-4
 
 label_count = 105
 min_val,max_val = -1000,1000
-axis = 2
-WH = 128
+AXIS = 2
 THICKNESS = 1
-TARGET_SHAPE = (WH,WH,THICKNESS)
-IMG_SIZE = (WH,WH,THICKNESS,1)
-
-def preprocess_image(data):
-    # center crop image
-    height = tf.shape(data["image_left"])[0]
-    width = tf.shape(data["image_left"])[1]
-    crop_size = tf.minimum(height, width)
-    image = tf.image.crop_to_bounding_box(
-        data["image_left"],
-        (height - crop_size) // 2,
-        (width - crop_size) // 2,
-        crop_size,
-        crop_size,
-    )
-
-    # resize and clip
-    # for image downsampling it is important to turn on antialiasing
-    image = tf.image.resize(image, size=[image_size, image_size], antialias=True)
-
-
-    label = tf.image.crop_to_bounding_box(
-        data["segmentation_label"],
-        (height - crop_size) // 2,
-        (width - crop_size) // 2,
-        crop_size,
-        crop_size,
-    )
-    label = tf.cast(label, dtype=tf.float32)
-    label = tf.image.resize(label, size=[image_size, image_size], antialias=False,method='nearest')
-
-    return tf.clip_by_value(image / 255.0, 0.0, 1.0),tf.clip_by_value(label / label_count, 0.0, 1.0)
 
 def nifti_read(folder_path):
     
@@ -108,10 +80,10 @@ def nifti_read(folder_path):
     extract_size = list(file_reader.GetSize())
     current_index = [0] * file_reader.GetDimension()
 
-    mylist = np.arange(0,image_size[axis]-THICKNESS,1)
+    mylist = np.arange(0,image_size[AXIS]-THICKNESS,1)
     idx = int(np.random.choice(mylist))
-    current_index[axis] = idx
-    extract_size[axis] = THICKNESS
+    current_index[AXIS] = idx
+    extract_size[AXIS] = THICKNESS
 
     file_reader = sitk.ImageFileReader()
     file_reader.SetFileName(image_path)
@@ -198,13 +170,14 @@ def cache_file_paths():
         
 
     df = pd.DataFrame(path_list)
-    df.to_csv(NIFTI_FILE,index=False)
+    df.to_csv(NIFTI_CSV_FILE,index=False)
 
 def prepare_dataset():
-    if not os.path.exists(NIFTI_FILE):
+    if not os.path.exists(NIFTI_CSV_FILE):
         cache_file_paths()
-    df = pd.read_csv(NIFTI_FILE)
+    df = pd.read_csv(NIFTI_CSV_FILE)
     path_list = df.image_path.tolist()
+    path_list = [os.path.join(TOTALSEG_FOLDER,x) for x in path_list]
 
     norm_filenames = tf.constant(path_list[:100])
     norm_ds = tf.data.Dataset.from_tensor_slices(norm_filenames).repeat(1).shuffle(10 * batch_size).map(
@@ -514,6 +487,9 @@ class DiffusionModel(keras.Model):
 
     def test_step(self, input_data):
         images,labels = input_data
+
+        self._images = images.numpy()
+        self._labels = labels.numpy()
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=False)
         noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
@@ -543,7 +519,6 @@ class DiffusionModel(keras.Model):
         generated_images = self.generate(
             num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
         )
-        self._labels = labels.numpy()
         self.kid.update_state(images, generated_images)
 
         return {m.name: m.result() for m in self.metrics}
@@ -562,19 +537,20 @@ class DiffusionModel(keras.Model):
             for col in range(num_cols):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
-                tmp_image = generated_images[index].numpy()
+                tmp_x = self._images[index,:]
                 tmp_label = self._labels[index,:]
-                tmp = np.concatenate([tmp_image,tmp_label],axis=1)
+                tmp_xhat = generated_images[index].numpy()
+                tmp = np.concatenate([tmp_x,tmp_label,tmp_xhat],axis=1)
                 plt.imshow(tmp,cmap='gray')
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
-        os.makedirs(TMP_DIR,exist_ok=True)
-        plt.savefig(f"{TMP_DIR}/{epoch:05d}.png")
+        os.makedirs(tmp_folder,exist_ok=True)
+        plt.savefig(f"{tmp_folder}/{epoch:05d}.png")
         plt.close()
         if epoch % 20 == 0:
-            self.network.save_weights(f'{TMP_DIR}/network_{epoch}.h5')
-            self.ema_network.save_weights(f'{TMP_DIR}/ema_network_{epoch}.h5')
+            self.network.save_weights(f'{tmp_folder}/network_{epoch}.h5')
+            self.ema_network.save_weights(f'{tmp_folder}/ema_network_{epoch}.h5')
 
 
 """
@@ -598,8 +574,8 @@ if __name__ == "__main__":
             plt.axis("off")
             if i > 7 :
                 break
-        os.makedirs(TMP_DIR,exist_ok=True)
-        plt.savefig(f"{TMP_DIR}/test.png")
+        os.makedirs(tmp_folder,exist_ok=True)
+        plt.savefig(f"{tmp_folder}/test.png")
         plt.close()
 
     model = DiffusionModel(image_size, widths, block_depth)
