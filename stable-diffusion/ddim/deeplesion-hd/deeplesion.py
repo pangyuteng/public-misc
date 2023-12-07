@@ -73,16 +73,17 @@ def parse_fn(file_path):
     image = tf.reshape(image,[image_size,image_size,3]) # so tf won't complain about unknown image size
     return image
 
+DEEPLESION_FOLDER = os.environ.get("DEEPLESION_FOLDER")
+PNG_CSV_FILE = os.path.join(os.path.dirname(DEEPLESION_FOLDER),"pngs.csv")
 def cache_png_file_paths():
-    directory = os.environ.get("DEEPLESION_FOLDER")
-    path_list = [{'png_path':str(x)} for x in Path(directory).rglob('*.png')]
+    path_list = [{'png_path':str(x)} for x in Path(DEEPLESION_FOLDER).rglob('*.png')]
     df = pd.DataFrame(path_list)
-    df.to_csv('pngs.csv',index=False)
+    df.to_csv(PNG_CSV_FILE,index=False)
 
 def prepare_dataset():
-    if not os.path.exists('pngs.csv'):
+    if not os.path.exists(PNG_CSV_FILE):
         cache_png_file_paths()
-    df = pd.read_csv('pngs.csv')
+    df = pd.read_csv(PNG_CSV_FILE)
     path_list = df.png_path.tolist()
 
     train_filenames = tf.constant(path_list[:-1000])
