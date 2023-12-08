@@ -3,4 +3,3 @@ weights
 log
 *.png
 docker_stderror
-*.hide
