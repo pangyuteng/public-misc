@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 """
 https://keras.io/examples/generative/ddim/
 https://github.com/keras-team/keras-io/blob/master/examples/generative/ddim.py
@@ -9,10 +11,14 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import tensorflow_datasets as tfds
+import traceback
+from pathlib import Path
+import pandas as pd
+import SimpleITK as sitk
 
 from tensorflow import keras
 from keras import layers
+
 
 """
 ## Hyperparameters
@@ -21,17 +27,17 @@ from keras import layers
 tmp_folder = "tmp"
 os.makedirs(tmp_folder,exist_ok=tmp_folder)
 checkpoint_path = "checkpoints/diffusion_model"
-network_weight_file = "weights/diffusion_model/network.h5"
-network_ema_weight_file = "weights/diffusion_model/network_ema.h5"
+NIFTI_CSV_FILE = 'niftis.csv'
+TOTALSEG_FOLDER = os.environ.get("TOTALSEG_FOLDER")
 
 # data
 dataset_repetitions = 1000
 #num_epochs = 100 # train for at least 50 epochs for good results
 num_epochs = 1000
-image_size = 256
-batch_size = 16
-num_cols = 4
-num_rows = 4
+image_size = 512
+batch_size = 4
+num_cols = 2
+num_rows = 2
 
 # KID = Kernel Inception Distance, see related section
 kid_image_size = 75
@@ -45,7 +51,7 @@ max_signal_rate = 0.95
 # architecture
 embedding_dims = 32
 embedding_max_frequency = 1000.0
-widths = [32, 64, 96, 128]
+widths = [8, 16, 32, 64]
 block_depth = 2
 
 # optimization
@@ -53,74 +59,147 @@ ema = 0.999
 learning_rate = 1e-3
 weight_decay = 1e-4
 
-def preprocess_image(data):
-    # center crop image
-    height = tf.shape(data["image_left"])[0]
-    width = tf.shape(data["image_left"])[1]
-    crop_size = tf.minimum(height, width)
-    image = tf.image.crop_to_bounding_box(
-        data["image_left"],
-        (height - crop_size) // 2,
-        (width - crop_size) // 2,
-        crop_size,
-        crop_size,
+label_count = 105
+min_val,max_val = -1000,1000
+AXIS = 2
+THICKNESS = 1
+
+def nifti_read(folder_path):
+    
+    folder_path = os.path.dirname(folder_path.decode('utf-8'))
+
+    image_path = os.path.join(folder_path,'ct.nii.gz')
+    mask_path = os.path.join(folder_path,'segmentations.nii.gz')
+
+    file_reader = sitk.ImageFileReader()
+    file_reader.SetFileName(image_path)
+    file_reader.ReadImageInformation()
+    image_size = file_reader.GetSize()
+
+    # attempt to augment z spacing to be within 0.4 to 5.4mm
+    extract_size = list(file_reader.GetSize())
+    current_index = [0] * file_reader.GetDimension()
+
+    mylist = np.arange(0,image_size[AXIS]-THICKNESS,1)
+    idx = int(np.random.choice(mylist))
+    current_index[AXIS] = idx
+    extract_size[AXIS] = THICKNESS
+
+    file_reader = sitk.ImageFileReader()
+    file_reader.SetFileName(image_path)
+    file_reader.SetExtractIndex(current_index)
+    file_reader.SetExtractSize(extract_size)
+    image_obj = file_reader.Execute()
+    img = sitk.GetArrayFromImage(image_obj)
+
+    file_reader = sitk.ImageFileReader()
+    file_reader.SetFileName(mask_path)
+    file_reader.SetExtractIndex(current_index)
+    file_reader.SetExtractSize(extract_size)
+    mask_obj = file_reader.Execute()
+    mask = sitk.GetArrayFromImage(mask_obj)
+
+    min_axis = int(np.argmin(img.shape))
+    img = np.swapaxes(img,min_axis,-1)
+    mask = np.swapaxes(mask,min_axis,-1)
+
+    return img.astype(np.float32), mask.astype(np.float32)
+
+
+def parse_fn(file_path):
+    image, mask = tf.numpy_function(
+        func=nifti_read, 
+        inp=[file_path],
+        Tout=[tf.float32, tf.float32],
     )
+    image = tf.cast(image, tf.float32)
+    image = tf.tile(image, [1,1,1]) # trick tf so image is of the proper type.
+    image = tf.image.resize(image, [image_size,image_size],antialias=True)
+    image = tf.reshape(image,[image_size,image_size,1]) # so tf won't complain about unknown image size
 
-    # resize and clip
-    # for image downsampling it is important to turn on antialiasing
-    image = tf.image.resize(image, size=[image_size, image_size], antialias=True)
+    mask = tf.cast(mask, tf.float32)
+    mask = tf.tile(mask, [1,1,1])
+    mask = tf.image.resize(mask, [image_size,image_size], antialias=False,method='nearest')
+    mask = tf.reshape(mask,[image_size,image_size,1]) # so tf won't complain about unknown image size
 
+    image = (image-min_val)/(max_val-min_val)
+    mask = mask / label_count
+    return tf.clip_by_value(image, 0.0, 1.0), tf.clip_by_value(mask, 0.0, 1.0)
 
-    label = tf.image.crop_to_bounding_box(
-        data["segmentation_label"],
-        (height - crop_size) // 2,
-        (width - crop_size) // 2,
-        crop_size,
-        crop_size,
+def cache_file_paths():
+    directory = '/mnt/scratch/data/Totalsegmentator_dataset'
+    path_list = []
+    for x in Path(directory).rglob('ct.nii.gz'):
+        try:
+            image_path = str(x)
+            print(image_path)
+            mask_path = os.path.join(os.path.dirname(image_path),'segmentations.nii.gz')
+            if not os.path.exists(mask_path):
+                continue
+            file_reader = sitk.ImageFileReader()
+            file_reader.SetFileName(mask_path)
+            file_reader.ReadImageInformation()
+            extract_size = list(file_reader.GetSize())
+            extract_size[2]=1
+            current_index = [0] * file_reader.GetDimension()
+            file_reader = sitk.ImageFileReader()
+            file_reader.SetFileName(mask_path)
+            file_reader.SetExtractIndex(current_index)
+            file_reader.SetExtractSize(extract_size)
+            mask_obj = file_reader.Execute()
+            print(mask_path)
+            image_path = os.path.join(os.path.dirname(image_path),'ct.nii.gz')
+            if not os.path.exists(image_path):
+                continue
+            file_reader = sitk.ImageFileReader()
+            file_reader.SetFileName(image_path)
+            file_reader.ReadImageInformation()
+            extract_size = list(file_reader.GetSize())
+            extract_size[2]=1
+            current_index = [0] * file_reader.GetDimension()
+            file_reader = sitk.ImageFileReader()
+            file_reader.SetFileName(image_path)
+            file_reader.SetExtractIndex(current_index)
+            file_reader.SetExtractSize(extract_size)
+            mask_obj = file_reader.Execute()
+            path_list.append({'image_path':image_path})
+            print(image_path)
+        except:
+            traceback.print_exc()
+            print('err')
+        
+
+    df = pd.DataFrame(path_list)
+    df.to_csv(NIFTI_CSV_FILE,index=False)
+
+def prepare_dataset():
+    if not os.path.exists(NIFTI_CSV_FILE):
+        cache_file_paths()
+    df = pd.read_csv(NIFTI_CSV_FILE)
+    path_list = df.image_path.tolist()
+    path_list = [os.path.join(TOTALSEG_FOLDER,x) for x in path_list]
+
+    norm_filenames = tf.constant(path_list[:100])
+    norm_ds = tf.data.Dataset.from_tensor_slices(norm_filenames).repeat(1).shuffle(10 * batch_size).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
-    label = tf.cast(label, dtype=tf.float32)
-    label = tf.image.resize(label, size=[image_size, image_size], antialias=False,method='nearest')
+    norm_ds = norm_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-    return tf.clip_by_value(image / 255.0, 0.0, 1.0),tf.clip_by_value(label / 33.0, 0.0, 1.0)
-
-
-dataset_name = "cityscapes"
-
-def prepare_dataset(split):
-    # the validation dataset is shuffled as well, because data order matters
-    # for the KID estimation
-    return (
-        tfds.load(dataset_name, split=split, shuffle_files=True)
-        .map(preprocess_image, num_parallel_calls=tf.data.AUTOTUNE)
-        .cache()
-        .repeat(dataset_repetitions)
-        .shuffle(10 * batch_size)
-        .batch(batch_size, drop_remainder=True)
-        .prefetch(buffer_size=tf.data.AUTOTUNE)
+    train_filenames = tf.constant(path_list[:-900])
+    train_ds = tf.data.Dataset.from_tensor_slices(train_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
     )
+    train_ds = train_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+    
+    val_filenames = tf.constant(path_list[-900:])
+    val_ds = tf.data.Dataset.from_tensor_slices(val_filenames).repeat(dataset_repetitions).shuffle(10 * batch_size).map(
+        parse_fn, num_parallel_calls=tf.data.AUTOTUNE
+    )
+    val_ds = val_ds.batch(batch_size, drop_remainder=True).prefetch(buffer_size=tf.data.AUTOTUNE)
+
+    return norm_ds, train_ds, val_ds
 
 
-# load dataset
-train_dataset = prepare_dataset("train[:80%]")
-val_dataset = prepare_dataset("validation[80%:]")
-
-plt.figure(figsize=(10, 10))
-for images,labels in val_dataset.take(1):
-    print(images.shape,labels.shape)
-    for i in range(batch_size):
-        ax = plt.subplot(3, 3, i + 1)
-        tmp_image = images[i,:].numpy()
-        tmp_label = labels[i,:].numpy()
-        tmp_label = np.repeat(tmp_label,3, axis=2)
-
-        tmp = np.concatenate([tmp_image,tmp_label],axis=1)
-        plt.imshow(tmp)
-        plt.axis("off")
-        if i > 7 :
-            break
-    os.makedirs('tmp',exist_ok=True)
-    plt.savefig(f"{tmp_folder}/test.png")
-    plt.close()
 
 """
 ## Kernel inception distance
@@ -159,6 +238,9 @@ class KID(keras.metrics.Metric):
         return (features_1 @ tf.transpose(features_2) / feature_dimensions + 1.0) ** 3.0
 
     def update_state(self, real_images, generated_images, sample_weight=None):
+        batch_size = tf.shape(real_images)[0]
+        real_images = tf.tile(real_images, [batch_size,1,1,3])
+        generated_images = tf.tile(generated_images, [batch_size,1,1,3])
         real_features = self.encoder(real_images, training=False)
         generated_features = self.encoder(generated_images, training=False)
 
@@ -251,7 +333,7 @@ def UpBlock(width, block_depth):
 
 
 def get_network(image_size, widths, block_depth):
-    noisy_images = keras.Input(shape=(image_size, image_size, 3))
+    noisy_images = keras.Input(shape=(image_size, image_size, 1))
     noise_variances = keras.Input(shape=(1, 1, 1))
     labels = keras.Input(shape=(image_size, image_size, 1))
 
@@ -272,7 +354,7 @@ def get_network(image_size, widths, block_depth):
     for width in reversed(widths[:-1]):
         x = UpBlock(width, block_depth)([x, l, skips])
 
-    x = layers.Conv2D(3, kernel_size=1, kernel_initializer="zeros")(x)
+    x = layers.Conv2D(1, kernel_size=1, kernel_initializer="zeros")(x)
 
     return keras.Model([noisy_images, noise_variances, labels], x, name="residual_unet")
 
@@ -362,7 +444,7 @@ class DiffusionModel(keras.Model):
 
     def generate(self, num_images, diffusion_steps, labels):
         # noise -> images -> denormalized images
-        initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 3))
+        initial_noise = tf.random.normal(shape=(num_images, image_size, image_size, 1))
         generated_images = self.reverse_diffusion(initial_noise, diffusion_steps, labels)
         generated_images = self.denormalize(generated_images)
         return generated_images
@@ -371,7 +453,7 @@ class DiffusionModel(keras.Model):
         images,labels = input_data
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=True)
-        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 3))
+        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
 
         # sample uniform random diffusion times
         diffusion_times = tf.random.uniform(
@@ -405,9 +487,12 @@ class DiffusionModel(keras.Model):
 
     def test_step(self, input_data):
         images,labels = input_data
+
+        self._images = images.numpy()
+        self._labels = labels.numpy()
         # normalize images to have standard deviation of 1, like the noises
         images = self.normalizer(images, training=False)
-        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 3))
+        noises = tf.random.normal(shape=(batch_size, image_size, image_size, 1))
 
         # sample uniform random diffusion times
         diffusion_times = tf.random.uniform(
@@ -416,7 +501,7 @@ class DiffusionModel(keras.Model):
         noise_rates, signal_rates = self.diffusion_schedule(diffusion_times)
         # mix the images with noises accordingly
         noisy_images = signal_rates * images + noise_rates * noises
-
+        
         # use the network to separate noisy images to their components
         pred_noises, pred_images = self.denoise(
             noisy_images, noise_rates, signal_rates, labels, training=False
@@ -434,15 +519,13 @@ class DiffusionModel(keras.Model):
         generated_images = self.generate(
             num_images=batch_size, diffusion_steps=kid_diffusion_steps,labels=labels
         )
-        self._labels = labels.numpy()
         self.kid.update_state(images, generated_images)
 
         return {m.name: m.result() for m in self.metrics}
 
     def plot_images(self, epoch=None, logs=None, num_rows=num_rows, num_cols=num_cols):
-
         # plot random generated images for visual evaluation of generation quality
-
+        
         generated_images = self.generate(
             num_images=num_rows * num_cols,
             diffusion_steps=plot_diffusion_steps,
@@ -454,27 +537,46 @@ class DiffusionModel(keras.Model):
             for col in range(num_cols):
                 index = row * num_cols + col
                 plt.subplot(num_rows, num_cols, index + 1)
-                tmp_image = generated_images[index].numpy()
+                tmp_x = self._images[index,:]
                 tmp_label = self._labels[index,:]
-                tmp_label = np.repeat(tmp_label,3, axis=2)
-                tmp = np.concatenate([tmp_image,tmp_label],axis=1)
-                plt.imshow(tmp)
+                tmp_xhat = generated_images[index].numpy()
+                tmp = np.concatenate([tmp_x,tmp_label,tmp_xhat],axis=1)
+                plt.imshow(tmp,cmap='gray')
                 plt.axis("off")
         plt.tight_layout()
         plt.show()
-        os.makedirs('tmp',exist_ok=True)
+        os.makedirs(tmp_folder,exist_ok=True)
         plt.savefig(f"{tmp_folder}/{epoch:05d}.png")
         plt.close()
-
-        os.makedirs(os.path.dirname(network_weight_file),exist_ok=True)
-        self.network.save_weights(network_weight_file)
-        self.ema_network.save_weights(network_ema_weight_file)
+        if epoch % 20 == 0:
+            self.network.save_weights(f'{tmp_folder}/network_{epoch}.h5')
+            self.ema_network.save_weights(f'{tmp_folder}/ema_network_{epoch}.h5')
 
 
 """
 ## Training
 """
+
 if __name__ == "__main__":
+
+
+    norm_dataset, train_dataset , val_dataset = prepare_dataset()
+
+    plt.figure(figsize=(10, 10))
+    for images,labels in val_dataset.take(1):
+        print(images.shape,labels.shape)
+        for i in range(batch_size):
+            ax = plt.subplot(3, 3, i + 1)
+            tmp_image = images[i,:].numpy()
+            tmp_label = labels[i,:].numpy()
+            tmp = np.concatenate([tmp_image,tmp_label],axis=1)
+            plt.imshow(tmp,cmap='gray')
+            plt.axis("off")
+            if i > 7 :
+                break
+        os.makedirs(tmp_folder,exist_ok=True)
+        plt.savefig(f"{tmp_folder}/test.png")
+        plt.close()
 
     model = DiffusionModel(image_size, widths, block_depth)
     model.network.summary()
@@ -498,7 +600,10 @@ if __name__ == "__main__":
     )
 
     # calculate mean and variance of training dataset for normalization
-    model.normalizer.adapt(train_dataset.map(lambda images, labels: images))
+    model.normalizer.adapt(norm_dataset.map(lambda images, labels: images))
+
+    if os.path.exists(checkpoint_path):
+        model.load_weights(checkpoint_path)
 
     # run training and plot generated images periodically
     model.fit(
