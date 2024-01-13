@@ -61,47 +61,6 @@ def spy():
     )
 
 
-"""
-
-    last_date = df.index[-1].strftime('%Y-%m-%d')
-    start_date = df.index[lookback].strftime('%Y-%m-%d')
-    mid_idx = df.index[len(df.index)//2]
-    plt.subplot(313)
-    for x in sector_list:
-        a = df[x+"_ret"].rolling(roll).corr(df['SPY_ret'])
-        a[lookback:].plot(label=x,alpha=0.7,linewidth=2,linestyle='-')
-    plt.legend(loc = "upper left")
-    plt.ylabel('corr_coef')
-    plt.text(mid_idx,0,'@aigonewrong')
-    plt.title(f'sector rolling correlation ({roll} days) to SPY')
-    plt.grid(True)
-
-    plt.subplot(611)
-    df['SPY'][lookback:].plot()
-    plt.ylabel('price')
-    plt.title(f'SPY - past {np.abs(lookback)} days, from {start_date} to {last_date}')
-    plt.grid(True)
-    plt.subplot(612)
-    df['^VIX'][lookback:].plot()
-    plt.axhline(30,color='r',linestyle='--')
-    plt.ylabel('volatility')
-    plt.title(f'VIX')
-    plt.grid(True)
-    plt.subplot(613)
-    (df['^TNX']-df['^IRX'])[lookback:].plot()
-    plt.axhline(0,color='r',linestyle='-')
-    plt.ylabel('T10Y3M(^TNX-^IRX)')
-    plt.title('10Year-3 Month Treasury Yield Spread')
-    plt.grid(True)
-    plt.subplot(614)
-    df['M2SL'][lookback:].plot()
-    plt.ylabel('M2SL')
-    plt.title('M2SL')
-    plt.grid(True)
-    plt.savefig(file_path)
-
-"""
-
 #@app.route('/finance/us-market-overview')
 @app.route('/')
 def us_market_overview():
@@ -152,15 +111,14 @@ def us_market_overview():
             mode='lines', name='^TNX-^IRX',
             opacity=0.8, marker_color='red')
 
-        cols = []
+        corr_to_spy_list = []
         for x in sector_list:
-            cols.append(f'{x}_corr')
-
-        corr_to_spy = go.Scatter(
-            x=df['Date'][lookback:],
-            y=df[cols][lookback:],
-            mode='lines', name=f'corr-to-spy',
-            opacity=0.8)
+            item = go.Scatter(
+                x=df['Date'][lookback:],
+                y=df[f'{x}_corr'][lookback:],
+                mode='lines', name=f'corr({x},SPY)',
+                opacity=0.8)
+            corr_to_spy_list.append(item)
 
         fig = make_subplots(
             rows=6, cols=1, shared_xaxes=True, 
@@ -177,17 +135,18 @@ def us_market_overview():
 
         fig.add_trace(yield_diff,row=5, col=1)
 
-        fig.add_trace(corr_to_spy,row=6, col=1)
+        for x in corr_to_spy_list:
+            fig.add_trace(x,row=6, col=1)
 
         fig.update_layout(height=600, width=1000,
                     title_text="market overview")
 
-        #fig['layout']['yaxis1'].update(domain=[0, 0.5])
-        #fig['layout']['yaxis2'].update(domain=[0.26, 0.5])
-        #fig['layout']['yaxis3'].update(domain=[0.6, 0.75])
-        #fig['layout']['yaxis4'].update(domain=[0.76, 1])
-        #fig['layout']['yaxis5'].update(domain=[0.76, 1])
-        #fig['layout']['yaxis6'].update(domain=[0.76, 1])
+        fig['layout']['yaxis1'].update(domain=[0, 0.5])
+        fig['layout']['yaxis2'].update(domain=[0.5, 0.6])
+        fig['layout']['yaxis3'].update(domain=[0.6, 0.7])
+        fig['layout']['yaxis4'].update(domain=[0.7, .8])
+        fig['layout']['yaxis5'].update(domain=[0.8,.95])
+        fig['layout']['yaxis6'].update(domain=[0.95, 1])
         fig.update_layout(template='plotly_dark')
 
         plot_div = plot(fig,output_type='div',include_plotlyjs=False)
