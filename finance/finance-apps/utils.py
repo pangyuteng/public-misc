@@ -10,7 +10,7 @@ import datetime
 yf.set_tz_cache_location("/tmp/cache/location")
 
 sector_list = ['XLE','XLF','XLU','XLI','XLK','XLV','XLY','XLP','XLB']
-ticker_list = ['BTC-USD','SPY','^VIX','^TNX','^IRX']
+ticker_list = ['BTC-USD','SPY','QQQ','^VIX','^TNX','^IRX']
 m2sl_url = 'https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23e1e9f0&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1168&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=M2SL&scale=left&cosd=1959-01-01&coed=2022-09-01&line_color=%234572a7&link_values=false&line_style=solid&mark_type=none&mw=3&lw=2&ost=-99999&oet=99999&mma=0&fml=a&fq=Monthly&fam=avg&fgst=lin&fgsnd=2020-02-01&line_index=1&transformation=lin&vintage_date=2022-10-31&revision_date=2022-10-31&nd=1959-01-01'
 
 def get_data(lookback=-2000,roll=200):

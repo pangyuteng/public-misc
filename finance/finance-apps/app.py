@@ -99,6 +99,12 @@ def us_market_overview():
             mode='lines', name='SPY',
             opacity=0.8, marker_color='blue')
 
+        qqq = go.Scatter(
+            x=df['Date'][lookback:],
+            y=df['QQQ'][lookback:],
+            mode='lines', name='QQQ',
+            opacity=0.8, marker_color='cyan')
+
         vix = go.Scatter(
             x=df['Date'][lookback:],
             y=df['^VIX'][lookback:],
@@ -130,6 +136,7 @@ def us_market_overview():
         fig.add_trace(m2,row=2, col=1)
 
         fig.add_trace(spy,row=3, col=1)
+        fig.add_trace(qqq,row=3, col=1)
 
         fig.add_trace(vix,row=4, col=1)
 
