@@ -138,15 +138,14 @@ def us_market_overview():
         for x in corr_to_spy_list:
             fig.add_trace(x,row=6, col=1)
 
-        fig.update_layout(height=600, width=1000,
-                    title_text="market overview")
+        fig.update_layout(height=960, width=1200,title_text="")
 
-        fig['layout']['yaxis1'].update(domain=[0, 0.5])
-        fig['layout']['yaxis2'].update(domain=[0.5, 0.6])
-        fig['layout']['yaxis3'].update(domain=[0.6, 0.7])
-        fig['layout']['yaxis4'].update(domain=[0.7, .8])
-        fig['layout']['yaxis5'].update(domain=[0.8,.95])
-        fig['layout']['yaxis6'].update(domain=[0.95, 1])
+        fig['layout']['yaxis1'].update(domain=[0.7, 1.0])
+        fig['layout']['yaxis2'].update(domain=[0.6, 0.7])
+        fig['layout']['yaxis3'].update(domain=[0.5, 0.6])
+        fig['layout']['yaxis4'].update(domain=[0.4, 0.5])
+        fig['layout']['yaxis5'].update(domain=[0.3, 0.4])
+        fig['layout']['yaxis6'].update(domain=[0.0, 0.3])
         fig.update_layout(template='plotly_dark')
 
         plot_div = plot(fig,output_type='div',include_plotlyjs=False)
