@@ -144,7 +144,9 @@ def overview_div():
         for x in corr_to_spy_list:
             fig.add_trace(x,row=6, col=1)
 
-        fig.update_layout(height=960, width=1200,title_text="")
+        # NOTE: leave out height and width, let browser dictate figure size.
+        kwargs = dict(height=960, width=1200, title_text="")
+        fig.update_layout()
 
         fig['layout']['yaxis1'].update(domain=[0.7, 1.0])
         fig['layout']['yaxis2'].update(domain=[0.6, 0.7])
