@@ -7,7 +7,7 @@ from plotly.offline import plot
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify,url_for
 
 from utils import get_data, sector_list
 
@@ -60,15 +60,14 @@ def spy():
         vix_plot_div=vix_plot_div,
     )
 
-
-#@app.route('/finance/us-market-overview')
-@app.route('/')
-def us_market_overview():
+@app.route('/finance/overview_div')
+def overview_div():
     try:
-        lookback = int(request.args.get("lookback",0))
+
+        roll = int(request.args.get("roll"))
+        lookback = int(request.args.get("lookback"))
         if lookback > 0:
             lookback = -1*lookback
-        roll = int(request.args.get("roll",200))
 
         tstamp =  datetime.datetime.now().strftime("%Y-%m-%d")
         cache_csv = f'{tstamp}-lookback{lookback}-roll{roll}.csv'
@@ -156,11 +155,22 @@ def us_market_overview():
         fig.update_layout(template='plotly_dark')
 
         plot_div = plot(fig,output_type='div',include_plotlyjs=False)
-        
-        return render_template(
-            "main.html",
-            plot_div=plot_div,
-            last_updated_tstamp=tstamp,
+
+        return render_template("overview_div.html",plot_div=plot_div,last_updated_tstamp=tstamp)
+
+    except:
+        traceback.print_exc()
+        return jsonify({"message":traceback.format_exc()})
+
+@app.route('/finance/overview')
+def overview():
+    try:
+        lookback = int(request.args.get("lookback",0))
+        roll = int(request.args.get("roll",200))
+
+        overview_div_url = url_for("overview_div",lookback=lookback,roll=roll)
+        return render_template("main.html",
+            overview_div_url=overview_div_url,
         )
     except:
         traceback.print_exc()
