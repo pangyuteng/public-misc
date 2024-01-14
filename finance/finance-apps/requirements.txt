@@ -1,9 +1,5 @@
 flask>=2.2.2
-dash>=2.14.2
+plotly>=5.18.0
 zappa>=0.55.0
-matplotlib>=3.6.1
 yfinance>=0.1.84
-tweepy==4.12.0
-pyyaml==6.0
 pandas==1.5.1
-imageio==2.22.2
