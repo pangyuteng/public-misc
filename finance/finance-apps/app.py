@@ -11,6 +11,21 @@ from flask import Flask, render_template, request, jsonify,url_for
 
 from utils import get_data, sector_list
 
+
+import s3fs
+from s3fs.core import S3FileSystem
+fs = S3FileSystem()
+
+BUCKET_NAME = os.environ.get("BUCKET_NAME")
+
+def df_s3_dump(df,s3_path):
+    s3 = s3fs.S3FileSystem()
+    with s3.open(s3_path,'w') as f:
+        df.to_csv(f)
+
+def df_s3_load(s3_path):
+    return pd.read_csv(s3_path)
+
 app = Flask(__name__,
     static_url_path='', 
     static_folder='static',
@@ -32,11 +47,18 @@ def overview_div():
 
         tstamp =  datetime.datetime.now().strftime("%Y-%m-%d")
         cache_csv = f'{tstamp}-lookback{lookback}-roll{roll}.csv'
-        if not os.path.exists(cache_csv):
-            df = get_data(lookback=lookback,roll=roll)
-            df.to_csv(cache_csv,index=True)
+        s3_path = os.path.join("s3://",BUCKET_NAME,cache_csv)
+        print(s3_path)
 
-        df = pd.read_csv(cache_csv)
+        if not fs.exists(s3_path):
+            df = get_data(lookback=lookback,roll=roll)
+            if len(df) < 10:
+                raise LookupError("len(df)<10 !")
+            df.to_csv(s3_path,index=True)
+
+        df = pd.read_csv(s3_path)
+
+
 
         last_date = df.Date.tolist()[-1]
         start_date = df.Date.tolist()[-1]
