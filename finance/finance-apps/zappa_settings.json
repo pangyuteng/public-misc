@@ -5,6 +5,7 @@
         "profile_name": "default",
         "project_name": "finance-apps",
         "runtime": "python3.8",
-        "s3_bucket": "zappa-aigonewrong-finance-8d163c2b"
+        "s3_bucket": "zappa-aigonewrong-finance-8d163c2b",
+        "slim_handler": true
     }
 }
