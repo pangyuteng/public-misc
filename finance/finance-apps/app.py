@@ -21,45 +21,6 @@ app = Flask(__name__,
 def ping():
     return jsonify(success=True)
 
-@app.route('/finance/spy')
-def spy():
-    
-    tstamp =  datetime.datetime.now().strftime("%Y-%m-%d")
-    cache_csv = f'{tstamp}.csv'
-
-    lookback = -2000
-    roll = 200
-    if not os.path.exists(cache_csv):
-        df = get_data(lookback=lookback,roll=roll)
-        df.to_csv(cache_csv,index=True)
-
-    df = pd.read_csv(cache_csv)
-
-    last_date = df.Date.tolist()[-1]
-    start_date = df.Date.tolist()[-1]
-
-    spy_plot_div = plot([
-        go.Scatter(
-            x=df['Date'][lookback:],
-            y=df['SPY'][lookback:],
-            mode='lines', name='SPY',
-            opacity=0.8, marker_color='blue')
-        ],output_type='div',include_plotlyjs=False)
-
-    vix_plot_div = plot([
-        go.Scatter(
-            x=df['Date'][lookback:],
-            y=df['^VIX'][lookback:],
-            mode='lines', name='^VIX',
-            opacity=0.8, marker_color='blue')
-        ],output_type='div',include_plotlyjs=False)
-
-    return render_template(
-        "spy.html",
-        spy_plot_div=spy_plot_div,
-        vix_plot_div=vix_plot_div,
-    )
-
 @app.route('/finance/overview_div')
 def overview_div():
     try:
