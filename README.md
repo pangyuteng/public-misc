@@ -1,9 +1,1 @@
 
-
-
-```
-
-aigonewrong.com
-
-```
-
