@@ -4,3 +4,4 @@ zappa>=0.55.0
 yfinance>=0.1.84
 pandas>=1.5.1
 boto3>=1.33.13
+awswrangler>=3.5.1
