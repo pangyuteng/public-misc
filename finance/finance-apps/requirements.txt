@@ -3,5 +3,4 @@ plotly>=5.18.0
 zappa>=0.55.0
 yfinance>=0.1.84
 pandas>=1.5.1
-s3fs==2023.12.2
-boto3==1.33.13
+boto3>=1.33.13
