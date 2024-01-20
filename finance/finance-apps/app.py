@@ -1,6 +1,7 @@
 import os
 import traceback
 import datetime
+import awswrangler as wr
 import pandas as pd
 
 from plotly.offline import plot
@@ -11,10 +12,6 @@ from flask import Flask, render_template, request, jsonify,url_for
 
 from utils import get_data, sector_list
 
-
-import s3fs
-from s3fs.core import S3FileSystem
-fs = S3FileSystem()
 
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
@@ -48,18 +45,21 @@ def overview_div():
         tstamp =  datetime.datetime.now().strftime("%Y-%m-%d")
         cache_csv = f'{tstamp}-lookback{lookback}-roll{roll}.csv'
         s3_path = os.path.join("s3://",BUCKET_NAME,cache_csv)
-        print(s3_path)
 
-        if not fs.exists(s3_path):
-            df = get_data(lookback=lookback,roll=roll)
-            if len(df) < 10:
-                raise LookupError("len(df)<10 !")
-            df.to_csv(s3_path,index=True)
+        try:
+            df = wr.s3.read_csv(s3_path)
+        except:
+            app.logger.info(traceback.format_exc())
+            try:
+                df = get_data(lookback=lookback,roll=roll)
+                if len(df) < 10:
+                    raise LookupError("len(df)<10 !")
+                wr.s3.to_csv(df,path=s3_path)
+            except:
+                app.logger.error(traceback.format_exc())
+                raise ValueError(traceback.format_exc())
 
-        df = pd.read_csv(s3_path)
-
-
-
+        df = wr.s3.read_csv(s3_path)
         last_date = df.Date.tolist()[-1]
         start_date = df.Date.tolist()[-1]
 
