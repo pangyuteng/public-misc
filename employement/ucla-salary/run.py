@@ -14,9 +14,10 @@ def str2float(x):
 fname = 'uc-salary.parquet.gzip'
 if not os.path.exists(fname):
     df_list = []
-    csv_file_list = [str(x) for x in Path(".").rglob("*.csv")]
+    csv_file_list = sorted([str(x) for x in Path(".").rglob("*.csv")])
     for csv_file in csv_file_list:
         item = pd.read_csv(csv_file)
+        print(item.Year.unique())
         df_list.append(item)
     df = pd.concat(df_list)
     columns = ["Base Pay","Overtime Pay","Other Pay","Benefits","Total Pay","Pension Debt","Total Pay & Benefits"]
@@ -55,6 +56,8 @@ for salary_level,range_min_max in salary_range.items():
         df.loc[df.JobTitle==x,"StartingSalaryLevel"]=salary_level
         
     print(salary_level,jobdf.TotalPay.median(),len(jobdf))
+
+print(df.Year.unique())
 
 sns.set(rc={'figure.figsize':(20,20)})
 sns.relplot(
