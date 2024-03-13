@@ -42,7 +42,6 @@ if not os.path.exists(fname):
 
     df.Year = df.Year.apply(lambda x: int(x))
 
-    # job title update ??
     df = df[df.Year>=starting_year]
 
     df["TotalPay"] = df["Total Pay & Benefits"].apply(lambda x: int(x))

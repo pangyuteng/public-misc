@@ -12,8 +12,8 @@ def str2float(x):
     except:
         return np.nan
 
-rawfname = f'raw-uc-salary.parquet.gzip'
-fname = f'processed-uc-salary.parquet.gzip'
+rawfname = 'raw-uc-salary.parquet.gzip'
+fname = 'processed-uc-salary.parquet.gzip'
 if not os.path.exists(rawfname):
     df_list = []
     csv_file_list = sorted([str(x) for x in Path(".").rglob("*.csv")])
@@ -36,13 +36,11 @@ if not os.path.exists(fname):
     df.to_parquet(fname,compression='gzip')
 
 df = pd.read_parquet(fname)
-
-sns.set(rc={'figure.figsize':(40,40)})
-sns.relplot(
-    data=df,
-    x="Year",
-    y="TotalPay",
-    kind='line',
-    facet_kws={"legend_out": True}
-)
-plt.savefig(f'time-salary.png')
+df['optin']=False
+optinlist = []
+for employee_name in df['Employee Name'].unique():
+    tmp = df[df['Employee Name']==employee_name]
+    if len(tmp) > 5 and 2022 in tmp.Year:
+        optinlist.append(employee_name)
+print(len(optinlist))
+    
