@@ -13,7 +13,6 @@ def str2float(x):
         return np.nan
 
 rawfname = 'raw-uc-salary.parquet.gzip'
-fname = 'processed-uc-salary.parquet.gzip'
 if not os.path.exists(rawfname):
     df_list = []
     csv_file_list = sorted([str(x) for x in Path(".").rglob("*.csv")])
@@ -34,13 +33,3 @@ if not os.path.exists(fname):
     df.Year = df.Year.apply(lambda x: int(x))
     df["TotalPay"] = df["Total Pay & Benefits"].apply(lambda x: int(x))
     df.to_parquet(fname,compression='gzip')
-
-df = pd.read_parquet(fname)
-df['optin']=False
-optinlist = []
-for employee_name in df['Employee Name'].unique():
-    tmp = df[df['Employee Name']==employee_name]
-    if len(tmp) > 5 and 2022 in tmp.Year:
-        optinlist.append(employee_name)
-print(len(optinlist))
-    
