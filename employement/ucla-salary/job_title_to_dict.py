@@ -110,7 +110,7 @@ if not os.path.exists(word2vec_file):
 
     with open(word2vec_file,'w') as f:
         f.write(json.dumps(mydict,indent=True,default=str,sort_keys=True))
-    sys.exit(1)
+
 with open(word2vec_file,'r') as f:
     word2vec = json.loads(f.read())
 
