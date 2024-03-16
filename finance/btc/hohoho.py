@@ -10,8 +10,6 @@ data = yf.download("btc-usd mstr aapl qqq tsla nvda smci",
 df = data['Adj Close']
 df = df.dropna()
 for x in df.columns:
-    if x == 'Date':
-        continue
     tmp = df[x]/df['BTC-USD']
     tmp /= tmp[0]
     plt.plot(df.index,tmp,label=x)
