@@ -15,7 +15,14 @@ if not os.path.exists(job_txt_file):
             f.write(f'{x}\n')
 
 with open(job_txt_file,'r') as f:
-    job_list = f.read().split('\n')
+    job_list = [x for x in f.read().split('\n') if len(x)>0]
+
+# https://www.tensorflow.org/text/tutorials/word2vec
+# Now, create a custom standardization function to lowercase the text and
+# remove punctuation.
+
+
+# Define the vocabulary size and the number of words in a sequence.
 
 tmp_list = []
 for x in job_list:
@@ -25,17 +32,6 @@ print(f'vocab_size {vocab_size}')
 
 sequence_length = max([len(x.split(' ')) for x in job_list])
 print(f'max_vec_len {sequence_length}')
-print(f'so many job titles, len: {len(job_list)}')
-
-
-# https://www.tensorflow.org/text/tutorials/word2vec
-# Now, create a custom standardization function to lowercase the text and
-# remove punctuation.
-
-
-# Define the vocabulary size and the number of words in a sequence.
-print('vocab_size',vocab_size)
-print('sequence_length',sequence_length)
 
 import io
 import re
@@ -44,6 +40,9 @@ import tqdm
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
+
+SEED = 42
+AUTOTUNE = tf.data.AUTOTUNE
 
 def custom_standardization(input_data):
   lowercase = tf.strings.lower(input_data)
@@ -64,11 +63,22 @@ text_ds = tf.data.TextLineDataset(job_txt_file).filter(lambda x: tf.cast(tf.stri
 vectorize_layer.adapt(text_ds.batch(1024))
 
 inverse_vocab = vectorize_layer.get_vocabulary()
+
+print(len(inverse_vocab))
 print(inverse_vocab[:20])
 
 
+text_vector_ds = text_ds.batch(1024).prefetch(AUTOTUNE).map(vectorize_layer).unbatch()
+sequences = list(text_vector_ds.as_numpy_iterator())
+print(len(sequences))
 
-# 
+print(sequences[0])
+print(sequences[-1])
+
+print(f'so many job titles, len: {len(job_list)}')
+print('vocab_size',vocab_size)
+print('sequence_length',sequence_length)
+
 
 # use knn to classify job to 32 categories ??
 # word2vec
