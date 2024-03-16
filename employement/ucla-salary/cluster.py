@@ -118,7 +118,8 @@ if not os.path.exists(word2vec_file):
         f.write(json.dumps(mydict,indent=True,default=str,sort_keys=True))
 
 model_file = "model.pkl"
-if not os.path.exists(model_file):
+jobcat_file = "job-cat.json"
+if not os.path.exists(model_file) or not os.path.exists(jobcat_file):
     with open(word2vec_file,'r') as f:
         word2vec = json.loads(f.read())
 
@@ -143,7 +144,7 @@ if not os.path.exists(model_file):
             job_cat_dict[category]=[]
         job_cat_dict[category].append(title)
 
-    with open('job-cat.json','w') as f:
+    with open(jobcat_file,'w') as f:
         f.write(json.dumps(job_cat_dict,indent=True,default=str))
 
 # use knn to classify job to 32 categories ??
