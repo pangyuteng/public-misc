@@ -1,3 +1,6 @@
+### btc shit
+
+[<img src="./hohoho.png" width="300px">]
 
 
 + clone repo and launch jupyter lab via docker-compose.
