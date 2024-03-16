@@ -13,6 +13,7 @@ def str2float(x):
         return np.nan
 
 rawfname = 'raw-uc-salary.parquet.gzip'
+fname = 'processed-uc-salary.parquet.gzip'
 if not os.path.exists(rawfname):
     df_list = []
     csv_file_list = sorted([str(x) for x in Path(".").rglob("*.csv")])
@@ -33,3 +34,7 @@ if not os.path.exists(fname):
     df.Year = df.Year.apply(lambda x: int(x))
     df["TotalPay"] = df["Total Pay & Benefits"].apply(lambda x: int(x))
     df.to_parquet(fname,compression='gzip')
+
+"""
+python merge_csvs.py
+"""

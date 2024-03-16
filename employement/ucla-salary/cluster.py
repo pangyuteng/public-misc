@@ -9,24 +9,26 @@ word2vec_file = 'word2vec.json'
 
 def adjust_weights(title):
     title = title.lower()
-    manager_code = " aaaa AAAA KKKK ZZZZ aaaa aaaa"
-    prof_code = " bbbb bbbb bbbb YYYY XXXX YYYY"
+    manager_code = "aaaa AAAA KKKK ZZZZ aaaa aaaa "
+    prof_code = "bbbb bbbb bbbb YYYY XXXX YYYY "
     if '-exec ' in title:
-        title+= manager_code
-    if 'mgr ' in title:
-        title+= manager_code
-    if 'supv ' in title:
-        title+= manager_code
-    if 'supvr ' in title:
-        title+= manager_code
-    if 'prof- ' in title:
-        title+= prof_code
-    if 'professor' in title:
-        title+= prof_code
-    if ' coach' in title:
-        title+= prof_code
-    if 'dean' in title:
-        title+= prof_code
+        title = manager_code+title
+    elif 'mgr ' in title:
+        title = manager_code+title
+    elif 'supv' in title:
+        title = manager_code+title
+    elif 'supvr' in title:
+        title = manager_code+title
+    elif 'prof-' in title:
+        title = prof_code+title
+    elif 'professor' in title:
+        title = prof_code+title
+    elif 'coach' in title:
+        title = prof_code+title
+    elif 'dean' in title:
+        title = prof_code+title
+    else:
+        pass
     return title
 
 
@@ -143,6 +145,7 @@ docker run -it -u $(id -u):$(id -g) -v /mnt:/mnt -w $PWD \
     pangyuteng/ml:latest bash
 
 rm *.json *.txt
-python job_title_to_dict.py > ok.txt
+python merge_csvs.py
+python classify.py
 
 """
