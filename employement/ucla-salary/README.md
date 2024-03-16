@@ -10,6 +10,6 @@ https://transparentcalifornia.com
 
 python merge_csvs.py
 python cluster.py
-python gen_plots.py
+python plot_salary_progression.py
 
 ```

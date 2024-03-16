@@ -17,9 +17,9 @@ associate prof in res-hcomp
 vice chan (functional area)
 bbbb bbbb bbbb YYYY XXXX YYYY dean (school/college)-exec
 sr. vice pres--designate
-athletics manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa athletics manager 4
 assoc dir (functl area)-exec
-manager (functional area)
+aaaa AAAA KKKK ZZZZ aaaa aaaa manager (functional area)
 bbbb bbbb bbbb YYYY XXXX YYYY associate dean
 bbbb bbbb bbbb YYYY XXXX YYYY associate professor-hcomp
 bbbb bbbb bbbb YYYY XXXX YYYY dean (functl area)-exec
@@ -120,7 +120,7 @@ bbbb bbbb bbbb YYYY XXXX YYYY professor of clinical_____-fy
 miscellaneous
 aaaa AAAA KKKK ZZZZ aaaa aaaa physician asst, senior-supvr
 asst dir (functional area)
-performing arts manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa performing arts manager 3
 bbbb bbbb bbbb YYYY XXXX YYYY assistant professor-sft-vm
 v. pres-agri and nat res.
 research____ - academic year
@@ -133,9 +133,9 @@ hs clin prof recalled-fy
 pharmacist, staff ii
 nurse, administrative, i
 bbbb bbbb bbbb YYYY XXXX YYYY professor-sft-vm
-external relations manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa external relations manager 3
 bbbb bbbb bbbb YYYY XXXX YYYY assistant professor-acad yr
-hr manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa hr manager 3
 aaaa AAAA KKKK ZZZZ aaaa aaaa perfusionist, prin-supvr
 perfusionist, sr
 bbbb bbbb bbbb YYYY XXXX YYYY vst professor-law school scale
@@ -143,7 +143,7 @@ associate dentist
 ex asst/sp asst/asst(flt area)
 chrprsn-sen asmbly & acad cncl
 nurse coordinator
-academic program manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa academic program manager 2
 chf, pharmaceutical services
 nurse practitioner iii
 bbbb bbbb bbbb YYYY XXXX YYYY asst dean (functional area)
@@ -154,10 +154,10 @@ nurse, anesthetist, sr
 administrative nurse v
 ___ recall
 managing counsel
-financial analysis manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial analysis manager 4
 anesthetist, nurse, prin
 bbbb bbbb bbbb YYYY XXXX YYYY adjunct professor-academic yr
-physician manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa physician manager 3
 deputy to the senior vp
 senior counsel
 asst chanc (funct area) - map
@@ -169,31 +169,31 @@ supervisor of phys ed-acad yr
 bbbb bbbb bbbb YYYY XXXX YYYY associate professor--sft-vm
 chief of police
 res phys/subspe iv-viii/nonrep
-information systems manager 3
-accounting manager 3
-curatorial manager 3
-athletics manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa information systems manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa accounting manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa curatorial manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa athletics manager 2
 faculty asst tt chancellor
 specialist (functional area)
 nurse, administrative ii
-fundraising manager 3
-fundraising manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa fundraising manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa fundraising manager 4
 academic coord iii-academic yr
 aaaa AAAA KKKK ZZZZ aaaa aaaa technologist, u/s, prin-supvr
 coordinator, transplant iii
-administrative manager 3
-athletics manager 3
-administrative manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa administrative manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa athletics manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa administrative manager 4
 techno, rad, lead prin
-executive advisor manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa executive advisor manager 3
 technologist,radiologic,prin
 unclassified
 bbbb bbbb bbbb YYYY XXXX YYYY visiting professor-academic yr
-academic hr manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa academic hr manager 3
 clinical nurse v
 bbbb bbbb bbbb YYYY XXXX YYYY professor in residence-acad yr
 bbbb bbbb bbbb YYYY XXXX YYYY hs assoc clin professor-fy
-fundraising manager 5
+aaaa AAAA KKKK ZZZZ aaaa aaaa fundraising manager 5
 director of eap study center
 bbbb bbbb bbbb YYYY XXXX YYYY acting professor-hcomp
 advancement officer v
@@ -204,20 +204,20 @@ oth post-md train ii-viii/nonr
 bbbb bbbb bbbb YYYY XXXX YYYY hs clinical professor-acad yr
 bbbb bbbb bbbb YYYY XXXX YYYY professor recalled-acad yr-1/9
 administrative nurse iv
-aerospace manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa aerospace manager 3
 pr administrative analyst ii
 nurse, per diem
 res ---- - recalled
 pharmacist specialist
 vst res ---- - fiscal year
 law librarian
-executive advisor manager 2
-information systems manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa executive advisor manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa information systems manager 4
 nurse practitioner ii
 aaaa AAAA KKKK ZZZZ aaaa aaaa pharmacist, sr-supvr
 physician 5
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse, clinical iv-supvr
-computing resource manager iii
+aaaa AAAA KKKK ZZZZ aaaa aaaa computing resource manager iii
 aso---in the aes-academic year
 nurse, anesthetist, prin
 prog/analyst v-supervisor
@@ -231,7 +231,7 @@ academic program mgt officer 4
 principal scientist
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse, administrative i-supvr
 physicist, hospital radiation
-facilities project manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa facilities project manager 4
 programmer/analyst iv
 nurse, administrative iii
 pharmacist supervisor
@@ -250,47 +250,47 @@ executive advisor 5
 coordinator, transplant ii
 nurse, administrative ii - sup
 bbbb bbbb bbbb YYYY XXXX YYYY act prof-acad yr-bus/econ/eng
-hr manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa hr manager 4
 scientist
 bbbb bbbb bbbb YYYY XXXX YYYY dean (functional area)
 scientist,clin lab,supervising
 stipend-other post-md trainee
 physician, examining
-r&d engineering manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa r&d engineering manager 2
 biomedical equipment tech ii
 physician asst
-computing resource manager ii
+aaaa AAAA KKKK ZZZZ aaaa aaaa computing resource manager ii
 bbbb bbbb bbbb YYYY XXXX YYYY asst adj prof-ay-bus/econ/eng
 specialist in coop ext
 assoc prof in res-fy-medcomp
 bbbb bbbb bbbb YYYY XXXX YYYY acting assoc professor-hcomp
 academic program mgt officer 5
 academic coord ii - fiscal yr
-administrative manager 2
-financial analysis manager 3
-research compliance manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa administrative manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial analysis manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa research compliance manager 3
 technology transfer officer iv
 fundraiser v
 home health nurse ii
 therapist, respiratory, ii
 aaaa AAAA KKKK ZZZZ aaaa aaaa health care admin mgr 3
 programmer v
-benefits manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa benefits manager 1
 academic coord i - fiscal yr
 pharmacist, sr
-it security manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa it security manager 2
 coordinator, transplant i
 athletics professional 2
 chief dosimetrist
 associate director
-pharmacist, sr - manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa pharmacist, sr - manager
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse practitioner iii-supvr
 aaaa AAAA KKKK ZZZZ aaaa aaaa student life & devt mgr 4
 technologist, radiologic, sr
 ac asst tt chancellor
 bbbb bbbb bbbb YYYY XXXX YYYY acting professor - fiscal yr
-information systems manager 2
-student services manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa information systems manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa student services manager 4
 bbbb bbbb bbbb YYYY XXXX YYYY assoc professor - fiscal yr
 therapist, respiratory, reg, i
 sr lecturer-psoe-acad yr-100%
@@ -299,24 +299,24 @@ associate university librarian
 technologist,rad thpy, sr
 police sergeant
 physician assistant, senior
-compensation manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa compensation manager 2
 perfusionist, prin
 associate research___-acad yr
-accounting manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa accounting manager 2
 scientist spec,clin lab,sr sup
 programmer/analyst v
 specialist
 scientist, clinical lab
 bbbb bbbb bbbb YYYY XXXX YYYY act assoc prof-ay-bus/econ/eng
 senior scientist
-student services manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa student services manager 3
 scientist spec,clin lab,sr
 technician, echocardio, prin
 fundraiser iv
 academic coord iii - fiscal yr
 provost of ___college
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse, clinical iii-supvr
-data systems manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa data systems manager 2
 technician, hosp lab, iv
 aaaa AAAA KKKK ZZZZ aaaa aaaa applications programming mgr 3
 programmer/analyst iv - superv
@@ -326,31 +326,31 @@ programmer iv
 aaaa AAAA KKKK ZZZZ aaaa aaaa intellectual property mgr 2
 bbbb bbbb bbbb YYYY XXXX YYYY assistant dean
 project______-fiscal year
-aerospace manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa aerospace manager 2
 analyst v-supervisor
 senior captain
-technical project manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa technical project manager 2
 business systems analyst 5
 senior lecturer soe-hcomp
 facilities project mgt spec 5
-fundraising manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa fundraising manager 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa organizational dev mgr 2
-contracts and grants manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa contracts and grants manager 3
 technologist,rad,assoc chief
 fire captain - 56 hrs
 administrative stipend
 technologist,radiologic,chief
-eh&s manager 3
-planning manager 3
-media communications manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa eh&s manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa planning manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa media communications manager 2
 asst chief police/police captn
-clinical laboratory manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa clinical laboratory manager
 home health nurse iii
-eh&s manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa eh&s manager 1
 mgt and prof prog (untitled)
 administrative officer 4
 bbbb bbbb bbbb YYYY XXXX YYYY dean-extended learning
-nurse manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa nurse manager
 field program supervisor
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse practitioner ii-supvr
 psychologist iii
@@ -360,7 +360,7 @@ marine superintendent
 bbbb bbbb bbbb YYYY XXXX YYYY coach, intercol athletics,head
 technician, surgical, prin
 police officer
-financial services manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial services manager 3
 lecturer w/sec empl-acad yr
 lecturer - fiscal year
 technologist,rad thpy, chief
@@ -383,19 +383,19 @@ res___-ay-1/9-bus/econ/eng
 government relations spec 5
 aaaa AAAA KKKK ZZZZ aaaa aaaa assoc. mgr (funct. area)
 deputy to the vice president
-communications manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa communications manager 3
 aaaa AAAA KKKK ZZZZ aaaa aaaa applications programming mgr 2
-financial analysis manager 1
-it resource manager iii
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial analysis manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa it resource manager iii
 administrative nurse
-manager, case
-food services manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa manager, case
+aaaa AAAA KKKK ZZZZ aaaa aaaa food services manager 3
 technology transfer officr iii
-facilities manager 2
-facilities project manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa facilities manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa facilities project manager 2
 asst.adm/coord/ofc (func area)
 clinician, pd
-financial analysis manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial analysis manager 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa applications programming mgr 1
 project______-fy-bus/econ/eng
 assistant university librarian
@@ -406,15 +406,15 @@ planning specialist 5
 assistant veterinarian
 aerospace engineer 5
 nurse practitioner-per diem
-academic hr manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa academic hr manager 1
 chief community health program
 assoc prof of clinical_____-fy
 technologist,radiologic
 aaaa AAAA KKKK ZZZZ aaaa aaaa counseling psychology mgr 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa therapist, physical iv-supvr
 lecturer-psoe-acad yr-100%
-k-14 academic prep manager 3
-pharmacy manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa k-14 academic prep manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa pharmacy manager 1
 campus ombudsperson
 sr lect w/sec empl - fiscal yr
 biomedical equipment tech iii
@@ -435,22 +435,22 @@ continuing educator iii
 sales specialist 4
 home health nurse iv
 organizational consultant 5
-contracts and grants manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa contracts and grants manager 2
 registrar
-labor relations manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa labor relations manager 1
 non evaluated msp
 technologist, ultrasound
 advancement officer iii
 senior chief engineer
-curatorial manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa curatorial manager 2
 analyst vi - msp
 intellectual property officr 4
 envir hlth and safety off/admr
 programmer vi
-external relations manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa external relations manager 2
 adjunct instructor - fiscal yr
-information systems manager 1
-hr manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa information systems manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa hr manager 1
 fire chief, assistant
 interventional rad technol
 pharmacist ii, per diem
@@ -462,14 +462,14 @@ techno v, computer & network
 technician, elec, sr-med fac
 r&d engineer 4
 technologist, ultrasound, sr
-nurse practitioner iii-manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa nurse practitioner iii-manager
 analyst vii
 aaaa AAAA KKKK ZZZZ aaaa aaaa audiologist, sr-supvr
 coord of public programs viii
 technologist, ultrasound lead
 therapist, physical ii
 technical project mgt prof'l 4
-ombuds manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa ombuds manager 1
 technician, surgical, sr
 medical service director
 facilities project mgt spec 4
@@ -481,7 +481,7 @@ analyst ix - supervisor
 network engineer ii
 athletics professional 3
 database administrator 4
-case manager supervisor
+aaaa AAAA KKKK ZZZZ aaaa aaaa case manager supervisor
 chief engineer
 social wrkr, cln, chf licensed
 aaaa AAAA KKKK ZZZZ aaaa aaaa analyst vi - supvr - msp
@@ -490,22 +490,22 @@ technologist, mri, per diem
 high volt electrician
 aaaa AAAA KKKK ZZZZ aaaa aaaa techno, nuc med, sr-supvr
 aaaa AAAA KKKK ZZZZ aaaa aaaa systems administration mgr 1
-audit manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa audit manager 2
 it architect 4
 fundraiser ii
-fundraising manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa fundraising manager 1
 asst prof of clinical_____-fy
 analyst v
 fire specialist ii - 56 hrs
-hr manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa hr manager 2
 bbbb bbbb bbbb YYYY XXXX YYYY asst adjunct professor-acad yr
-administrative manager 1
-student services manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa administrative manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa student services manager 1
 technologist, cath lab rad
 technologist,rad thpy,asso,chi
 deputy to the assistant vp
 intellectual property officr 3
-physician manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa physician manager 2
 junior specialist
 technologist, nuclear medicine
 management servs officer iii
@@ -525,21 +525,21 @@ cytotechnologist, supervising
 programmer/analyst ii
 programmer analyst iv - ucop
 technologist,u/s,sr,per diem
-eh&s manager 2
-career services manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa eh&s manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa career services manager 3
 histotechnologist, lead
 systems administrator 4
 executive advisor 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa admin analyst, prin, supv
 aaaa AAAA KKKK ZZZZ aaaa aaaa histotechnologist, supvr
-procurement manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa procurement manager 2
 analyst viii
 bbbb bbbb bbbb YYYY XXXX YYYY act assoc professor-acad yr
-financial services manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial services manager 2
 physical therapist v
 aaaa AAAA KKKK ZZZZ aaaa aaaa health care admin mgr 2
-computing resource manager i
-labor relations manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa computing resource manager i
+aaaa AAAA KKKK ZZZZ aaaa aaaa labor relations manager 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa student life & devt mgr 3
 instl research analyst 5
 therapist, occupational iv
@@ -547,15 +547,15 @@ bbbb bbbb bbbb YYYY XXXX YYYY asst prof-fy-bus/econ/eng
 academic coord i - academic yr
 therapist, physical iv
 fundraiser 5
-data systems manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa data systems manager 1
 project/policy analyst 5
 veterinarian 3
 fundraiser iii
 aaaa AAAA KKKK ZZZZ aaaa aaaa organizational dev mgr 1
-facilities manager 3
-financial aid manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa facilities manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial aid manager 2
 technologist,nuclear med,chief
-pr construction project mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa pr construction project mgr
 demonstration teach-continuing
 bbbb bbbb bbbb YYYY XXXX YYYY assoc prof-fy-bus/econ/eng
 information systems analyst 4
@@ -575,18 +575,18 @@ lecturer - academic year - 1/9
 asst res ----- - fiscal year
 hr analyst vii - supervisor
 systems administrator 5
-production control manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa production control manager 1
 development officer iii
 aaaa AAAA KKKK ZZZZ aaaa aaaa technician,elec,prin-supvr-mf
 optometrist, sr
 aaaa AAAA KKKK ZZZZ aaaa aaaa pathologist, speech, sr-supvr
-enterprise risk manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa enterprise risk manager 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa student life & devt mgr 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa programmer viii - supv
 therapist, respiratory, i
 (functl area) director-exec
-r&d engineering manager 1
-it resource manager ii
+aaaa AAAA KKKK ZZZZ aaaa aaaa r&d engineering manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa it resource manager ii
 bbbb bbbb bbbb YYYY XXXX YYYY hs asst clin professor-fy
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse,administrative iii-supvr
 r&d engineer 5
@@ -598,7 +598,7 @@ development officer ii
 external relations spec 5
 asst res ---- -fy-bus/econ/eng
 management services officer ii
-payroll manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa payroll manager 2
 therapist, physical iii
 systems programmer iv
 mechanic, elevator
@@ -614,12 +614,12 @@ bbbb bbbb bbbb YYYY XXXX YYYY asst professor - fiscal year
 rad equip specialist, prin
 technologist cytogenetic ii
 socl wkr, cln, suprvsng, lcnsd
-student services manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa student services manager 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa optometrist-supvr
 specialist, clinical
 statistician, prin
 nurse, administrative iii-mgr
-student academic manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa student academic manager 2
 librarian - career status
 aaaa AAAA KKKK ZZZZ aaaa aaaa mechanic, physical plant,supvr
 programmer vii
@@ -631,28 +631,28 @@ hr analyst viii - supervisor
 pathologist, speech, sr
 inspector, construction, sr
 fundraiser i
-contracts and grants manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa contracts and grants manager 1
 histotechnologist ii
 principal personnel analyst ii
-comm & network tech manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa comm & network tech manager 1
 fire specialist i - 56 hrs
 therapist, respiratory iv
 labor relations rep 4
 mgr, emp.assistance prog, ii
-performing arts manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa performing arts manager 2
 therapist, respiratory iii-sup
 abstractor, patient record iv
 architect, sr
 pharmacy technician ii
 bbbb bbbb bbbb YYYY XXXX YYYY vstg prof-ay-1/9-bus/econ/engr
-career services manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa career services manager 1
 cytotechnologist, senior
 aaaa AAAA KKKK ZZZZ aaaa aaaa counseling psychology mgr 1
 assoc project_____-fiscal year
 chief clinical social worker
 bbbb bbbb bbbb YYYY XXXX YYYY clin prof-dentistry-50%/+ fy
 electrician leadworker
-counseling ctr. mgr. ii
+aaaa AAAA KKKK ZZZZ aaaa aaaa counseling ctr. mgr. ii
 dental hygienist
 audiologist, sr
 analyst vi
@@ -670,14 +670,14 @@ engineer, service
 faculty consultant in _____
 principal planner
 histotechnologist iii
-external relations manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa external relations manager 1
 abstractor, patient record iii
 aaaa AAAA KKKK ZZZZ aaaa aaaa therapist, occupa iv-supvr
 asst prof in residence-acad yr
 continuing educator ii
 aaaa AAAA KKKK ZZZZ aaaa aaaa planner,educ facility, sr-supv
 aaaa AAAA KKKK ZZZZ aaaa aaaa therapist, occupa ii-supvr
-k-14 academic prep manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa k-14 academic prep manager 2
 counseling psychologist 4
 pharmacist, per diem
 principal buyer
@@ -686,7 +686,7 @@ analyst vi-supervisor
 fundraiser 4
 opr, cent utility plant lead
 coord.of fld.wk-fy-continuing
-project mgr,design/constr vi
+aaaa AAAA KKKK ZZZZ aaaa aaaa project mgr,design/constr vi
 analyst iv-supervisor
 engineer, development, sr
 technician, hospital lab, iii
@@ -697,23 +697,23 @@ fld.work consult-fy-continuing
 aaaa AAAA KKKK ZZZZ aaaa aaaa staff research assoc v - supvr
 hvac control technician
 comm & network tech analyst 4
-nurse, clinical iv, manager
-project mgr,design/constr v
+aaaa AAAA KKKK ZZZZ aaaa aaaa nurse, clinical iv, manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa project mgr,design/constr v
 aaaa AAAA KKKK ZZZZ aaaa aaaa psychologist ii-supvr
 technology transfer officer i
 applications programmer 5
 aaaa AAAA KKKK ZZZZ aaaa aaaa dietitian, prin-supvr
-marketing manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa marketing manager 1
 hr analyst vi, msp
 administrative supervisor 2
-technical project manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa technical project manager 1
 asst prof in residence - fy
 electrician, lead
 analyst,public administr, prin
 bbbb bbbb bbbb YYYY XXXX YYYY adjunct professor-sft-vm
 analyst, personnel, prin i
 data systems analyst 4
-student disability manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa student disability manager 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa technologist cytogenetic supvr
 specialist, e.h.&s. iii
 assistant law librarian
@@ -727,7 +727,7 @@ demonstration teacher
 pharmacy technician iii
 social worker, clinical iii
 aaaa AAAA KKKK ZZZZ aaaa aaaa maintenance_supvr (b)
-communications manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa communications manager 1
 applications program supr 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa electronic communication mgr 1
 hr analyst v
@@ -745,7 +745,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa dietitian, sr-supvr
 or equipment specialist ii
 secretary,executive,gen counse
 coord of public programs vii
-physician manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa physician manager 1
 fire captain (non-safety)
 community health prog asst chf
 aaaa AAAA KKKK ZZZZ aaaa aaaa training & development mgr 1
@@ -760,7 +760,7 @@ teacher - univ. extension
 hr analyst vii
 instl research analyst 4
 benefits analyst 4
-optometry manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa optometry manager 1
 optometrist
 coordinator of field work-fy
 veterinarian (lam), assoc
@@ -768,8 +768,8 @@ database administrator 3
 bbbb bbbb bbbb YYYY XXXX YYYY act ast prof-ay-bus/econ/eng
 aaaa AAAA KKKK ZZZZ aaaa aaaa statistician, prin - supvr
 senior engineer - supervisor
-accounting manager 1
-technologist,radiologic, mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa accounting manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa technologist,radiologic, mgr
 program representative ii
 financial & admin officer iv
 qa/release mgmt analyst 4
@@ -779,8 +779,8 @@ mgmt serv off iii - supervisor
 vst asst res ----- -fiscal yr
 techno iv, computer & network
 superintendent, mech shop, sr
-counseling ctr. mgr. i
-sr construction project mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa counseling ctr. mgr. i
+aaaa AAAA KKKK ZZZZ aaaa aaaa sr construction project mgr
 department chairperson
 bbbb bbbb bbbb YYYY XXXX YYYY vst assoc professor-acad yr
 aaaa AAAA KKKK ZZZZ aaaa aaaa programmer vi - supv
@@ -801,18 +801,18 @@ planning specialist 3
 academic hr analyst 5
 bbbb bbbb bbbb YYYY XXXX YYYY professor-acad yr-recalled
 therapist, physical, per diem
-enterprise risk manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa enterprise risk manager 1
 senior architect - supervisor
 dispatcher, public safety
 executive assistant 5
-academic achievement manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa academic achievement manager 1
 staff research assoc. v
 r&d engineer 3
 enterprise risk mgmt analyst 4
 dietitian, sr
 aaaa AAAA KKKK ZZZZ aaaa aaaa assistant to the ____ii- supvr
 lect-psoe-acad yr-part time
-employment manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa employment manager 1
 pathologist, speech
 aaaa AAAA KKKK ZZZZ aaaa aaaa analyst,public admin, pr-supvr
 information systems analyst 3
@@ -836,14 +836,14 @@ bbbb bbbb bbbb YYYY XXXX YYYY hs assoc clin prof-gencomp-b
 technician, psychiatric, sr
 facilities project mgt spec 3
 structural engineer 4
-athletic training manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa athletic training manager 1
 assistant to the ____ ii
-project mgr,design/constr iv
+aaaa AAAA KKKK ZZZZ aaaa aaaa project mgr,design/constr iv
 mechanic, maintenance
 social worker, clinical ii
 hr generalist 4
 academic hr analyst 4
-procurement manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa procurement manager 1
 compensation analyst 4
 analyst, budget, prin i
 external relations spec 4
@@ -864,7 +864,7 @@ financial services supr 2
 external relations spec 3
 program representative iii
 systems administrator 3
-community health program mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa community health program mgr
 orthoptist, sr
 eh&s specialist 4
 histotechnologist i
@@ -874,7 +874,7 @@ assistant to the ____ i
 analyst v supervisor
 aaaa AAAA KKKK ZZZZ aaaa aaaa environment svc mgr ii, mc
 fld.work consult-ay-continuing
-clinical lab manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa clinical lab manager 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa optometrist, sr-supvr
 partner, clinical care
 financial services analyst 4
@@ -895,7 +895,7 @@ superintendent,physical plant
 data systems analyst 3
 psychologist i
 aaaa AAAA KKKK ZZZZ aaaa aaaa mechanician,lab,prin-supvr-mf
-student advisor manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa student advisor manager 2
 academic administrator iv
 eh&s specialist ii supervisor
 systems administration supr 2
@@ -905,7 +905,7 @@ cert phlebotomy technician-sup
 mechanician, lab, sr-med fac
 assoc ----- in the a.e.s.
 instl research analyst 3
-food service manager ii, mc
+aaaa AAAA KKKK ZZZZ aaaa aaaa food service manager ii, mc
 accountant iv
 network engineer i
 technician iii, gi endoscopy
@@ -917,7 +917,7 @@ employment officer, sr
 contracts and grants supr 2
 buyer v
 it architect 3
-physical therapy manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa physical therapy manager 1
 staff research assoc iii
 producer-director, managing
 supervisor of speech pathology
@@ -938,12 +938,12 @@ inspector-planner-estimator,sr
 aerospace engineer 3
 eh&s supervisor 2
 therapist,physical,per diem ii
-construction project manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa construction project manager
 techno iii, computer & network
 asst ----- in the a.e.s.
 aaaa AAAA KKKK ZZZZ aaaa aaaa social worker, clin iii-supvr
 bbbb bbbb bbbb YYYY XXXX YYYY act asst professor-academic yr
-career services manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa career services manager 2
 polysomnography - supervisor
 principal finance analyst ii
 business/tech support supr 2
@@ -954,7 +954,7 @@ budget analyst v
 bbbb bbbb bbbb YYYY XXXX YYYY asst adjunct professor-sft-vm
 division administrator
 cytotechnologist
-food service manager iii, mc
+aaaa AAAA KKKK ZZZZ aaaa aaaa food service manager iii, mc
 construction inspector 5
 social worker ii
 ombudsperson 5
@@ -962,9 +962,9 @@ medical rec administrator,sr
 media communications spec 4
 translator/interp for the deaf
 technologist, eeg, supervising
-financial services manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial services manager 1
 skilled crafts & trades supr 2
-food services manager 2
+aaaa AAAA KKKK ZZZZ aaaa aaaa food services manager 2
 research compliance analyst 5
 psychologist, counseling ii
 student aff off iv supervisor
@@ -981,16 +981,16 @@ counselor, genetic ii
 auditor iv
 pr budget analyst - supervisor
 accountant iv - supervisor
-facilities manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa facilities manager 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa techni., elec supv, sr
 plumber, supervising
 food service coordinator
-project mgr,design/constr iii
+aaaa AAAA KKKK ZZZZ aaaa aaaa project mgr,design/constr iii
 maintenance_(b), lead
-social work manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa social work manager 1
 compensation analyst 3
 aaaa AAAA KKKK ZZZZ aaaa aaaa business/tech support mgr 1
-publications manager, sr
+aaaa AAAA KKKK ZZZZ aaaa aaaa publications manager, sr
 aaaa AAAA KKKK ZZZZ aaaa aaaa supvng comm health prog mgr
 techno iii, comp & network-sup
 facilities project mgt spec 2
@@ -999,11 +999,11 @@ dietitian ii
 analyst, personnel, sr
 captain
 aaaa AAAA KKKK ZZZZ aaaa aaaa programmer v - supv
-health education manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa health education manager 1
 technologist,nuc med,sr,per di
 buyer 5
 trainer 4
-student advisor manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa student advisor manager 1
 bbbb bbbb bbbb YYYY XXXX YYYY assistant coach 2
 accountant iii
 adjunct instructor-hcomp
@@ -1033,7 +1033,7 @@ accountant iii - supervisor
 auditor iii
 student legal svcs counsel 3
 analyst, administrative
-resources manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa resources manager
 theatrical production supr 1
 counseling attorney supervisor
 postdoc-employee
@@ -1071,11 +1071,11 @@ statistician
 stationary engineer
 budget analyst iv
 analyst ii-supervisor
-program promotion manager ii
+aaaa AAAA KKKK ZZZZ aaaa aaaa program promotion manager ii
 hr analyst iv
 electronic comm spec 5
-performing arts manager 1
-inspection manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa performing arts manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa inspection manager 3
 executive assistant 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa customer service rep supv
 specialist in the a.e.s.
@@ -1085,7 +1085,7 @@ tech, pt specialty services
 stationary engineer,leadworker
 academic administrator iii
 qa/release mgmt analyst 3
-publications manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa publications manager
 facilities mgt specialist 4
 engineer, assoc
 research data analyst 3
@@ -1097,14 +1097,14 @@ planner, educational facility
 principal finance analyst i
 research administrator 5
 nurse, vocational, sr
-k-14 academic prep manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa k-14 academic prep manager 1
 technologist, cytogenetic i
-financial aid manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial aid manager 1
 research compliance supr 2
-av-it manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa av-it manager 1
 superintendent, mech shop
 technician, hospital lab i,pd
-curatorial manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa curatorial manager 1
 bbbb bbbb bbbb YYYY XXXX YYYY coach, intercol athletics,asst
 bbbb bbbb bbbb YYYY XXXX YYYY vst asst professor -fiscal yr
 fire specialist ii(non-safety)
@@ -1126,7 +1126,7 @@ lead, craft/zone, senior
 sr lecturer - academic year
 biller, patient v - supervisor
 research administrator 3
-case manager, per diem
+aaaa AAAA KKKK ZZZZ aaaa aaaa case manager, per diem
 technologist,rad,prin,per diem
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse, vocational, sr-supvr
 aaaa AAAA KKKK ZZZZ aaaa aaaa technician, electronics, supvr
@@ -1147,14 +1147,14 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa publications & productn mgr 1
 hospital unit serv coord iii
 sheetmetal worker, supervising
 counseling psychologist 3
-museum education manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa museum education manager 1
 recreation program instructor
-public events mgr, sr - superv
+aaaa AAAA KKKK ZZZZ aaaa aaaa public events mgr, sr - superv
 ______ assistant, hospital iv
 medical laboratory technician
 _____assistant iii
-it resource manager i
-registrar/collection manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa it resource manager i
+aaaa AAAA KKKK ZZZZ aaaa aaaa registrar/collection manager 1
 associate engineer-supervisor
 accountant ii - supervisor
 superintendent,argicultur,prin
@@ -1194,7 +1194,7 @@ secretary, admin tt _____
 systems operator, lead
 student academic specialist 4
 lab research supervisor 2
-exhibitions manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa exhibitions manager 1
 senior finance analyst
 physical plant specialist
 aaaa AAAA KKKK ZZZZ aaaa aaaa engineer, assistant - supvr
@@ -1247,29 +1247,29 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa publications manager supv
 bbbb bbbb bbbb YYYY XXXX YYYY vst asst professor-acad yr-1/9
 bbbb bbbb bbbb YYYY XXXX YYYY professor in residence - fy
 vst assoc res ---- - fiscal yr
-field research manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa field research manager 1
 athletic trainer 3
 technician, surgical, per diem
 teaching assistant - gship
 technician, development, v
 executive chef 4
 mechanician, marine, sr
-child life manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa child life manager
 secretary, executive, tt____
 admissions/recruitment spec 4
 officer, second
 steamfitter
 communications supervisor 2
 technician, electronics, sr
-library manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa library manager 1
 technician,patient dialysi,iii
 business/tech suppt analyst 3
 development officer i
 carpenter
 research compliance analyst 4
 scientist, museum, prin
-project mgr,design/constr ii
-student disability manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa project mgr,design/constr ii
+aaaa AAAA KKKK ZZZZ aaaa aaaa student disability manager 1
 nursing aid, sr
 marketing specialist 5
 fire & security systems tech
@@ -1294,7 +1294,7 @@ veterinarian (lam), asst
 marketing specialist 4
 patent advisor iii
 physical therapist 3
-child development center mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa child development center mgr
 staff research assoc ii
 security officer, senior, mc
 mechanic, food service
@@ -1317,13 +1317,13 @@ aerospace engineer i
 administrative officer 2
 specialist, paralegal, sr.
 financial services analyst 2
-student academic manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa student academic manager 1
 producer-director, sr
 mechanician, lab, prin-med fac
 counselor,learning skills,prin
-food service manager, sr
+aaaa AAAA KKKK ZZZZ aaaa aaaa food service manager, sr
 technician, elec-med fac
-events manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa events manager 1
 custodial supervisor 2
 techno ii, computer & network
 maintenance_(b)
@@ -1404,7 +1404,7 @@ applications programmer 2
 computer resource spec. ii
 teacher-spec prog-continuing
 analyst, public administration
-food service manager 1, mc
+aaaa AAAA KKKK ZZZZ aaaa aaaa food service manager 1, mc
 aaaa AAAA KKKK ZZZZ aaaa aaaa community hlth program supv
 writer, sr
 public information rep
@@ -1420,17 +1420,17 @@ stud aff off iii - supervisor
 publications coordinator, sr
 secretary, legal, supervising
 mechanician, lab
-public events manager, prin
+aaaa AAAA KKKK ZZZZ aaaa aaaa public events manager, prin
 campus counsel
 or equipment specialist i
-recreation manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa recreation manager 1
 financial services analyst 3
 aaaa AAAA KKKK ZZZZ aaaa aaaa scientist, museum, pr - supvr
 producer-director, prin
 aaaa AAAA KKKK ZZZZ aaaa aaaa programmer/analyst ii-supvr
 machinist
 physical plant operator
-food service manager, prin
+aaaa AAAA KKKK ZZZZ aaaa aaaa food service manager, prin
 bbbb bbbb bbbb YYYY XXXX YYYY hs asst clin professor-acad yr
 aaaa AAAA KKKK ZZZZ aaaa aaaa admin specialist ii - supvr
 bbbb bbbb bbbb YYYY XXXX YYYY assoc adjunct prof-acad yr-1/9
@@ -1475,7 +1475,7 @@ admitting worker, prin
 abstractor, patient record i
 artist, sr
 mason, cement
-food services manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa food services manager 1
 locksmith, supervising
 supervising flooring installer
 projectionist, studio, chief
@@ -1485,7 +1485,7 @@ prog. analyst ii-ucop
 aaaa AAAA KKKK ZZZZ aaaa aaaa supvng comm health prog-supvr
 admin specialist i, executive
 public education specialist 3
-arts and lectures manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa arts and lectures manager
 employment officer
 business systems analyst ii
 aaaa AAAA KKKK ZZZZ aaaa aaaa ____assistant, hosp, ii-supvr
@@ -1499,7 +1499,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa artist, sr-supvr
 hr generalist 2
 financial analyst 2
 technical project mgt prof'l 2
-collections manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa collections manager
 student advisor supervisor 2
 mechanician, marine, prin
 bldg maintenance wrkr,lead,mc
@@ -1515,7 +1515,7 @@ administrative assistant 3
 electrician ii
 aaaa AAAA KKKK ZZZZ aaaa aaaa therapist, respiratory iv-supv
 aaaa AAAA KKKK ZZZZ aaaa aaaa public events manager supv
-program promotion manager i
+aaaa AAAA KKKK ZZZZ aaaa aaaa program promotion manager i
 labor relations rep 3
 registrar/collection supr 2
 student academic specialist 3
@@ -1529,7 +1529,7 @@ bbbb bbbb bbbb YYYY XXXX YYYY vst asst professor-academic yr
 optometrist 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa reprographics supv, sr
 administrative supervisor 1
-financial aid manager 3
+aaaa AAAA KKKK ZZZZ aaaa aaaa financial aid manager 3
 assistant curator
 bldg automation controls tech
 engineer, stm oper, apprentice
@@ -1543,7 +1543,7 @@ student academic advisor 3
 student disability spec 4
 painter leadworker
 editor, principal - supervisor
-transit maintenance manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa transit maintenance manager
 asoc librarian-potntl career
 health technician iv
 procurement supervisor 1
@@ -1572,7 +1572,7 @@ events specialist 3
 data systems analyst 2
 engineer, equipment operating
 boatswain
-public events mgr, pr - superv
+aaaa AAAA KKKK ZZZZ aaaa aaaa public events mgr, pr - superv
 technologist, eeg
 aaaa AAAA KKKK ZZZZ aaaa aaaa biller, patient iv-supv
 painter, supervising
@@ -1594,8 +1594,8 @@ tech,sterile processing ii
 inspector, construction, assoc
 mechanic, skilled trades
 child life teacher ii
-mail services manager 1
-public events manager, sr
+aaaa AAAA KKKK ZZZZ aaaa aaaa mail services manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa public events manager, sr
 food services supervisor 2
 maintenance_(a), lead
 biller, patient iii
@@ -1648,7 +1648,7 @@ scientist, museum
 payroll analyst 3
 e.h. & s. spec., assist.
 programmer ii
-botanical gar/arboretum mgr,sr
+aaaa AAAA KKKK ZZZZ aaaa aaaa botanical gar/arboretum mgr,sr
 library asst v - supervisor
 mental health therapist supr
 cook, marine, sr
@@ -1656,7 +1656,7 @@ medical interpreter ii
 accelerator operator, prin
 aaaa AAAA KKKK ZZZZ aaaa aaaa food service supv, sr
 aaaa AAAA KKKK ZZZZ aaaa aaaa custodian supv, sr.
-public events manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa public events manager
 aaaa AAAA KKKK ZZZZ aaaa aaaa environment svc mgr 1, mc
 _____assistant ii
 personnel analyst supervisor
@@ -1672,7 +1672,7 @@ building maintenance worker,sr
 marketing specialist 2
 partner, administrative care
 aaaa AAAA KKKK ZZZZ aaaa aaaa stores supvr
-garage manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa garage manager
 publications & prod spec 3
 or assistant i
 ombudsperson 3
@@ -1700,9 +1700,9 @@ technician,electrocardi, prin
 analyst, budget
 academic administrator i
 technician ii, ophthalmic
-food service manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa food service manager
 cook, senior, mc
-public education manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa public education manager 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa computer operations supv, sr
 k-14 academic prep spec 3
 aaaa AAAA KKKK ZZZZ aaaa aaaa recreation supvr, sr
@@ -1779,7 +1779,7 @@ editor supervisor
 pgy2 pharmacy resident/non rep
 athletic trainer
 signmaker
-public events manager, asst
+aaaa AAAA KKKK ZZZZ aaaa aaaa public events manager, asst
 payroll supervisor 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa transcriber, hosp med,sr-supvr
 bbbb bbbb bbbb YYYY XXXX YYYY vst assoc professor-ay-1/9th
@@ -1897,7 +1897,7 @@ academic achievemt counselor 3
 transit services supervisor 1
 laborer
 mechanician, lab-med fac
-residence halls manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa residence halls manager
 aaaa AAAA KKKK ZZZZ aaaa aaaa custodian supv, asst.
 patient support asst, per diem
 aaaa AAAA KKKK ZZZZ aaaa aaaa child develoment assoc sr-supv
@@ -1954,7 +1954,7 @@ lab research supervisor 1
 analyst, budget, asst
 analyst, facility requirements
 carpenter ii
-bbbb bbbb bbbb YYYY XXXX YYYY recreation coach manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa recreation coach manager 1
 child development assoc. sr.
 physician 3
 hospital unit serv coord ii
@@ -2065,9 +2065,9 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa travel reservationist supv
 aaaa AAAA KKKK ZZZZ aaaa aaaa parking supvr
 planner, asst
 waste water treat plt op appr
-residence halls manager, asst
+aaaa AAAA KKKK ZZZZ aaaa aaaa residence halls manager, asst
 laborer, lead
-university house manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa university house manager
 sr lect w/sec-ay-recall-1/9th
 field researcher 4
 coder, health information i
@@ -2088,7 +2088,7 @@ laboratory asst ii
 enterprise risk mgmt analyst 2
 benefits analyst 2
 r&d engineer 1
-food service mgr, asst
+aaaa AAAA KKKK ZZZZ aaaa aaaa food service mgr, asst
 aaaa AAAA KKKK ZZZZ aaaa aaaa programmer ii - supv
 accountant, asst
 grad stdnt res-partial fee rem
@@ -2108,7 +2108,7 @@ food service worker, prin
 student assistant iv, non uc
 aaaa AAAA KKKK ZZZZ aaaa aaaa recreation supvr
 early childhood site coord 4
-case manager, comm services
+aaaa AAAA KKKK ZZZZ aaaa aaaa case manager, comm services
 grad stdnt res- no remission
 electronic comm spec 2
 coordinator, hosp. unit ser pd
@@ -2130,7 +2130,7 @@ security guard
 editor
 photographer, sr
 aaaa AAAA KKKK ZZZZ aaaa aaaa laborer supvr
-project mgr,design/constr i
+aaaa AAAA KKKK ZZZZ aaaa aaaa project mgr,design/constr i
 maintenance mechanic ii
 tutor-non-student/non-rep
 aaaa AAAA KKKK ZZZZ aaaa aaaa arts & lectures mgr supervisor
@@ -2159,7 +2159,7 @@ producer-director, asst
 assistant, medical
 custodian leader
 word processing spec, prin
-cashiers office manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa cashiers office manager
 parking representative
 food service worker, lead
 qa/release mgmt analyst 1
@@ -2205,7 +2205,7 @@ service partner, lead
 technician, dev, ii-med fac
 tech,sterile processing ii,pd
 hr assistant 2
-public events mgr, supervising
+aaaa AAAA KKKK ZZZZ aaaa aaaa public events mgr, supervising
 fundraiser 1
 community health prog rep,asst
 patient escort
@@ -2273,7 +2273,7 @@ photographer
 technician, orthopedic
 external relations supr 1
 assistant technician
-botanical gar/arboretum mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa botanical gar/arboretum mgr
 library asst i
 hospital asst
 service partner, per diem
@@ -2343,7 +2343,7 @@ coordinator,med off srvc,pd ii
 storekeeper, per diem
 rec program instructor 2
 cert phlebotomist i per diem
-gift shop manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa gift shop manager
 key entry operator
 nurse, anesthetist, per diem
 counselor iii
@@ -2391,7 +2391,7 @@ technician, development, i
 aso adj pro-ay-1/9-b/econ/eng
 plumber ii
 lifeguard
-house manager ii
+aaaa AAAA KKKK ZZZZ aaaa aaaa house manager ii
 social worker, per diem, ii
 laborer, farm
 partner,admin care/clin pd
@@ -2455,7 +2455,7 @@ gsr-tuit & fee rem-ucsd-grp g
 custodian, sr, per diem
 mammography technologist pd
 psychologist, i, per diem
-custodial manager 1
+aaaa AAAA KKKK ZZZZ aaaa aaaa custodial manager 1
 technologist, eeg, sr, p.d.
 child life teacher i
 police trainee
@@ -2483,7 +2483,7 @@ student nurse, per diem
 remedial tutor ii - non-gship
 biller, patient iii, p.d.
 reader - non-gship
-house manager i
+aaaa AAAA KKKK ZZZZ aaaa aaaa house manager i
 farm worker
 substitute teacher
 perfusionist, per diem
@@ -2501,7 +2501,7 @@ reader - non-student
 abstractor, patient rec iii,pd
 teachg asst.-non-gship/non-rep
 rehab aid i, per diem
-accounting manager 4
+aaaa AAAA KKKK ZZZZ aaaa aaaa accounting manager 4
 associate in __-acad yr-gship
 boat operator, sr
 biller patient ii, per diem
@@ -2521,7 +2521,7 @@ sr.lect.-ay-1/9-continuing
 counselor, learning skill asst
 counselor, camp
 resident advisor supervisor
-house manager, asst
+aaaa AAAA KKKK ZZZZ aaaa aaaa house manager, asst
 musician
 tutor - non-gship
 sr lect w/sec empl emeritus
@@ -2902,7 +2902,7 @@ clin lab sci
 nuc med tchno chf asc
 aaaa AAAA KKKK ZZZZ aaaa aaaa external rel mgr 3
 bbbb bbbb bbbb YYYY XXXX YYYY asst clin prof-vol
-pharmacist sr mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa pharmacist sr mgr
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse practitioner supv 2
 assoc univ librarian
 bbbb bbbb bbbb YYYY XXXX YYYY asst dean
@@ -2945,7 +2945,7 @@ resp ther 5
 aerospace engr 3
 adm crd ofcr ast
 fire chf
-nurse mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa nurse mgr
 adm crd ofcr asc
 aaaa AAAA KKKK ZZZZ aaaa aaaa accounting mgr 3
 fire spec 2 56 hrs
@@ -2963,7 +2963,7 @@ organizational cnslt 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa ehs mgr 3
 aaaa AAAA KKKK ZZZZ aaaa aaaa financial anl mgr 2
 psychologist 3
-clin lab mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa clin lab mgr
 anl 7
 sr lect soe-hcomp
 interventional radlg tchno
@@ -3174,7 +3174,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa const project mgr prn
 collections repr sr
 bbbb bbbb bbbb YYYY XXXX YYYY assoc adj prof-fy-b/e/e
 const insp sr
-case mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa case mgr
 assoc res-fy-b/e/e
 elevator mech
 staff pharmacist 1 ex
@@ -3235,7 +3235,7 @@ labor rel repr 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa nurse practitioner supv 2 nex
 agron aes-sft-vm
 clin lic social worker chf asc
-radlg tchno mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa radlg tchno mgr
 speech pathologist sr
 aaaa AAAA KKKK ZZZZ aaaa aaaa occupational ther 4 supv
 hosp lab tchn 2
@@ -3510,7 +3510,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa contracts and grants supv 2
 tchl project mgt profl 3
 compensation anl 5
 med rcds adm sr
-const project mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa const project mgr
 assoc specialist coop ext
 plumber ld
 aaaa AAAA KKKK ZZZZ aaaa aaaa stdt affairs ofcr 4 supv
@@ -3522,7 +3522,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa hr anl 5 supv
 progr anl 3 ucop
 aaaa AAAA KKKK ZZZZ aaaa aaaa bus tchl supp supv 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa speech pathologist sr supv nex
-cmty health prg mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa cmty health prg mgr
 hr anl 3
 occupational ther 2 ex
 patient rcds abstractor 3
@@ -3680,7 +3680,7 @@ auditor 3
 budget anl 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa patient rcds abstractor 3 supv
 aerospace engr 2
-publications mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa publications mgr
 educ fac planner
 echocardiographic tchn
 bbbb bbbb bbbb YYYY XXXX YYYY asst adj prof-ay-1/9-b/e/e
@@ -3701,7 +3701,7 @@ lrng skls cnslr prn
 aaaa AAAA KKKK ZZZZ aaaa aaaa curatorial mgr 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa counseling attorney supv
 aaaa AAAA KKKK ZZZZ aaaa aaaa sheetmetal worker supv
-manager
+aaaa AAAA KKKK ZZZZ aaaa aaaa manager
 asst proj scientist-fy-b/e/e
 sra 2 nex
 hr anl 4
@@ -3843,7 +3843,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa med ctr food svc supv 2
 writer editor 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa food svc mgr ast supv
 machinist worker ld
-child life mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa child life mgr
 auditor 2
 child life spec 2 ex
 writer editor 3
@@ -3911,7 +3911,7 @@ employment repr 4
 voc nurse pd
 aaaa AAAA KKKK ZZZZ aaaa aaaa admin spec supv
 patient rcds abstractor 1
-child dev ctr mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa child dev ctr mgr
 clin rsch crd sr ex
 aaaa AAAA KKKK ZZZZ aaaa aaaa ath trainer supv
 ct tchno pd
@@ -3986,7 +3986,7 @@ med ctr food svc worker prn
 dietitian prn
 patient biller 3
 data sys anl 5
-transit maint mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa transit maint mgr
 resp ther pd
 anl 1
 electr tchn
@@ -4047,7 +4047,7 @@ lrng skills cnslr sr nex
 accountant 1
 lab mechn sr
 sra 1
-arts and lectures mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa arts and lectures mgr
 aaaa AAAA KKKK ZZZZ aaaa aaaa events supv 1
 fac project mgt spec 2
 acad achievement cnslr 4
@@ -4082,7 +4082,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa payroll mgr 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa prg repr 3 supv
 financial svc anl 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa prg promotion mgr 1
-collections mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa collections mgr
 aaaa AAAA KKKK ZZZZ aaaa aaaa admin anl supv ex
 aaaa AAAA KKKK ZZZZ aaaa aaaa publ events mgr sr supv
 med ctr food svc worker sr
@@ -4172,7 +4172,7 @@ storekeeper sr ld
 stdt acad advisor 3
 phys plt laborer gardener ld
 irrigation mech
-publ events mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa publ events mgr
 jr specialist
 marine tchn 3
 physcn ast pd
@@ -4181,7 +4181,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa painter supv
 aaaa AAAA KKKK ZZZZ aaaa aaaa security supv 1
 equip operating engr
 hr anl 2
-garage mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa garage mgr
 cement mason ld
 radlg tchno sr pd
 maint a ld
@@ -4500,7 +4500,7 @@ phys plt laborer gardener b
 library ast 4
 locksmith 1
 asst specialist
-rsdnc halls mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa rsdnc halls mgr
 groundskeeper ld
 ombudsperson 4
 aaaa AAAA KKKK ZZZZ aaaa aaaa food svc supv 1
@@ -4516,7 +4516,7 @@ child dev asc
 parking repr sr
 rsch cmplnc anl 2
 emergency trauma tchn
-food svc mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa food svc mgr
 med ctr storekeeper
 marine tchn 3 nex
 aaaa AAAA KKKK ZZZZ aaaa aaaa custodian ast supv
@@ -4636,7 +4636,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa mail processor sr supv
 lrng skls cnslr
 stdt intern
 aaaa AAAA KKKK ZZZZ aaaa aaaa employment mgr 1
-univ house mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa univ house mgr
 psychometrist sr
 organizational cnslt 2
 resid-vet med/non rep
@@ -4723,7 +4723,7 @@ lift team tech 2
 med rcds ast sr
 hvy duty equip tchn ast
 stdt 4
-gift shop mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa gift shop mgr
 lift team tech 2 pd
 med ctr bldg maint worker
 hosp ast 1 pd
@@ -4796,7 +4796,7 @@ reprographics tchn sr
 library bookbinder prn
 publ educ spec 1
 med rcds ast
-botanical garden arbor mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa botanical garden arbor mgr
 med ctr stores worker
 musician sr
 k to 14 acad prep spec 2
@@ -4883,7 +4883,7 @@ bbbb bbbb bbbb YYYY XXXX YYYY assoc adj prof-ay-1/9-b/e/e
 med lab tchn
 cardiovascular tchn pd
 access repr pd
-cmty svc case mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa cmty svc case mgr
 aaaa AAAA KKKK ZZZZ aaaa aaaa blank ast 1 supv
 remd tut ii-gship
 rsdt ast
@@ -5349,7 +5349,7 @@ tchn ast
 child dev demo lect
 info sys anl 5
 phys ther ast 1
-cashier ofc mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa cashier ofc mgr
 bbbb bbbb bbbb YYYY XXXX YYYY prof-acad yr-bus/eng-recalled
 aaaa AAAA KKKK ZZZZ aaaa aaaa quality and performance mgr 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa publ admst anl supv nex
@@ -5572,7 +5572,7 @@ trainer 1
 gsr-full tuit&partial fee rem
 executive advisor 3
 stdt rsdnc halls ld
-asset alloc and inv strat mgr3
+aaaa AAAA KKKK ZZZZ aaaa aaaa asset alloc and inv strat mgr3
 stdt health physcn 4 pd
 recall teaching non-senate
 aaaa AAAA KKKK ZZZZ aaaa aaaa occupational ther 1 supv
@@ -6097,7 +6097,7 @@ plnr sr
 insp plnr est ex
 health profns educ spec 3
 educ tchl spec 3
-resc mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa resc mgr
 aaaa AAAA KKKK ZZZZ aaaa aaaa rehab svc mgr 1
 insp plnr est sr ex
 aaaa AAAA KKKK ZZZZ aaaa aaaa cash mgr 4
@@ -6243,7 +6243,7 @@ tree trim
 publ admstn anl ast
 asst specialist nex
 aaaa AAAA KKKK ZZZZ aaaa aaaa recr supv ast
-coll mgr
+aaaa AAAA KKKK ZZZZ aaaa aaaa coll mgr
 voc rehab spec 2
 stdt health dentist 5 pd
 mental health pract
@@ -6893,7 +6893,7 @@ aaaa AAAA KKKK ZZZZ aaaa aaaa custodial hc supv 1
 aaaa AAAA KKKK ZZZZ aaaa aaaa bus tchl supp supv 2 gf
 water distribution mech 2
 aaaa AAAA KKKK ZZZZ aaaa aaaa med interpreter svc mgr 1
-property mgr.
+aaaa AAAA KKKK ZZZZ aaaa aaaa property mgr.
 prin admin analyst
 prospect rsch spec 3
 pathology ast 3
@@ -7228,7 +7228,7 @@ network & systems engineer
 senior adminstrative analyst
 carpenter spec
 aaaa AAAA KKKK ZZZZ aaaa aaaa employee rel supv 2
-manager, student health svcs
+aaaa AAAA KKKK ZZZZ aaaa aaaa manager, student health svcs
 aaaa AAAA KKKK ZZZZ aaaa aaaa sales supv 2
 coord public prog v non rep
 aaaa AAAA KKKK ZZZZ aaaa aaaa media comm supv 2

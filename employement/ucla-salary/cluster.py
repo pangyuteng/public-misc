@@ -15,6 +15,10 @@ def adjust_weights(title):
         title = manager_code+title
     elif 'mgr ' in title:
         title = manager_code+title
+    elif 'manager' in title:
+        title = manager_code+title
+    elif ' mgr' in title:
+        title = manager_code+title
     elif 'supv' in title:
         title = manager_code+title
     elif 'supvr' in title:
@@ -113,27 +117,34 @@ if not os.path.exists(word2vec_file):
     with open(word2vec_file,'w') as f:
         f.write(json.dumps(mydict,indent=True,default=str,sort_keys=True))
 
-with open(word2vec_file,'r') as f:
-    word2vec = json.loads(f.read())
+model_file = "model.pkl"
+if not os.path.exists(model_file):
+    with open(word2vec_file,'r') as f:
+        word2vec = json.loads(f.read())
 
-from sklearn.neighbors import NearestNeighbors
-from sklearn.cluster import KMeans
-X = np.array(list(word2vec.values()))
-K = np.array(list(word2vec.keys()))
-print(X.shape)
-kmeans = KMeans(n_clusters=128).fit(X)
-Y = kmeans.labels_
+    from sklearn.neighbors import NearestNeighbors
+    from sklearn.cluster import KMeans
+    import pickle
 
-job_cat_dict = {}
-for category,title in zip(Y,K):
-    category = int(category)
-    title = str(title)
-    if category not in job_cat_dict.keys():
-        job_cat_dict[category]=[]
-    job_cat_dict[category].append(title)
+    X = np.array(list(word2vec.values()))
+    K = np.array(list(word2vec.keys()))
+    print(X.shape)
+    kmeans = KMeans(n_clusters=5).fit(X)
+    Y = kmeans.labels_
 
-with open('job-cat.json','w') as f:
-    f.write(json.dumps(job_cat_dict,indent=True,default=str))
+    with open(model_file, "wb") as f:
+        pickle.dump(kmeans, f)
+
+    job_cat_dict = {}
+    for category,title in zip(Y,K):
+        category = int(category)
+        title = str(title)
+        if category not in job_cat_dict.keys():
+            job_cat_dict[category]=[]
+        job_cat_dict[category].append(title)
+
+    with open('job-cat.json','w') as f:
+        f.write(json.dumps(job_cat_dict,indent=True,default=str))
 
 # use knn to classify job to 32 categories ??
 # word2vec
