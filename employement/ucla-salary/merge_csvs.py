@@ -27,7 +27,3 @@ if not os.path.exists(rawfname):
     
     df.to_parquet(rawfname,compression='gzip')
 
-
-"""
-python merge_csvs.py
-"""

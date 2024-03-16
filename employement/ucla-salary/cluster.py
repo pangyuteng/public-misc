@@ -7,32 +7,74 @@ import numpy as np
 job_txt_file = 'job_list.txt'
 word2vec_file = 'word2vec.json'
 
-def adjust_weights(title):
+def adjust_weights(title,manual=True,category=False):
     title = title.lower()
-    manager_code = "aaaa AAAA KKKK ZZZZ aaaa aaaa "
-    prof_code = "bbbb bbbb bbbb YYYY XXXX YYYY "
+    if category:
+        manager_code = "manager"
+        prof_code = "professor"
+        other_code = "other"
+
+    else:
+        manager_code = "aaaa AAAA KKKK ZZZZ aaaa aaaa "
+        prof_code = "bbbb bbbb bbbb YYYY XXXX YYYY "
+        other_code = "eeee rrrr oooo ppppp pppp qqqqq "
+
     if '-exec ' in title:
         title = manager_code+title
+        if manual:
+            title = manager_code
     elif 'mgr ' in title:
         title = manager_code+title
+        if manual:
+            title = manager_code
     elif 'manager' in title:
         title = manager_code+title
+        if manual:
+            title = manager_code
     elif ' mgr' in title:
         title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'supervisor' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
     elif 'supv' in title:
         title = manager_code+title
+        if manual:
+            title = manager_code
     elif 'supvr' in title:
         title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'coach' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif title.endswith(' prof'):
+        title = prof_code+title
+        if manual:
+            title = prof_code
+    elif 'prof ' in title:
+        title = prof_code+title
+        if manual:
+            title = prof_code
     elif 'prof-' in title:
         title = prof_code+title
+        if manual:
+            title = prof_code
     elif 'professor' in title:
         title = prof_code+title
-    elif 'coach' in title:
-        title = prof_code+title
+        if manual:
+            title = prof_code
     elif 'dean' in title:
         title = prof_code+title
+        if manual:
+            title = prof_code
     else:
-        pass
+        title = other_code+title
+        if manual:
+            title = other_code
     return title
 
 
@@ -65,6 +107,8 @@ if not os.path.exists(word2vec_file):
     print(f'vocab_size {vocab_size}')
 
     sequence_length = max([len(x.split(' ')) for x in job_list])
+    if sequence_length == 1:
+        sequence_length = 4
     print(f'max_vec_len {sequence_length}')
 
     import io
@@ -130,7 +174,7 @@ if not os.path.exists(model_file) or not os.path.exists(jobcat_file):
     X = np.array(list(word2vec.values()))
     K = np.array(list(word2vec.keys()))
     print(X.shape)
-    kmeans = KMeans(n_clusters=5).fit(X)
+    kmeans = KMeans(n_clusters=3).fit(X)
     Y = kmeans.labels_
 
     with open(model_file, "wb") as f:
@@ -147,17 +191,3 @@ if not os.path.exists(model_file) or not os.path.exists(jobcat_file):
     with open(jobcat_file,'w') as f:
         f.write(json.dumps(job_cat_dict,indent=True,default=str))
 
-# use knn to classify job to 32 categories ??
-# word2vec
-
-
-"""
-
-docker run -it -u $(id -u):$(id -g) -v /mnt:/mnt -w $PWD \
-    pangyuteng/ml:latest bash
-
-rm *.json *.txt
-python merge_csvs.py
-python classify.py
-
-"""

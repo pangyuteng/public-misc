@@ -8,8 +8,6 @@ data downloaded from
 https://transparentcalifornia.com
 
 
-python merge_csvs.py
-python cluster.py
-python plot_salary_progression.py
+rm *.json *.txt
 
 ```
