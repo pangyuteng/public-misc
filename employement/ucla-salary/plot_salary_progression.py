@@ -64,8 +64,6 @@ sns.relplot(data=df,**kwargs)
 plt.savefig('time-salary-all.png')
 plt.close()
 
-# ?? df = df[(df.Year >= 2017)&(df.TotalPay>50000)]
-
 mylist = []
 for jobcategory in ["manager","professor","other"]:
     for year in sorted(df.Year.unique()):
