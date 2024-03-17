@@ -10,76 +10,42 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def categorize(title,manual=True,category=True):
+def categorize(title):
     title = title.lower()
-    if category: # i give up, manually categorize.
-        manager_code = "manager"
-        prof_code = "professor"
-        other_code = "other"
-
-    else:
-        manager_code = "aaaa AAAA KKKK ZZZZ aaaa aaaa "
-        prof_code = "bbbb bbbb bbbb YYYY XXXX YYYY "
-        other_code = "eeee rrrr oooo ppppp pppp qqqqq "
+    # i give up, manually categorize.
+    manager_code = "manager"
+    prof_code = "professor"
+    other_code = "other"
 
     if '-exec ' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif 'mgr ' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif 'manager' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif ' mgr' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif 'supervisor' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif 'supv' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif 'supvr' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif 'coach' in title:
-        title = manager_code+title
-        if manual:
-            title = manager_code
+        title = manager_code
     elif title.endswith(' prof'):
-        title = prof_code+title
-        if manual:
-            title = prof_code
+        title = prof_code
     elif 'prof ' in title:
-        title = prof_code+title
-        if manual:
-            title = prof_code
+        title = prof_code
     elif 'prof-' in title:
-        title = prof_code+title
-        if manual:
-            title = prof_code
+        title = prof_code
     elif 'professor' in title:
-        title = prof_code+title
-        if manual:
-            title = prof_code
+        title = prof_code
     elif 'dean' in title:
-        title = prof_code+title
-        if manual:
-            title = prof_code
+        title = prof_code
     else:
-        title = other_code+title
-        if manual:
-            title = other_code
+        title = other_code
     return title
-
 
 rawfname = 'raw-uc-salary.parquet.gzip'
 df = pd.read_parquet(rawfname)
