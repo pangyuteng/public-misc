@@ -10,4 +10,10 @@ https://transparentcalifornia.com
 
 rm *.json *.txt
 
+python plot_salary_progression.py
+
+
+# work-in-progress
+python plot_salary_progression_word2vec.py
+
 ```

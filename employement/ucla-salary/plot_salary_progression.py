@@ -10,31 +10,82 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from cluster import adjust_weights
+def categorize(title,manual=True,category=True):
+    title = title.lower()
+    if category: # i give up, manually categorize.
+        manager_code = "manager"
+        prof_code = "professor"
+        other_code = "other"
 
-iskmeans = False
+    else:
+        manager_code = "aaaa AAAA KKKK ZZZZ aaaa aaaa "
+        prof_code = "bbbb bbbb bbbb YYYY XXXX YYYY "
+        other_code = "eeee rrrr oooo ppppp pppp qqqqq "
 
-with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
-with open("word2vec.json","r") as f:
-    word2vec = json.loads(f.read())
+    if '-exec ' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'mgr ' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'manager' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif ' mgr' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'supervisor' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'supv' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'supvr' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif 'coach' in title:
+        title = manager_code+title
+        if manual:
+            title = manager_code
+    elif title.endswith(' prof'):
+        title = prof_code+title
+        if manual:
+            title = prof_code
+    elif 'prof ' in title:
+        title = prof_code+title
+        if manual:
+            title = prof_code
+    elif 'prof-' in title:
+        title = prof_code+title
+        if manual:
+            title = prof_code
+    elif 'professor' in title:
+        title = prof_code+title
+        if manual:
+            title = prof_code
+    elif 'dean' in title:
+        title = prof_code+title
+        if manual:
+            title = prof_code
+    else:
+        title = other_code+title
+        if manual:
+            title = other_code
+    return title
+
 
 rawfname = 'raw-uc-salary.parquet.gzip'
 df = pd.read_parquet(rawfname)
 df.Year = df.Year.apply(lambda x: int(x))
-if iskmeans:
-    df['Job Title']= df['Job Title'].apply(lambda x: adjust_weights(x))
-else:
-    df['JobCategory']= df['Job Title'].apply(lambda x: adjust_weights(x,category=True))
+df['JobCategory']= df['Job Title'].apply(lambda x: categorize(x))
 df["TotalPay"] = df["Total Pay & Benefits"].apply(lambda x: int(x))
-
-if iskmeans:
-    print(df.columns)
-    X = np.array(df['Job Title'].apply(lambda x: word2vec[x]).tolist())
-    print(X.shape)
-    Y = model.predict(X)
-    print(Y.shape)
-    df['JobCategory']=Y
 
 kwargs =dict( 
     x="Year",
@@ -48,21 +99,35 @@ sns.set(rc={'figure.figsize':(20,20)})
 sns.relplot(data=df,**kwargs)
 plt.savefig('time-salary-all.png')
 plt.close()
-df = df[df.Year>=2020]
-sns.relplot(data=df,**kwargs)
-plt.savefig('time-salary-filtered.png')
 
-if not iskmeans:
-    mylist = []
-    for jobcategory in ["manager","professor","other"]:
-        for year in [2020,2021,2022]:
-            tmp = df[(df.Year==year)&(df.JobCategory==jobcategory)]
-            myitem = dict(
-                Year=year,
-                JobCategory=jobcategory,
-                TotalPayMean=tmp.TotalPay.mean(),
-                TotalPayStd=tmp.TotalPay.std(),
-            )
-            mylist.append(myitem)
-    mydf = pd.DataFrame(mylist)
-    mydf.to_csv("salary_summary.csv")
+mylist = []
+for jobcategory in ["manager","professor","other"]:
+    for year in sorted(df.Year.unique()):
+        tmpbaseline = df[(df.Year==year-1)&(df.JobCategory==jobcategory)]
+        tmp = df[(df.Year==year)&(df.JobCategory==jobcategory)]
+        baseline_mean = tmpbaseline.TotalPay.mean()
+        item_mean = tmp.TotalPay.mean()
+        item_std = tmp.TotalPay.std()
+        prct_change_from_prior_year = 100*(item_mean-baseline_mean)/baseline_mean
+        myitem = dict(
+            Year=year,
+            JobCategory=jobcategory,
+            TotalPayMean=np.round(item_mean,1),
+            TotalPayStd=np.round(item_std,1),
+            PrctChangeFromPriorYear=np.round(prct_change_from_prior_year,1),
+        )
+        mylist.append(myitem)
+mydf = pd.DataFrame(mylist)
+mydf.to_csv("salary_summary.csv",index=False)
+
+
+kwargs =dict( 
+    x="Year",
+    y="PrctChangeFromPriorYear",
+    hue="JobCategory",
+    kind="line",
+    facet_kws={"legend_out": True}
+)
+sns.set(rc={'figure.figsize':(20,20)})
+sns.relplot(data=mydf,**kwargs)
+plt.savefig('time-salary-prctchange.png')

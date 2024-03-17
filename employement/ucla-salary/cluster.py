@@ -9,7 +9,7 @@ word2vec_file = 'word2vec.json'
 
 def adjust_weights(title,manual=True,category=False):
     title = title.lower()
-    if category:
+    if category: # i give up, manually categorize.
         manager_code = "manager"
         prof_code = "professor"
         other_code = "other"
