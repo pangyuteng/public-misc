@@ -1,7 +1,5 @@
 # run
 import merge_csvs
-# run
-import cluster
 
 import json
 import pickle
@@ -66,6 +64,8 @@ sns.relplot(data=df,**kwargs)
 plt.savefig('time-salary-all.png')
 plt.close()
 
+# ?? df = df[(df.Year >= 2017)&(df.TotalPay>50000)]
+
 mylist = []
 for jobcategory in ["manager","professor","other"]:
     for year in sorted(df.Year.unique()):
@@ -76,7 +76,7 @@ for jobcategory in ["manager","professor","other"]:
         item_std = tmp.TotalPay.std()
         prct_change_from_prior_year = 100*(item_mean-baseline_mean)/baseline_mean
         myitem = dict(
-            Year=year,
+            Year=int(year),
             JobCategory=jobcategory,
             TotalPayMean=np.round(item_mean,1),
             TotalPayStd=np.round(item_std,1),
@@ -95,5 +95,6 @@ kwargs =dict(
     facet_kws={"legend_out": True}
 )
 sns.set(rc={'figure.figsize':(20,20)})
+plt.title('percent change from prior year filter by salary>=50K')
 sns.relplot(data=mydf,**kwargs)
 plt.savefig('time-salary-prctchange.png')
