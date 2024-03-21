@@ -14,6 +14,7 @@ def categorize(title):
     manager_code = "manager"
     prof_code = "professor"
     other_code = "other"
+    exclude_code = "exclude"
 
     if '-exec ' in title:
         title = manager_code
@@ -31,6 +32,8 @@ def categorize(title):
         title = manager_code
     elif 'coach' in title:
         title = manager_code
+    elif 'dean' in title:
+        title = manager_code
     elif title.endswith(' prof'):
         title = prof_code
     elif 'prof ' in title:
@@ -39,8 +42,10 @@ def categorize(title):
         title = prof_code
     elif 'professor' in title:
         title = prof_code
-    elif 'dean' in title:
-        title = prof_code
+    elif 'contract' in title:
+        title = exclude_code
+    elif title in ["#MULTIVALUE","#NAME?","?"]:
+        title = exclude_code
     else:
         title = other_code
     return title
@@ -50,6 +55,9 @@ df = pd.read_parquet(rawfname)
 df.Year = df.Year.apply(lambda x: int(x))
 df['JobCategory']= df['Job Title'].apply(lambda x: categorize(x))
 df["TotalPay"] = df["Total Pay & Benefits"].apply(lambda x: int(x))
+cols = ['JobCategory','Job Title']
+tmp = df[cols].drop_duplicates().sort_values(cols)
+tmp.to_csv("job-categories-titles.csv",index=False)
 
 kwargs =dict( 
     x="Year",
@@ -83,7 +91,6 @@ for jobcategory in ["manager","professor","other"]:
         mylist.append(myitem)
 mydf = pd.DataFrame(mylist)
 mydf.to_csv("salary_summary.csv",index=False)
-
 
 kwargs =dict( 
     x="Year",
