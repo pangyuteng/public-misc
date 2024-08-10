@@ -6,7 +6,7 @@ docker run -it -u $(id -u):$(id -g) -w $PWD -v /mnt:/mnt  pangyuteng/ml:latest b
 
 data downloaded from 
 https://transparentcalifornia.com
-
+https://transparentcalifornia.com/download/salaries/university-of-california
 
 rm *.json *.txt
 

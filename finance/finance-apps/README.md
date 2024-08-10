@@ -1,3 +1,14 @@
+
+#### undeployed!
+
+```
+source /mnt/scratch/venv/agw-com/bin/activate
+aws configure
+zappa undeploy prod
+
+above failed, manually deleting, route 53 dns, CloudFormation, Lambda, API Gateway (APIs + Custom domain names), s3, Certificate manager.
+Amazon EventBridge->Rules
+```
 ```
 
 python3.8 -m venv /mnt/scratch/venv/finance
