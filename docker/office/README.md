@@ -8,5 +8,7 @@ docker run -it \
     -v /mnt:/mnt \
     pangyuteng/ml:office-latest bash
 
+ots stamp my.csv
+
 
 ```
