@@ -10,5 +10,6 @@ docker run -it \
 
 ots stamp my.csv
 
+ots verify my.csv.ots
 
 ```
