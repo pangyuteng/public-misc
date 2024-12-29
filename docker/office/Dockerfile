@@ -9,3 +9,6 @@ RUN pip install -r /opt/requirements.txt
 
 ENV MPLCONFIGDIR=/opt/.config
 RUN mkdir -p ${MPLCONFIGDIR} && chmod -R 777 ${MPLCONFIGDIR}
+
+ENV BTCCONFIGDIR=/root/.bitcoin/
+RUN mkdir -p ${BTCCONFIGDIR} && chmod -R 777 ${BTCCONFIGDIR}
