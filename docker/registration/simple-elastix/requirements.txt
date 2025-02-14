@@ -4,3 +4,4 @@ scikit-image==0.17.2
 scipy==1.5.4
 imageio==2.15.0
 scikit-fmm==2022.3.26
+SimpleITK==2.4.1
