@@ -1,0 +1,6 @@
+pandas==1.1.5
+pydicom==2.3.0
+scikit-image==0.17.2
+scipy==1.5.4
+imageio==2.15.0
+scikit-fmm==2022.3.26
