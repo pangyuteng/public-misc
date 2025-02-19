@@ -1,5 +1,5 @@
 
-docker build -t pangyuteng/simple-elastix-new .
-#docker push pangyuteng/simple-elastix-new
+docker build -t pangyuteng/simple-elastix .
+docker push pangyuteng/simple-elastix
 
 

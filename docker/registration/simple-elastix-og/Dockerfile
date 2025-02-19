@@ -14,8 +14,10 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 # build SimpleElastix
 RUN mkdir -p /opt/sources
 WORKDIR /opt/sources
-RUN git clone https://github.com/SuperElastix/SimpleElastix ; cd SimpleElastix ; git checkout a138eb4 \
-  && mkdir /build \
+RUN git clone https://github.com/SuperElastix/SimpleElastix ; cd SimpleElastix ; git checkout a138eb4 
+
+WORKDIR /opt/sources/SimpleElastix
+RUN mkdir /build \
   && cd /build \
   && cd /build;cmake -D PYTHON_EXECUTABLE=`which python` /opt/sources/SimpleElastix/SuperBuild \
   && cd /build;make -j `nproc` \

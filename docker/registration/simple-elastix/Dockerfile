@@ -1,4 +1,4 @@
-FROM python:3.8-bullseye
+FROM python:3.11-bullseye
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -yq --no-install-recommends \
   autotools-dev \
@@ -20,4 +20,9 @@ RUN mkdir SimpleITK-build \
     && cd SimpleITK-build \
     && cmake -D SimpleITK_USE_ELASTIX=ON ../SimpleITK/SuperBuild \
     && cd /build;make -j 4
+
 # make -j `nproc` 
+
+WORKDIR /opt
+COPY requirements.txt /opt
+RUN pip install -r requirements.txt
