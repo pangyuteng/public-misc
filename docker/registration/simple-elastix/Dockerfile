@@ -14,6 +14,10 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 # build SimpleElastix
 RUN mkdir -p /opt/sources
 WORKDIR /opt/sources
+#
+# v2.4.1 cf120d6
+# https://github.com/SimpleITK/SimpleITK/releases/tag/v2.4.1
+#
 RUN git clone https://github.com/SimpleITK/SimpleITK.git ; cd SimpleITK ; git checkout cf120d6
 WORKDIR /opt/sources
 RUN mkdir SimpleITK-build \
