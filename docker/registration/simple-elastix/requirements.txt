@@ -1,6 +1,8 @@
-pandas>=1.1.5
-pydicom>=2.3.0
-scikit-image>=0.17.2
-scipy>=1.5.4
-imageio>=2.15.0
-scikit-fmm>=2022.3.26
+pandas==2.2.3
+pydicom==3.0.1
+scipy==1.15.2
+scikit-image==0.25.2
+imageio==2.37.0
+networkx==3.4.2
+scikit-fmm==2025.1.29
+SimpleITK-SimpleElastix==2.0.0rc2.dev910
