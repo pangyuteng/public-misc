@@ -1,5 +1,5 @@
 
-#FROM kasmweb/core-ubuntu-focal:1.17.0
+
 FROM kasmweb/core-ubuntu-focal:x86_64-1.16.1-rolling-daily
 USER root
 
@@ -8,6 +8,7 @@ ENV STARTUPDIR /dockerstartup
 ENV INST_SCRIPTS $STARTUPDIR/install
 WORKDIR $HOME
 
+RUN apt-get update && apt-get install libssl-dev -yq
 ######### Customize Container Here ###########
 RUN mkdir /opt/itksnap
 COPY itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz /tmp
@@ -19,8 +20,8 @@ RUN tar -xvf /tmp/itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz -C /opt/itks
 #     && chmod +x $HOME/Desktop/sublime_text.desktop \
 #     && chown 1000:1000 $HOME/Desktop/sublime_text.desktop
 
-RUN echo "/usr/bin/desktop_ready && /opt/itksnap/bin/itksnap &" > $STARTUPDIR/custom_startup.sh \
-&& chmod +x $STARTUPDIR/custom_startup.sh
+# RUN echo "/usr/bin/desktop_ready && /opt/itksnap/bin/itksnap &" > $STARTUPDIR/custom_startup.sh \
+# && chmod +x $STARTUPDIR/custom_startup.sh
 
 
 ######### End Customizations ###########
@@ -28,6 +29,9 @@ RUN echo "/usr/bin/desktop_ready && /opt/itksnap/bin/itksnap &" > $STARTUPDIR/cu
 RUN chown 1000:0 $HOME
 RUN $STARTUPDIR/set_user_permission.sh $HOME
 
+#ENV VNC_USER foo
+#ENV VNC_PW foobar
+ENV VNCOPTIONS -disableBasicAuth
 ENV HOME /home/kasm-user
 WORKDIR $HOME
 RUN mkdir -p $HOME && chown -R 1000:0 $HOME
