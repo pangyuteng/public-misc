@@ -10,15 +10,18 @@ WORKDIR $HOME
 
 RUN	apt-get update && apt-get install -yq \
     vim curl \
-    libxv1 libglu1-mesa xauth x11-utils xorg \
+    libc6 libxv1 libglu1-mesa xauth x11-utils xorg \
     libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
 
 ######### Customize Container Here ###########
 RUN mkdir /opt/itksnap
-COPY itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz /tmp
-RUN tar -xvf /tmp/itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz -C /opt/itksnap --strip-components=1 \
-    && rm /tmp/itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz
+# COPY itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz /tmp
+# RUN tar -xvf /tmp/itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz -C /opt/itksnap --strip-components=1 \
+#     && rm /tmp/itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz
 
+COPY itksnap-4.0.2-Linux-gcc64.tar.gz /tmp
+RUN tar -xvf /tmp/itksnap-4.0.2-Linux-gcc64.tar.gz -C /opt/itksnap --strip-components=1 \
+    && rm /tmp/itksnap-4.0.2-Linux-gcc64.tar.gz
 
 # RUN cp /usr/share/applications/sublime_text.desktop $HOME/Desktop/ \
 #     && chmod +x $HOME/Desktop/sublime_text.desktop \
