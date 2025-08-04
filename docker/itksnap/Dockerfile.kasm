@@ -8,7 +8,11 @@ ENV STARTUPDIR /dockerstartup
 ENV INST_SCRIPTS $STARTUPDIR/install
 WORKDIR $HOME
 
-RUN apt-get update && apt-get install libssl-dev -yq
+RUN	apt-get update && apt-get install -yq \
+    vim curl \
+    libxv1 libglu1-mesa xauth x11-utils xorg \
+    libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+
 ######### Customize Container Here ###########
 RUN mkdir /opt/itksnap
 COPY itksnap-4.4.0-alpha4-20250730-Linux-x86_64.tar.gz /tmp
