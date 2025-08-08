@@ -5,8 +5,8 @@ docker build \
     -f Dockerfile.kasm .
 docker push pangyuteng/itksnap:kasm
 
-# --build-arg GROUPID=$(id -g) \
 
+# BELOW DOES NOT WORK, KASM USERID HAS TO BE 1000
 # docker build \
 #   --build-arg GROUPID=$(id -g) \
 #   --build-arg USERID=$(id -u) \
