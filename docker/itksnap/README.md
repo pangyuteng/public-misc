@@ -6,6 +6,8 @@ https://kasmweb.com/docs/latest/how_to/building_images.html
 build_and_push_kasm.sh
 docker run -v /cvibraid:/cvibraid -p 4901:4901 -p 4902:4902 -p 6901:6901 -it pangyuteng/itksnap:kasm bash
 
+docker run -u $(id -u):$(id -g) -v /cvibraid:/cvibraid -p 4901:4901 -p 4902:4902 -p 6901:6901 -it pangyuteng/itksnap:kasm-pteng bash
+
 https://localhost:6901
 
 

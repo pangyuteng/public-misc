@@ -1,6 +1,7 @@
 
 
 FROM kasmweb/core-ubuntu-focal:x86_64-1.16.1-rolling-daily
+
 USER root
 
 ENV HOME /home/kasm-default-profile
@@ -36,23 +37,25 @@ RUN	apt-get update && apt-get install -yq itksnap
 ######### End Customizations ###########
 
 ARG GROUPID
-ARG GROUPID2
-RUN groupadd -g ${GROUPID} groupfoo
-RUN groupadd -g ${GROUPID2} groupbar
-RUN usermod -g ${GROUPID} kasm-user
-RUN usermod -g ${GROUPID2} kasm-user
+ARG USERID
+ARG USERNAME
+RUN groupadd -g ${GROUPID} mygroup
+RUN usermod -a -g 1000 ${USERNAME}
+RUN usermod -a -g ${GROUPID} ${USERNAME}
 
-RUN chown 1000:0 $HOME
+RUN chown ${USERID}:${GROUPID} $HOME
 RUN $STARTUPDIR/set_user_permission.sh $HOME
 
-#ENV VNC_USER foo
-#ENV VNC_PW foobar
 ENV VNCOPTIONS -disableBasicAuth
-ENV HOME /home/kasm-user
+ENV HOME /home/${USERNAME}
 WORKDIR $HOME
-RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+RUN mkdir -p $HOME && chown -R ${USERID}:${GROUPID} $HOME
 
-RUN mkdir -p /cvibraid
-RUN chown -R 1000:0 /cvibraid
+# RUN mkdir -p /cvibraid
+# RUN chown -R 1000:0 /cvibraid
 
-USER 1000
+USER ${USERID}
+
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
+# RUN echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME}
+# RUN chmod 0440 /etc/sudoers.d/${USERNAME}
