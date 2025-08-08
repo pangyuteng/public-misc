@@ -35,6 +35,11 @@ RUN	apt-get update && apt-get install -yq itksnap
 
 ######### End Customizations ###########
 
+ARG GROUPID
+RUN groupadd -g ${GROUPID} mygroup
+#RUN usermod -a -G ${GROUPID} kasm-user
+RUN usermod -g ${GROUPID} kasm-user
+
 RUN chown 1000:0 $HOME
 RUN $STARTUPDIR/set_user_permission.sh $HOME
 
@@ -44,5 +49,8 @@ ENV VNCOPTIONS -disableBasicAuth
 ENV HOME /home/kasm-user
 WORKDIR $HOME
 RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+RUN mkdir -p /cvibraid
+RUN chown -R 1000:0 /cvibraid
 
 USER 1000
