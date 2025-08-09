@@ -1,6 +1,7 @@
 
 
-FROM kasmweb/core-ubuntu-focal:x86_64-1.16.1-rolling-daily
+#FROM kasmweb/core-ubuntu-focal:x86_64-1.16.1-rolling-daily
+FROM kasmweb/core-ubuntu-focal:x86_64-1.16.1
 USER root
 
 ENV HOME /home/kasm-default-profile
@@ -29,8 +30,8 @@ RUN	apt-get update && apt-get install -yq itksnap
 #     && chmod +x $HOME/Desktop/sublime_text.desktop \
 #     && chown 1000:1000 $HOME/Desktop/sublime_text.desktop
 
-# RUN echo "/usr/bin/desktop_ready && /opt/itksnap/bin/itksnap &" > $STARTUPDIR/custom_startup.sh \
-# && chmod +x $STARTUPDIR/custom_startup.sh
+RUN echo "/usr/bin/desktop_ready && itksnap &" > $STARTUPDIR/custom_startup.sh \
+&& chmod +x $STARTUPDIR/custom_startup.sh
 
 
 ######### End Customizations ###########
