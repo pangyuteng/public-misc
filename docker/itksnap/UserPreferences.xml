@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE registry [
+<!ELEMENT registry (entry*,folder*)>
+<!ELEMENT folder (entry*,folder*)>
+<!ELEMENT entry EMPTY>
+<!ATTLIST folder key CDATA #REQUIRED>
+<!ATTLIST entry key CDATA #REQUIRED>
+<!ATTLIST entry value CDATA #REQUIRED>
+]>
+<registry>
+  <folder key="IOHistory" >
+    <folder key="MainImage" >
+      <entry key="ArraySize" value="0" />
+    </folder>
+    <folder key="Project" >
+      <entry key="ArraySize" value="0" />
+    </folder>
+  </folder>
+  <folder key="SliceView" >
+    <folder key="DisplaySettings" >
+      <entry key="FlagDisplayZoomThumbnail" value="1" />
+      <entry key="FlagLayoutPatientAnteriorShownLeft" value="1" />
+      <entry key="FlagLayoutPatientRightShownLeft" value="1" />
+      <entry key="GreyInterpolationMode" value="NearestNeighbor" />
+      <entry key="LayerLayout" value="Stacked" />
+      <entry key="SliceLayout" value="ASC" />
+      <entry key="ZoomThumbnailMaximumSize" value="160" />
+      <entry key="ZoomThumbnailSizeInPercent" value="30" />
+    </folder>
+  </folder>
+  <folder key="System" >
+    <entry key="CreatedBySNAPVersion" value="20170401" />
+  </folder>
+  <folder key="UserInterface" >
+    <folder key="Appearance" >
+      <folder key="UserInterfaceElement[BACKGROUND_2D]" >
+        <entry key="NormalColor" value="0 0 0" />
+      </folder>
+      <folder key="UserInterfaceElement[BACKGROUND_3D]" >
+        <entry key="NormalColor" value="0 0 0" />
+      </folder>
+      <folder key="UserInterfaceElement[CROSSHAIRS]" >
+        <entry key="AlphaBlending" value="0" />
+        <entry key="DashSpacing" value="1" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="0.3 0.3 1" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[CROSSHAIRS_3D]" >
+        <entry key="AlphaBlending" value="1" />
+        <entry key="DashSpacing" value="1" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="0.3 0.3 1" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[CROSSHAIRS_THUMB]" >
+        <entry key="AlphaBlending" value="0" />
+        <entry key="DashSpacing" value="1" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="0.3 0.3 1" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[GRID_LINES]" >
+        <entry key="AlphaBlending" value="1" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="1 1 0" />
+      </folder>
+      <folder key="UserInterfaceElement[IMAGE_BOX_3D]" >
+        <entry key="ActiveColor" value="0.4 0.4 0.4" />
+        <entry key="AlphaBlending" value="0" />
+        <entry key="DashSpacing" value="1" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="0.2 0.2 0.2" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[MARKERS]" >
+        <entry key="AlphaBlending" value="0" />
+        <entry key="FontSize" value="16" />
+        <entry key="NormalColor" value="1 0.75 0" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[PAINTBRUSH_OUTLINE]" >
+        <entry key="AlphaBlending" value="1" />
+        <entry key="FontSize" value="12" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="0.3 1 0" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[POLY_DRAW_CLOSE]" >
+        <entry key="AlphaBlending" value="1" />
+        <entry key="DashSpacing" value="1" />
+        <entry key="LineThickness" value="2" />
+        <entry key="NormalColor" value="1 0 0.5" />
+        <entry key="Visible" value="0" />
+      </folder>
+      <folder key="UserInterfaceElement[POLY_DRAW_MAIN]" >
+        <entry key="AlphaBlending" value="1" />
+        <entry key="DashSpacing" value="0" />
+        <entry key="LineThickness" value="2" />
+        <entry key="NormalColor" value="1 0 0.5" />
+      </folder>
+      <folder key="UserInterfaceElement[POLY_EDIT]" >
+        <entry key="ActiveColor" value="0 1 0" />
+        <entry key="AlphaBlending" value="1" />
+        <entry key="DashSpacing" value="0" />
+        <entry key="LineThickness" value="2" />
+        <entry key="NormalColor" value="1 0 0" />
+      </folder>
+      <folder key="UserInterfaceElement[REGISTRATION_GRID]" >
+        <entry key="AlphaBlending" value="1" />
+        <entry key="DashSpacing" value="0" />
+        <entry key="LineThickness" value="0.5" />
+        <entry key="NormalColor" value="0.8 0.8 0.8" />
+      </folder>
+      <folder key="UserInterfaceElement[REGISTRATION_WIDGETS]" >
+        <entry key="ActiveColor" value="1 1 0.4" />
+        <entry key="AlphaBlending" value="1" />
+        <entry key="DashSpacing" value="0" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="1 1 1" />
+      </folder>
+      <folder key="UserInterfaceElement[ROI_BOX]" >
+        <entry key="ActiveColor" value="1 1 0.2" />
+        <entry key="AlphaBlending" value="0" />
+        <entry key="DashSpacing" value="3" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="1 0 0.2" />
+      </folder>
+      <folder key="UserInterfaceElement[ROI_BOX_3D]" >
+        <entry key="ActiveColor" value="1 1 0.2" />
+        <entry key="AlphaBlending" value="0" />
+        <entry key="DashSpacing" value="3" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="1 0 0.2" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[RULER]" >
+        <entry key="ActiveColor" value="1 1 0.2" />
+        <entry key="AlphaBlending" value="0" />
+        <entry key="DashSpacing" value="1" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="1 0 0.2" />
+        <entry key="Visible" value="1" />
+      </folder>
+      <folder key="UserInterfaceElement[ZOOM_THUMBNAIL]" >
+        <entry key="ActiveColor" value="1 1 1" />
+        <entry key="AlphaBlending" value="0" />
+        <entry key="DashSpacing" value="0" />
+        <entry key="LineThickness" value="1" />
+        <entry key="NormalColor" value="1 1 0" />
+        <entry key="Visible" value="1" />
+      </folder>
+    </folder>
+    <folder key="DefaultBehavior" >
+      <entry key="AutoContrast" value="0" />
+      <entry key="CheckForUpdates" value="No" />
+      <entry key="ContinuousMeshUpdate" value="0" />
+      <entry key="LinkedZoom" value="1" />
+      <entry key="OverlayColorMapPreset" value="Grayscale" />
+      <entry key="OverlayLayout" value="Stacked" />
+      <entry key="SyncCursor" value="1" />
+      <entry key="SyncPan" value="1" />
+      <entry key="SyncZoom" value="1" />
+      <entry key="Synchronization" value="1" />
+    </folder>
+  </folder>
+  <folder key="View3D" >
+    <folder key="MeshOptions" >
+      <entry key="DecimateFeatureAngle" value="45" />
+      <entry key="DecimateMaximumError" value="0.002" />
+      <entry key="DecimatePreserveTopology" value="1" />
+      <entry key="DecimateTargetReduction" value="0.95" />
+      <entry key="GaussianError" value="0.03" />
+      <entry key="GaussianStandardDeviation" value="0.8" />
+      <entry key="MeshSmoothingBoundarySmoothing" value="0" />
+      <entry key="MeshSmoothingConvergence" value="0" />
+      <entry key="MeshSmoothingFeatureAngle" value="45" />
+      <entry key="MeshSmoothingFeatureEdgeSmoothing" value="0" />
+      <entry key="MeshSmoothingIterations" value="20" />
+      <entry key="MeshSmoothingRelaxationFactor" value="0.01" />
+      <entry key="UseDecimation" value="0" />
+      <entry key="UseGaussianSmoothing" value="1" />
+      <entry key="UseMeshSmoothing" value="0" />
+    </folder>
+  </folder>
+</registry>
