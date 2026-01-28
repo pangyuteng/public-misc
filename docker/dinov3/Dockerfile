@@ -7,6 +7,7 @@ WORKDIR /opt/dinov3
 RUN python setup.py install
 RUN pip install "transformers[torch]"
 
+ENV HF_HOME=/opt/.huggingface
 RUN mkdir -p /opt/.huggingface && chmod 777 -R /opt/.huggingface
-COPY hola.py /opt
-RUN --mount=type=secret,id=hf,env=HF_TOKEN python /opt/hola.py
+COPY cache_weights.py /opt
+RUN --mount=type=secret,id=hf,env=HF_TOKEN python /opt/cache_weights.py
