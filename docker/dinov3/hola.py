@@ -12,7 +12,7 @@ feature_extractor = pipeline(
     task="image-feature-extraction", 
 )
 features = feature_extractor(image)
-print(features.shape)
+#print(features.shape)
 
 """
 
