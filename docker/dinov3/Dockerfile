@@ -6,3 +6,5 @@ RUN git clone https://github.com/facebookresearch/dinov3.git
 WORKDIR /opt/dinov3
 RUN python setup.py install
 RUN pip install "transformers[torch]"
+
+RUN mkdir -p /opt/.huggingface && chmod 777 -R /opt/.huggingface
