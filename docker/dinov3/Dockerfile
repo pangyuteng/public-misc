@@ -11,3 +11,6 @@ ENV HF_HOME=/opt/.huggingface
 RUN mkdir -p /opt/.huggingface && chmod 777 -R /opt/.huggingface
 COPY cache_weights.py /opt
 RUN --mount=type=secret,id=hf,env=HF_TOKEN python /opt/cache_weights.py
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
