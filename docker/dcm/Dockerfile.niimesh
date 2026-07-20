@@ -6,8 +6,11 @@ RUN apt-get update \
     wkhtmltopdf
 
 RUN python -m pip install --upgrade pip
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 RUN pip install vtk-osmesa --extra-index-url https://gitlab.kitware.com/api/v4/projects/13/packages/pypi/simple
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+WORKDIR /opt
+RUN git clone https://github.com/neurolabusc/nii2mesh
+RUN cd nii2mesh/src && make && mv /opt/nii2mesh/src/nii2mesh /usr/bin

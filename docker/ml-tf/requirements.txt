@@ -1,7 +1,7 @@
 scikit-learn>=0.23.2
 seaborn>=0.11.0
 opentsne>=0.4.0
-SimpleITK>=2.2.0
+SimpleITK==2.2.0
 scikit-image>=0.21.0
 scipy>=1.10.1
 pydicom>=2.1.2
@@ -16,3 +16,6 @@ numba>=0.58.1
 huggingface_hub>=0.26.5
 tabulate>=0.9.0
 openpyxl>=3.1.5
+itk>=5.4.4
+vtk>=9.5.2
+pyvista[jupyter]
